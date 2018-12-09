@@ -17,9 +17,9 @@ class Car:
 
         Parameters
         __________
-        :param position:        array, double:              2D coordinates
-        :param velocity:        array, double:              2D components
-        :param acceleration:    array, double:              2D components
+        :param position:        tuple, double:              2D coordinates
+        :param velocity:        tuple, double:              2D components
+        :param acceleration:    tuple, double:              2D components
         :param front_view:      double:                     distance to next obstacle
         :param destination:     graph node ID, integer:     node ID from graphml graph
         """
@@ -45,20 +45,12 @@ class Car:
 
         return
 
-    def get_path(self):
-        # send your location to the nav and return a path to your destination
-        lines = nav.shortest_path_nx(self.position, self.destination)
-        path = models.path_decompiler(lines)
-        return path
-
     def front_view(self):
-        
+        path = nav.get_path(self)
+        next_graph_node = path[1]
+        # distance_to_next_node =
 
-
-    def new_velocity(self, dt, G):
-
-
-
+        return 0
 
 
 class State:

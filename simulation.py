@@ -6,6 +6,7 @@ import networkx as nx
 import pandas as pd
 
 import navigation as nav
+import cars
 
 
 # fill the initial state with N cars
@@ -27,12 +28,12 @@ def init_culdesac_start_location(N):
     _______
     :return cars:   array:  [dict, ...]
     """
-    culdesacs = [key for key, value in G.graph['streets_per_node'].items() if value == 1]
+    culdesacs = nav.find_culdesacs()
     cars = []
 
     for i in range(N):
         start_node = culdesacs[i]
-        position = nav.get_position(start_node)
+        position = nav.get_position_of_node(start_node)
 
         cars.append(
             {'position': position,
@@ -48,4 +49,4 @@ def init_culdesac_start_location(N):
 
 cars_dict = init_culdesac_start_location(N)
 cars_df = pd.DataFrame(cars_dict)
-cars_state = cars.State(cars_df)
+# cars_state = cars.State(cars_df)
