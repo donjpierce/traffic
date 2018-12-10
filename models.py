@@ -35,7 +35,7 @@ def path_decompiler(lines):
         else:
             clean_path.append(path[i])
 
-    return path
+    return clean_path
 
 
 def upcoming_vectors(view):
@@ -49,7 +49,7 @@ def upcoming_vectors(view):
         if i < len(view) - 1:
             vectors.append(np.array([view[i + 1][0] - view[i][0], view[i + 1][1] - view[i][1]]) /
                            math.sqrt(np.dot(view[i], view[i + 1])))
-    return vectors
+    return np.array(vectors)
 
 
 def get_angles(view):
@@ -74,7 +74,7 @@ def get_distances(view):
     :return: distances: list: list of the next distances between upcoming nodes on the road
     """
     vectors = upcoming_vectors(view)
-    distances = [np.dot(vector, vector) for vector in vectors]
+    distances = [np.sqrt(vector.dot(vector)) for vector in vectors]
     return distances
 
 

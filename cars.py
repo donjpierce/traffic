@@ -10,24 +10,21 @@ import simulation as sim
 import models
 
 
-class Car:
-    def __init__(self, position, velocity, acceleration, front_view, destination):
+class Cars:
+    def __init__(self, init_state):
         """
         car objects are be used for accessing and updating each car's parameters
 
         Parameters
         __________
-        :param position:        tuple, double:              2D coordinates
-        :param velocity:        tuple, double:              2D components
-        :param acceleration:    tuple, double:              2D components
-        :param front_view:      double:                     distance to next obstacle
-        :param destination:     graph node ID, integer:     node ID from graphml graph
+        :param init_state: dataframe:    each entry in the dataframe is a car
         """
-        self.position = position
-        self.velocity = velocity
-        self.acceleration = acceleration
-        self.front_view = front_view
-        self.destination = destination
+        self.init_state = init_state
+        self.state = self.init_state.copy()
+        self.time_elapsed = 0
+        self.positions = self.state['position']
+        self.velocities = self.state['velocity']
+        self.accelerations = self.state['acceleration']
 
     def update(self, dt):
         """
@@ -42,41 +39,19 @@ class Car:
         _______
         :return:
         """
+        self.time_elapsed += dt
 
-        return
+        for car in self.state:
+            speed_factor = sim.update_speed_factor(car)
+            velocity = car['velocity']
+            position = car['position']
+            acceleration = car['acceleration']
 
-    def front_view(self):
-        path = nav.get_path(self)
-        next_graph_node = path[1]
-        # distance_to_next_node =
+
+
+            car['acceleration'] =
 
         return 0
-
-
-class State:
-    def __init__(self, state):
-        """
-        the state is the description of all cars and is updated each time step
-
-        Parameters
-        __________
-        :param state: dataframe
-        """
-        self.state = state
-        self.elapsed_time = 0
-
-    def update(self, dt):
-        """
-        update state by dt time step
-
-        Parameters
-        __________
-        :param dt: float
-
-        Return
-        :return:
-        """
-        self.elapsed_time += dt
 
 
 

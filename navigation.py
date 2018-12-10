@@ -4,11 +4,9 @@ and thus contains methods for updating car position and finding path to car dest
 also contains methods for locating cars and intersections in the front_view
 and calculating the curvature of the bend in the road for speed adjustments
 """
-import numpy as np
-import osmnx as ox
-import networkx as nx
-
 import models
+import networkx as nx
+import osmnx as ox
 
 
 G = ox.load_graphml('piedmont.graphml')
@@ -25,12 +23,17 @@ def get_path(car):
     return path
 
 
-class Obstacles:
-    def __init__(self, angles, distances, car, obstacle_cars, look_ahead_nodes=5):
-        self.angles = angles
-        self.distances = distances
+class FrontView:
+    def __init__(self, car, look_ahead_nodes=3):
+        """
+        take a car object and determines the obstacles it faces in its front_view
+        :param car:
+        :param look_ahead_nodes:
+        """
         self.car = car
-        self.obstacle_cars = obstacle_cars
+        self.angles = 0
+        self.distances = 0
+        self.obstacle_cars = 0
         self.look_ahead_nodes = look_ahead_nodes
 
     def upcoming_angles(self):
@@ -72,26 +75,29 @@ def get_position_of_node(node):
     :param node:      graphml node ID
     :return position: array:    [latitude, longitude]
     """
-    position = (G.nodes[node]['x'], G.nodes[node]['y'])
+    # note that the x and y coordinates of the G.nodes are flipped
+    # this is possibly an issue with the omnx G.load_graphml method
+    # a correction is to make the position tuple be (y, x) as below
+    position = (G.nodes[node]['y'], G.nodes[node]['x'])
     return position
 
 
-def shortest_path_lines_nx(Car):
+def shortest_path_lines_nx(car):
     """
     uses the default shortest path algorithm available through networkx
 
     Parameters
     __________
-    :param Car: object
+    :param car: dict
 
     Returns
     _______
-    :return lines:      list:   [(double, double), ...]:   each tuple represents the bend-point in a straight road
+    :return lines: list: [(double, double), ...]:   each tuple represents the bend-point in a straight road
     """
 
-    origin = ox.utils.get_nearest_node(G, Car.position)
+    origin = ox.utils.get_nearest_node(G, car['position'])
 
-    route = nx.shortest_path(G, origin, Car.destination, weight='length')
+    route = nx.shortest_path(G, origin, car['destination'], weight='length')
 
     # find the route lines
     edge_nodes = list(zip(route[:-1], route[1:]))

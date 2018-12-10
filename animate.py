@@ -1,4 +1,4 @@
-from matplotlib import animation
+from cars import Cars
 
 
 def animate(i):
