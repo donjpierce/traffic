@@ -52,10 +52,13 @@ def road_curvature_factor(theta, d):
     :param         theta: double:  angle of road curvature ahead
     :return speed_factor: double:  factor by which to diminish speed
     """
-    if (0 < d) and (d < free_distance):
-        curvature_factor = math.log(d) / math.log(free_distance) * math.sin(theta) + math.cos(theta)
-    else:
+    if theta == 0:
         curvature_factor = 1
+    else:
+        if (0 < d) and (d < free_distance):
+            curvature_factor = math.log(d / (2 * theta / math.pi)) / math.log(free_distance / (2 * theta / math.pi))
+        else:
+            curvature_factor = 1
     return curvature_factor
 
 
