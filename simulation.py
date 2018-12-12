@@ -26,7 +26,6 @@ def update_velocity(car):
     next_node = np.array(obstacles.upcoming_node_position())
     position = np.array(car['position'])
     velocity_vector = next_node - position
-    print(velocity_vector)
     velocity = velocity_vector * update_speed_factor(car)
     return velocity
 
@@ -104,13 +103,12 @@ def init_culdesac_start_location(N):
     for i in range(N):
         start_node = culdesacs[i]
         position = nav.get_position_of_node(start_node)
-
         cars.append(
             {'position': position,
              'velocity': np.array([0, 0]),
              'acceleration': np.array([0, 0]),
              'front-view': {'distance-to-car': 0, 'distance-to-node': 0},
-             'destination': TEMP_dest_node
+             'destination': TEMP_dest_node,
              }
         )
 

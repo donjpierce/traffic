@@ -17,6 +17,7 @@ G = ox.project_graph(G)
 def get_path(car):
     """
     compiles a list of tuples which represents a route
+
     :param car: dict
     :return path: list where each entry is a tuple of tuples
     """
