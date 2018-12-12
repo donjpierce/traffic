@@ -4,7 +4,6 @@ Description of module...
 import math
 import navigation as nav
 import numpy as np
-import pandas as pd
 
 
 # fill the initial state with N cars
@@ -27,6 +26,7 @@ def update_velocity(car):
     next_node = np.array(obstacles.upcoming_node_position())
     position = np.array(car['position'])
     velocity_vector = next_node - position
+    print(velocity_vector)
     velocity = velocity_vector * update_speed_factor(car)
     return velocity
 

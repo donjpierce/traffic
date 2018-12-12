@@ -5,7 +5,6 @@ Traffic lights when color=red are obstacles just like cars
 Cars slow down exponentially as radius of road curvature gets smaller
 Cars slow down for obstacles exponentially as obstacles get closer, and stop at stop_distance
 """
-import navigation as nav
 import simulation as sim
 
 
