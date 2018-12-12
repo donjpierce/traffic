@@ -8,24 +8,12 @@ import pandas as pd
 
 
 # fill the initial state with N cars
-N = 1
-dt = 1/1000
 speed_limit = 30e-6
 stop_distance = 3.0e-6
 free_distance = 5.0e-6
 default_acceleration = 3.0e-6
 
 TEMP_dest_node = 53028190
-
-
-def update_position(car):
-    """
-
-    :param car:
-    :return:
-    """
-
-
 
 
 def update_velocity(car):
@@ -93,7 +81,7 @@ def car_obstacle_factor(d):
     return obstacle_factor
 
 
-def init_culdesac_start_location(N=1):
+def init_culdesac_start_location(N):
     """
     initializes N cars into N culdesacs
 
@@ -127,9 +115,3 @@ def init_culdesac_start_location(N=1):
         )
 
     return cars
-
-
-cars_dict = init_culdesac_start_location(N)
-cars_df = pd.DataFrame(cars_dict)
-
-

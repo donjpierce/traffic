@@ -16,7 +16,8 @@ def angle_between(v1, v2):
 
 def path_decompiler(lines):
     """
-    decompiles a path from its geometry configuration into a pure list of tuples
+    Decompiles a path from its geometry configuration into a pure list of tuples
+
     :param  lines:      list in geometric form according to osmnx 'geometry' feature
     :return new_path:   list of tuples
     """

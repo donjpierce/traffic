@@ -17,7 +17,7 @@ G = ox.project_graph(G)
 def get_path(car):
     """
     compiles a list of tuples which represents a route
-    :param car: object
+    :param car: dict
     :return path: list where each entry is a tuple of tuples
     """
     lines = shortest_path_lines_nx(car)
@@ -29,7 +29,8 @@ class FrontView:
     def __init__(self, car, look_ahead_nodes=3):
         """
         take a car object and determines the obstacles it faces in its front_view
-        :param car:
+
+        :param car: dict
         :param look_ahead_nodes:
         """
         self.car = car
@@ -43,6 +44,7 @@ class FrontView:
     def upcoming_angles(self):
         """
         Determines the road curvature immediately 5 nodes ahead ahead
+
         :return: angles_in_view:   list: list of 3 angles corresponding to the 5-node curve
         """
         angles_in_view = models.get_angles(self.view)
@@ -52,6 +54,7 @@ class FrontView:
     def upcoming_distances(self):
         """
         Determines the distances to the next 5 nodes
+
         :return: distances_to_nodes:    list:   list of 4 distances corresponding to the 5-nodes ahead
         """
         distances_in_view = models.get_distances(self.view)
@@ -60,10 +63,11 @@ class FrontView:
 
     def upcoming_node_position(self):
         """
-        Determins the coordinates of the next nodes in view
+        Determines the coordinates of the next nodes in view
+
         :return view: list of node coordinates in view
         """
-        return self.view[0]
+        return self.view[1]
 
 
 def find_culdesacs():
@@ -79,6 +83,7 @@ def find_culdesacs():
 def get_position_of_node(node):
     """
     Get latitude and longitude given node ID
+
     :param node:      graphml node ID
     :return position: array:    [latitude, longitude]
     """
@@ -99,11 +104,12 @@ def shortest_path_lines_nx(car):
 
     Returns
     _______
-    :return lines: list: [(double, double), ...]:   each tuple represents the bend-point in a straight road
+    :return lines: list:
+        [(double, double), ...]:   each tuple represents the bend-point in a straight road
     """
 
-    origin = ox.utils.get_nearest_node(G, car['position'])
-
+    yx_car_position = (car['position'][1], car['position'][0])
+    origin = ox.utils.get_nearest_node(G, yx_car_position)
     route = nx.shortest_path(G, origin, car['destination'], weight='length')
 
     # find the route lines
