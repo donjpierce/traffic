@@ -3,6 +3,7 @@ Description of module...
 """
 import math
 import navigation as nav
+import numpy as np
 import pandas as pd
 
 
@@ -14,11 +15,10 @@ stop_distance = 3.0e-6
 free_distance = 5.0e-6
 default_acceleration = 3.0e-6
 
-TEMP_origin_node = 53028190
-TEMP_dest_node = 53035698
+TEMP_dest_node = 53028190
 
 
-def update_velocity(car):
+def update_position(car):
     """
 
     :param car:
@@ -26,22 +26,34 @@ def update_velocity(car):
     """
 
 
-# def update_acceleration(car):
-#     obstacles = nav.FrontView(car)
-#     distances = obstacles.upcoming_distances()
-    # acceleration =
+
+
+def update_velocity(car):
+    """
+    updates velocity according to the forward Euler method
+
+    :param       car:   object
+    :return velocity:     list
+    """
+    obstacles = nav.FrontView(car)
+    next_node = np.array(obstacles.upcoming_node_position())
+    position = np.array(car['position'])
+    velocity_vector = next_node - position
+    velocity = velocity_vector * update_speed_factor(car)
+    return velocity
 
 
 def update_speed_factor(car):
     """
     handles logic for updating speed according to road curvature and car obstacles
+
     :param            car: dict
     :return: speed_factor: double
     """
     obstacles = nav.FrontView(car)
     angles = obstacles.upcoming_angles()
     distances = obstacles.upcoming_distances()
-    obstacle_factor = car_obstacle_factor(distances[0])  # for later use with car obstacles
+    car_factor = car_obstacle_factor(distances[0])  # for later use with car obstacles
     speed_factor = road_curvature_factor(angles[0], distances[0])
     return speed_factor
 
@@ -49,7 +61,9 @@ def update_speed_factor(car):
 def road_curvature_factor(theta, d):
     """
     calculates the speed factor (between 0 and 1) for road curvature
+
     :param         theta: double:  angle of road curvature ahead
+    :param             d: double:  distance from car to next node
     :return speed_factor: double:  factor by which to diminish speed
     """
     if theta == 0:
@@ -65,6 +79,7 @@ def road_curvature_factor(theta, d):
 def car_obstacle_factor(d):
     """
     function to update speed for a car in the front_view
+
     :param      d: double:   distance to car in front_view
     :return speed: double:  new speed
     """
@@ -78,7 +93,7 @@ def car_obstacle_factor(d):
     return obstacle_factor
 
 
-def init_culdesac_start_location(N):
+def init_culdesac_start_location(N=1):
     """
     initializes N cars into N culdesacs
 
@@ -102,12 +117,11 @@ def init_culdesac_start_location(N):
         start_node = culdesacs[i]
         position = nav.get_position_of_node(start_node)
 
-
         cars.append(
             {'position': position,
-             'velocity': (0, 0),
-             'acceleration': (0, 0),
-             'front-view': {'distance-to-car': 10, 'distance-to-node': 0},
+             'velocity': np.array([0, 0]),
+             'acceleration': np.array([0, 0]),
+             'front-view': {'distance-to-car': 0, 'distance-to-node': 0},
              'destination': TEMP_dest_node
              }
         )

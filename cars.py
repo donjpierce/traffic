@@ -7,7 +7,6 @@ Cars slow down for obstacles exponentially as obstacles get closer, and stop at 
 """
 import navigation as nav
 import simulation as sim
-import models
 
 
 class Cars:
@@ -22,9 +21,8 @@ class Cars:
         self.init_state = init_state
         self.state = self.init_state.copy()
         self.time_elapsed = 0
-        self.positions = self.state['position']
-        self.velocities = self.state['velocity']
-        self.accelerations = self.state['acceleration']
+        self.distance_to_car = 0
+        self.distance_to_node = 0
 
     def update(self, dt):
         """
@@ -42,16 +40,11 @@ class Cars:
         self.time_elapsed += dt
 
         for car in self.state:
-            speed_factor = sim.update_speed_factor(car)
-            velocity = car['velocity']
             position = car['position']
-            acceleration = car['acceleration']
+            car['velocity'] = sim.update_velocity(car)
+            car['position'] = position + car['velocity'] * dt
 
-
-
-            car['acceleration'] =
-
-        return 0
+        return self.state
 
 
 

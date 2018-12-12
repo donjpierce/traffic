@@ -6,10 +6,12 @@ and calculating the curvature of the bend in the road for speed adjustments
 """
 import models
 import networkx as nx
+import numpy as np
 import osmnx as ox
 
 
 G = ox.load_graphml('piedmont.graphml')
+G = ox.project_graph(G)
 
 
 def get_path(car):
@@ -34,29 +36,34 @@ class FrontView:
         self.angles = 0
         self.distances = 0
         self.obstacle_cars = 0
+        self.path = get_path(self.car)
         self.look_ahead_nodes = look_ahead_nodes
+        self.view = [self.path[i] for i in range(self.look_ahead_nodes)]
 
     def upcoming_angles(self):
         """
         Determines the road curvature immediately 5 nodes ahead ahead
-        :param              self: object:
         :return: angles_in_view:   list: list of 3 angles corresponding to the 5-node curve
         """
-        path = get_path(self.car)
-        view = [path[i] for i in range(self.look_ahead_nodes)]
-        angles_in_view = models.get_angles(view)
+        angles_in_view = models.get_angles(self.view)
+        self.angles = angles_in_view
         return angles_in_view
 
     def upcoming_distances(self):
         """
         Determines the distances to the next 5 nodes
-        :param                  self:  object:
         :return: distances_to_nodes:    list:   list of 4 distances corresponding to the 5-nodes ahead
         """
-        path = get_path(self.car)
-        view = [path[i] for i in range(self.look_ahead_nodes)]
-        distances_in_view = models.get_distances(view)
+        distances_in_view = models.get_distances(self.view)
+        self.distances = distances_in_view
         return distances_in_view
+
+    def upcoming_node_position(self):
+        """
+        Determins the coordinates of the next nodes in view
+        :return view: list of node coordinates in view
+        """
+        return self.view[0]
 
 
 def find_culdesacs():
@@ -78,7 +85,7 @@ def get_position_of_node(node):
     # note that the x and y coordinates of the G.nodes are flipped
     # this is possibly an issue with the omnx G.load_graphml method
     # a correction is to make the position tuple be (y, x) as below
-    position = (G.nodes[node]['y'], G.nodes[node]['x'])
+    position = np.array([G.nodes[node]['x'], G.nodes[node]['y']])
     return position
 
 
