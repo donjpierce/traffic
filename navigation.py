@@ -61,21 +61,13 @@ class FrontView:
         x_space = space[0]
         y_space = space[1]
 
-        #  TOFIX:   rtol should be a function of distance between nodes
-        #           if distance between nodes is short, then rtol should be small
-        #           if distance between nodes is long, then rtol should be larger
-        #           This is in effort to fix the case when a car is not determined to be
-        #           in a linspace because the array is widely-spaced-out (i.e. long road)
-        #           and the case when a car is determined to be on a different road because
-        #           the roads are very close to each other (i.e. short road with large theta)
-        car_near_xlinspace = np.isclose(x_space, self.car['position'][0], rtol=0.01).any()
-        car_near_ylinspace = np.isclose(y_space, self.car['position'][1], rtol=0.01).any()
+        car_within_xlinspace = np.isclose(x_space, self.car['position'][0], rtol=0.01).any()
+        car_within_ylinspace = np.isclose(y_space, self.car['position'][1], rtol=0.01).any()
 
-        if car_near_xlinspace and car_near_ylinspace:
+        if car_within_xlinspace and car_within_ylinspace:
             return self.view[1]
         else:
             return self.view[0]
-
 
 
 def find_culdesacs():

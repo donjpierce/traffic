@@ -14,7 +14,7 @@ fig, ax = ox.plot_graph(G)
 ax.set_title('Piedmont, California')
 
 # initialize empty particle points for animation
-cars = sum([ax.plot([], [], 'ro', ms=5) for n in np.arange(N)], [])
+cars = sum([ax.plot([], [], 'ro', ms=3) for n in np.arange(N)], [])
 state = Cars(sim.init_culdesac_start_location(N))
 
 
