@@ -20,8 +20,6 @@ class Cars:
         self.init_state = init_state
         self.state = self.init_state.copy()
         self.time_elapsed = 0
-        self.distance_to_car = 0
-        self.distance_to_node = 0
 
     def update(self, dt):
         """
@@ -39,6 +37,7 @@ class Cars:
         self.time_elapsed += dt
 
         for car in self.state:
+            car['path'] = sim.update_path(car)
             position = car['position']
             car['velocity'] = sim.update_velocity(car)
             car['position'] = position + car['velocity'] * dt

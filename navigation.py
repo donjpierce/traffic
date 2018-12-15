@@ -14,18 +14,6 @@ G = ox.load_graphml('piedmont.graphml')
 G = ox.project_graph(G)
 
 
-def get_path(car):
-    """
-    compiles a list of tuples which represents a route
-
-    :param car: dict
-    :return path: list where each entry is a tuple of tuples
-    """
-    lines = shortest_path_lines_nx(car)
-    path = models.path_decompiler(lines)
-    return path
-
-
 class FrontView:
     def __init__(self, car, look_ahead_nodes=3):
         """
@@ -66,9 +54,15 @@ class FrontView:
         """
         Determines the coordinates of the next nodes in view
 
-        :return view: list of node coordinates in view
+        :return view[1]: returns node in path next to the one the car is nearest to
         """
-        return self.view[1]
+
+        nearest_node = self.view[0]
+        next_node = self.view[1]
+
+        
+
+        return
 
 
 def find_culdesacs():
@@ -93,6 +87,18 @@ def get_position_of_node(node):
     # a correction is to make the position tuple be (y, x) as below
     position = np.array([G.nodes[node]['x'], G.nodes[node]['y']])
     return position
+
+
+def get_path(car):
+    """
+    compiles a list of tuples which represents a route
+
+    :param car: dict
+    :return path: list where each entry is a tuple of tuples
+    """
+    lines = shortest_path_lines_nx(car)
+    path = models.path_decompiler(lines)
+    return path
 
 
 def shortest_path_lines_nx(car):

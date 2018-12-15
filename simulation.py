@@ -80,13 +80,14 @@ def car_obstacle_factor(d):
     return obstacle_factor
 
 
-def init_culdesac_start_location(N):
+
+def init_culdesac_start_location(n):
     """
     initializes N cars into N culdesacs
 
     Parameters
     __________
-    :param     N:   int
+    :param     n:   int
 
     Returns
     _______
@@ -94,13 +95,13 @@ def init_culdesac_start_location(N):
     """
     culdesacs = nav.find_culdesacs()
 
-    if N > len(culdesacs):
+    if n > len(culdesacs):
         raise ValueError('Number of cars greater than culdesacs to place them. '
                          'Choose a number less than {}'.format(len(culdesacs)))
 
     cars = []
 
-    for i in range(N):
+    for i in range(n):
         start_node = culdesacs[i]
         position = nav.get_position_of_node(start_node)
         cars.append(
@@ -111,5 +112,7 @@ def init_culdesac_start_location(N):
              'destination': TEMP_dest_node,
              }
         )
+        cars[i]['path'] = nav.get_init_path(cars[i])
+        cars[i]['front-view']['distance-to-node'] = nav.FrontView(cars[i]).upcoming_distances()[0]
 
     return cars
