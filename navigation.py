@@ -60,6 +60,13 @@ class FrontView:
         nearest_node = self.view[0]
         next_node = self.view[1]
 
+        """
+            identify if car position is near any point between nearest_node and
+            next_node within some tolerance.
+            
+            if the above is True then return next_node
+            if the above is False then return nearest_node
+        """
         
 
         return
