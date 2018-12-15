@@ -39,6 +39,22 @@ def path_decompiler(lines):
     return clean_path
 
 
+def upcoming_linspace(view):
+    """
+    this function returns a 2D linspace between the next two nodes in the view
+
+    :param   view:  list: list of n upcoming nodes
+    :return space: tuple: of np.arrays
+    """
+    nearest_node = view[0]
+    next_node = view[1]
+    nx, ny = (50, 50)
+    x = np.linspace(nearest_node[0], next_node[0], nx)
+    y = np.linspace(nearest_node[1], next_node[1], ny)
+    space = (x, y)
+    return space
+
+
 def upcoming_vectors(view):
     """
     determines the vectors between the nodes in a view

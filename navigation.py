@@ -52,24 +52,30 @@ class FrontView:
 
     def upcoming_node_position(self):
         """
-        Determines the coordinates of the next nodes in view
+        Determines the coordinates of the next node in view
 
-        :return view[1]: returns node in path next to the one the car is nearest to
+        :return view: tuple: returns upcoming node coords in the path
         """
 
-        nearest_node = self.view[0]
-        next_node = self.view[1]
+        space = models.upcoming_linspace(self.view)
+        x_space = space[0]
+        y_space = space[1]
 
-        """
-            identify if car position is near any point between nearest_node and
-            next_node within some tolerance.
-            
-            if the above is True then return next_node
-            if the above is False then return nearest_node
-        """
-        
+        #  TOFIX:   rtol should be a function of distance between nodes
+        #           if distance between nodes is short, then rtol should be small
+        #           if distance between nodes is long, then rtol should be larger
+        #           This is in effort to fix the case when a car is not determined to be
+        #           in a linspace because the array is widely-spaced-out (i.e. long road)
+        #           and the case when a car is determined to be on a different road because
+        #           the roads are very close to each other (i.e. short road with large theta)
+        car_near_xlinspace = np.isclose(x_space, self.car['position'][0], rtol=0.01).any()
+        car_near_ylinspace = np.isclose(y_space, self.car['position'][1], rtol=0.01).any()
 
-        return
+        if car_near_xlinspace and car_near_ylinspace:
+            return self.view[1]
+        else:
+            return self.view[0]
+
 
 
 def find_culdesacs():

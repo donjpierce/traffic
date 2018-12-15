@@ -15,6 +15,10 @@ default_acceleration = 3.0e-6
 TEMP_dest_node = 53028190
 
 
+def update_path(car):
+
+
+
 def update_velocity(car):
     """
     updates velocity according to the forward Euler method
@@ -80,7 +84,6 @@ def car_obstacle_factor(d):
     return obstacle_factor
 
 
-
 def init_culdesac_start_location(n):
     """
     initializes N cars into N culdesacs
@@ -112,7 +115,7 @@ def init_culdesac_start_location(n):
              'destination': TEMP_dest_node,
              }
         )
-        cars[i]['path'] = nav.get_init_path(cars[i])
+        cars[i]['path'] = nav.get_path(cars[i])
         cars[i]['front-view']['distance-to-node'] = nav.FrontView(cars[i]).upcoming_distances()[0]
 
     return cars
