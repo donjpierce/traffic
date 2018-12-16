@@ -39,8 +39,7 @@ class Cars:
         for car in self.state:
             car['path'] = sim.update_path(car)
             car['velocity'] = sim.update_velocity(car)
-            position = car['position']
-            car['position'] = position + car['velocity'] * dt
+            car['position'] = car['position'] + car['velocity'] * dt
 
         return self.state
 

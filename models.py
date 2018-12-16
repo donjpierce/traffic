@@ -52,8 +52,8 @@ def linspace(car):
     :return space: tuple: tuple of np.arrays
     """
     current_node, next_node = car['path'][0], car['path'][1]
-    x_distance_between = abs(next_node[0] - current_node[0])
-    y_distance_between = abs(next_node[1] - current_node[1])
+    x_distance_between = abs(next_node[0] - current_node[0]) * 10
+    y_distance_between = abs(next_node[1] - current_node[1]) * 10
 
     nx, ny = (x_distance_between, y_distance_between)
     x = np.linspace(current_node[0], next_node[0], nx)

@@ -9,7 +9,7 @@ import numpy as np
 
 # fill the initial state with N cars
 speed_limit = 300
-stop_distance = 2
+stop_distance = 0.0001
 free_distance = 10
 
 TEMP_dest_node = 53028190

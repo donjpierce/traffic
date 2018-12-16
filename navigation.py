@@ -76,6 +76,7 @@ class FrontView:
         car_within_ylinspace = np.isclose(y_space, self.car['position'][1], rtol=1.0e-6).any()
 
         if car_within_xlinspace and car_within_ylinspace:
+            print('next node really is: {}'.format(self.view[1]))
             return self.view[1]
         else:
             return self.view[0]
@@ -87,14 +88,10 @@ class FrontView:
 
         :return bool: True if the car is passing a node, False otherwise
         """
-        next_space = models.upcoming_linspace(self.view)
-        next_xspace = next_space[0]
-        next_yspace = next_space[1]
+        car_near_xnode = np.isclose(self.view[0][0], self.car['position'][0], rtol=1.0e-6)
+        car_near_ynode = np.isclose(self.view[0][1], self.car['position'][1], rtol=1.0e-6)
 
-        car_within_next_xspace = np.isclose(next_xspace, self.car['position'][0], rtol=1.0e-6).any()
-        car_within_next_yspace = np.isclose(next_yspace, self.car['position'][1], rtol=1.0e-6).any()
-
-        if (car_within_next_xspace and car_within_next_yspace) or ():
+        if car_near_xnode and car_near_ynode:
             return True
         else:
             return False
