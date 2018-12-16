@@ -4,7 +4,7 @@ import numpy as np
 import osmnx as ox
 import simulation as sim
 
-dt = 1 / 100
+dt = 1 / 1000
 N = 1
 
 # load figure for animation
@@ -47,6 +47,6 @@ def animate(i):
 
 
 # create animation object
-ani = animation.FuncAnimation(fig, animate, init_func=init, frames=300, interval=30, blit=True)
+ani = animation.FuncAnimation(fig, animate, init_func=init, frames=1000, interval=30, blit=True)
 # plt.show()
 ani.save('traffic.html', fps=90, extra_args=['-vcodec', 'libx264'])
