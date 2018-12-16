@@ -10,7 +10,7 @@ import numpy as np
 import osmnx as ox
 
 
-G = ox.load_graphml('piedmont.graphml')
+G = ox.load_graphml('manhattan.graphml')
 G = ox.project_graph(G)
 
 

@@ -12,7 +12,8 @@ speed_limit = 300
 stop_distance = 2
 free_distance = 10
 
-TEMP_dest_node = 53028190
+# TEMP_dest_node = 53028190
+TEMP_dest_node = 1989931095
 
 
 def update_path(car):

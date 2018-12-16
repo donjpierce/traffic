@@ -8,10 +8,10 @@ dt = 1 / 1000
 N = 1
 
 # load figure for animation
-G = ox.load_graphml('piedmont.graphml')
+G = ox.load_graphml('manhattan.graphml')
 G = ox.project_graph(G)
 fig, ax = ox.plot_graph(G)
-ax.set_title('Piedmont, California')
+ax.set_title('Manhattan')
 
 # initialize empty particle points for animation
 cars = sum([ax.plot([], [], 'ro', ms=3) for n in np.arange(N)], [])
