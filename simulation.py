@@ -16,21 +16,29 @@ TEMP_dest_node = 53028190
 
 
 def update_path(car):
+    """
 
+    :param   car: dict
+    :return path: origin path if stored node
+    """
+    obstacles = nav.FrontView(car)
+    if obstacles.crossed_node_event():
+        return car['path'][1:]
+    else:
+        return car['path']
 
 
 def update_velocity(car):
     """
     updates velocity according to the forward Euler method
 
-    :param       car:   object
-    :return velocity:     list
+    :param       car: dict
+    :return velocity: list
     """
-    obstacles = nav.FrontView(car)
-    next_node = np.array(obstacles.upcoming_node_position())
+    next_node = car['path'][1]
     position = np.array(car['position'])
     velocity_vector = next_node - position
-    velocity = velocity_vector * update_speed_factor(car)
+    velocity = velocity_vector * update_speed_factor(car) * 30
     return velocity
 
 
@@ -115,7 +123,7 @@ def init_culdesac_start_location(n):
              'destination': TEMP_dest_node,
              }
         )
-        cars[i]['path'] = nav.get_path(cars[i])
+        cars[i]['path'] = np.array(nav.get_init_path(cars[i]))
         cars[i]['front-view']['distance-to-node'] = nav.FrontView(cars[i]).upcoming_distances()[0]
 
     return cars

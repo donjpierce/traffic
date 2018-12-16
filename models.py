@@ -48,8 +48,8 @@ def upcoming_linspace(view):
     """
     nearest_node = view[0]
     next_node = view[1]
-    x_distance_between = next_node[0] - nearest_node[0]
-    y_distance_between = next_node[1] - nearest_node[1]
+    x_distance_between = abs(next_node[0] - nearest_node[0])
+    y_distance_between = abs(next_node[1] - nearest_node[1])
 
     nx, ny = (x_distance_between, y_distance_between)
     x = np.linspace(nearest_node[0], next_node[0], nx)

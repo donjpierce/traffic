@@ -26,9 +26,8 @@ class FrontView:
         self.angles = 0
         self.distances = 0
         self.obstacle_cars = 0
-        self.path = get_path(self.car)
         self.look_ahead_nodes = look_ahead_nodes
-        self.view = [self.path[i] for i in range(self.look_ahead_nodes)]
+        self.view = [self.car['path'][i] for i in range(self.look_ahead_nodes)]
 
     def upcoming_angles(self):
         """
@@ -42,9 +41,9 @@ class FrontView:
 
     def upcoming_distances(self):
         """
-        Determines the distances to the next 5 nodes
+        Determines the distances to the next n nodes
 
-        :return: distances_to_nodes:    list:   list of 4 distances corresponding to the 5-nodes ahead
+        :return: distances_to_nodes:    list:   list of (n-1) distances corresponding to the n-nodes ahead
         """
         distances_in_view = models.get_distances(self.view)
         self.distances = distances_in_view
@@ -61,13 +60,31 @@ class FrontView:
         x_space = space[0]
         y_space = space[1]
 
-        car_within_xlinspace = np.isclose(x_space, self.car['position'][0], rtol=0.01).any()
-        car_within_ylinspace = np.isclose(y_space, self.car['position'][1], rtol=0.01).any()
+        car_within_xlinspace = np.isclose(x_space, self.car['position'][0], rtol=1.0e-6).any()
+        car_within_ylinspace = np.isclose(y_space, self.car['position'][1], rtol=1.0e-6).any()
 
         if car_within_xlinspace and car_within_ylinspace:
             return self.view[1]
         else:
             return self.view[0]
+
+    def crossed_node_event(self):
+        """
+        Determines if the car has crossed a node, and advises simulation to change
+        its velocity vector accordingly
+
+        :return bool: True if the car is passing a node, False otherwise
+        """
+        car_xposition, car_yposition = self.car['position']
+        next_node_xposition, next_node_yposition = self.upcoming_node_position()
+
+        car_on_node_x = np.isclose(car_xposition, next_node_xposition, rtol=1.0e-6)
+        car_on_node_y = np.isclose(car_yposition, next_node_yposition, rtol=1.0e-6)
+        if car_on_node_x and car_on_node_y:
+            return True
+        else:
+            return False
+
 
 
 def find_culdesacs():
@@ -94,7 +111,7 @@ def get_position_of_node(node):
     return position
 
 
-def get_path(car):
+def get_init_path(car):
     """
     compiles a list of tuples which represents a route
 
