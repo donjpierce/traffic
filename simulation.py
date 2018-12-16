@@ -2,15 +2,16 @@
 Description of module...
 """
 import math
+import models
 import navigation as nav
 import numpy as np
 
 
 # fill the initial state with N cars
-speed_limit = 30e-6
+speed_limit = 300
 stop_distance = 3.0e-6
 free_distance = 5.0e-6
-default_acceleration = 3.0e-6
+default_acceleration = 0.001
 
 TEMP_dest_node = 53028190
 
@@ -37,8 +38,8 @@ def update_velocity(car):
     """
     next_node = car['path'][1]
     position = np.array(car['position'])
-    velocity_vector = next_node - position
-    velocity = velocity_vector * update_speed_factor(car) * 30
+    velocity_direction = models.unit_vector(next_node - position)
+    velocity = velocity_direction * speed_limit * update_speed_factor(car)
     return velocity
 
 
@@ -54,6 +55,7 @@ def update_speed_factor(car):
     distances = obstacles.upcoming_distances()
     car_factor = car_obstacle_factor(distances[0])  # for later use with car obstacles
     speed_factor = road_curvature_factor(angles[0], distances[0])
+    print('theta: {}'.format(angles[0]), 'distance: {}'.format(distances[0]), 'factor: {}'.format(speed_factor) + str('\n'))
     return speed_factor
 
 
@@ -68,8 +70,9 @@ def road_curvature_factor(theta, d):
     if theta == 0:
         curvature_factor = 1
     else:
-        if (0 < d) and (d < free_distance):
-            curvature_factor = math.log(d / (2 * theta / math.pi)) / math.log(free_distance / (2 * theta / math.pi))
+        if (stop_distance < d) and (d < free_distance):
+            curvature_factor = math.log(d / (stop_distance * 2 * theta / math.pi)) / \
+                               math.log(free_distance / (stop_distance * 2 * theta / math.pi))
         else:
             curvature_factor = 1
     return curvature_factor
@@ -82,7 +85,7 @@ def car_obstacle_factor(d):
     :param      d: double:   distance to car in front_view
     :return speed: double:  new speed
     """
-    if (stop_distance < d) and (d < speed_limit):
+    if (stop_distance < d) and (d < free_distance):
         obstacle_factor = math.log(d / stop_distance) / math.log(free_distance / stop_distance)
     else:
         if d < stop_distance:
