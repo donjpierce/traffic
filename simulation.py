@@ -36,7 +36,7 @@ def update_velocity(car):
     :param       car: dict
     :return velocity: list
     """
-    next_node = car['path'][1]
+    next_node = car['path'][0]
     position = np.array(car['position'])
     velocity_direction = models.unit_vector(next_node - position)
     velocity = velocity_direction * speed_limit * update_speed_factor(car)
@@ -115,7 +115,7 @@ def init_culdesac_start_location(n):
     cars = []
 
     for i in range(n):
-        start_node = culdesacs[i + 1]
+        start_node = culdesacs[i]
         position = nav.get_position_of_node(start_node)
         cars.append(
             {'position': position,
