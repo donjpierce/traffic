@@ -54,18 +54,23 @@ def update_speed_factor(car):
     angles = obstacles.upcoming_angles()
     distance = obstacles.distance_to_node()
     car_factor = car_obstacle_factor(distance)  # for later use with car obstacles
-    speed_factor = road_curvature_factor(angles[0], distance)
+    speed_factor = road_curvature_factor(angles, distance)
     return speed_factor
 
 
-def road_curvature_factor(theta, d):
+def road_curvature_factor(angles, d):
     """
     calculates the speed factor (between 0 and 1) for road curvature
 
-    :param         theta: double:  angle of road curvature ahead
+    :param        angles: double:  angles of road curvature ahead
     :param             d: double:  distance from car to next node
     :return speed_factor: double:  factor by which to diminish speed
     """
+    if len(angles) <= 2:
+        theta = math.pi/2
+    else:
+        theta = angles[0]
+
     if theta == 0:
         curvature_factor = 1
     else:

@@ -27,7 +27,18 @@ class FrontView:
         self.distances = 0
         self.obstacle_cars = 0
         self.look_ahead_nodes = look_ahead_nodes
-        self.view = [self.car['path'][i] for i in range(self.look_ahead_nodes)]
+        self.view = self.determine_view()
+
+    def determine_view(self):
+        """
+        this method handles the exception where the path is shorter than look_ahead_nodes
+
+        :return view: list of nodes immediately ahead of the car
+        """
+        if len(self.car['path']) > self.look_ahead_nodes:
+            return [self.car['path'][i] for i in range(self.look_ahead_nodes)]
+        else:
+            return self.car['path']
 
     def upcoming_angles(self):
         """
@@ -76,7 +87,6 @@ class FrontView:
         car_within_ylinspace = np.isclose(y_space, self.car['position'][1], rtol=1.0e-6).any()
 
         if car_within_xlinspace and car_within_ylinspace:
-            print('next node really is: {}'.format(self.view[1]))
             return self.view[1]
         else:
             return self.view[0]

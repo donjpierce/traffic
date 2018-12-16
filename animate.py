@@ -5,7 +5,7 @@ import osmnx as ox
 import simulation as sim
 
 dt = 1 / 1000
-N = 1
+N = 5
 
 # load figure for animation
 G = ox.load_graphml('piedmont.graphml')
@@ -47,6 +47,6 @@ def animate(i):
 
 
 # create animation object
-ani = animation.FuncAnimation(fig, animate, init_func=init, frames=3000, interval=30, blit=True)
+ani = animation.FuncAnimation(fig, animate, init_func=init, frames=4000, interval=30, blit=True)
 # plt.show()
 ani.save('traffic.html', fps=30, extra_args=['-vcodec', 'libx264'])
