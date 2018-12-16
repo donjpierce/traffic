@@ -78,13 +78,12 @@ class FrontView:
         car_xposition, car_yposition = self.car['position']
         next_node_xposition, next_node_yposition = self.upcoming_node_position()
 
-        car_on_node_x = np.isclose(car_xposition, next_node_xposition, rtol=1.0e-6)
-        car_on_node_y = np.isclose(car_yposition, next_node_yposition, rtol=1.0e-6)
+        car_on_node_x = np.isclose(car_xposition, next_node_xposition, rtol=1.0e-4)
+        car_on_node_y = np.isclose(car_yposition, next_node_yposition, rtol=1.0e-4)
         if car_on_node_x and car_on_node_y:
             return True
         else:
             return False
-
 
 
 def find_culdesacs():
