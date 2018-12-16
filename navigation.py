@@ -39,6 +39,18 @@ class FrontView:
         self.angles = angles_in_view
         return angles_in_view
 
+    def distance_to_node(self):
+        """
+        Determines the distance to the most immediate node
+
+        :return distance: double
+        """
+        position = self.car['position']
+        next_node = np.array(self.upcoming_node_position())
+        distance_vector = next_node - position
+        distance = models.magnitude(distance_vector)
+        return distance
+
     def upcoming_distances(self):
         """
         Determines the distances to the next n nodes

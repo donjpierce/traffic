@@ -2,8 +2,13 @@ import math
 import numpy as np
 
 
+def magnitude(vector):
+    """ Returns the magnitude of a vector """
+    return np.linalg.norm(vector)
+
+
 def unit_vector(vector):
-    """ Returns the unit vector of the vector."""
+    """ Returns the unit vector of the vector """
     return vector / np.linalg.norm(vector)
 
 

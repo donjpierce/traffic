@@ -9,9 +9,8 @@ import numpy as np
 
 # fill the initial state with N cars
 speed_limit = 300
-stop_distance = 3.0e-6
-free_distance = 5.0e-6
-default_acceleration = 0.001
+stop_distance = 2
+free_distance = 10
 
 TEMP_dest_node = 53028190
 
@@ -52,10 +51,9 @@ def update_speed_factor(car):
     """
     obstacles = nav.FrontView(car)
     angles = obstacles.upcoming_angles()
-    distances = obstacles.upcoming_distances()
-    car_factor = car_obstacle_factor(distances[0])  # for later use with car obstacles
-    speed_factor = road_curvature_factor(angles[0], distances[0])
-    print('theta: {}'.format(angles[0]), 'distance: {}'.format(distances[0]), 'factor: {}'.format(speed_factor) + str('\n'))
+    distance = obstacles.distance_to_node()
+    car_factor = car_obstacle_factor(distance)  # for later use with car obstacles
+    speed_factor = road_curvature_factor(angles[0], distance)
     return speed_factor
 
 
