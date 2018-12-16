@@ -38,7 +38,7 @@ def update_velocity(car):
     next_node = car['path'][1]
     position = np.array(car['position'])
     velocity_vector = next_node - position
-    velocity = velocity_vector * update_speed_factor(car) * 30
+    velocity = velocity_vector * 20  # update_speed_factor(car) * 20
     return velocity
 
 
