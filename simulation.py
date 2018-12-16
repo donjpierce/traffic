@@ -12,8 +12,8 @@ speed_limit = 300
 stop_distance = 2
 free_distance = 10
 
-# TEMP_dest_node = 53028190
-TEMP_dest_node = 1989931095
+TEMP_dest_node = 53028190
+# TEMP_dest_node = 1989931095
 
 
 def update_path(car):
@@ -115,7 +115,7 @@ def init_culdesac_start_location(n):
     cars = []
 
     for i in range(n):
-        start_node = culdesacs[i]
+        start_node = culdesacs[i + 1]
         position = nav.get_position_of_node(start_node)
         cars.append(
             {'position': position,

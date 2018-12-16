@@ -10,7 +10,7 @@ import numpy as np
 import osmnx as ox
 
 
-G = ox.load_graphml('manhattan.graphml')
+G = ox.load_graphml('piedmont.graphml')
 G = ox.project_graph(G)
 
 
@@ -92,7 +92,15 @@ class FrontView:
 
         car_on_node_x = np.isclose(car_xposition, next_node_xposition, rtol=1.0e-6)
         car_on_node_y = np.isclose(car_yposition, next_node_yposition, rtol=1.0e-6)
-        if car_on_node_x and car_on_node_y:
+
+        space = models.upcoming_linspace(self.view)
+        x_space = space[0]
+        y_space = space[1]
+
+        car_within_xlinspace = np.isclose(x_space, self.car['position'][0], rtol=1.0e-6).any()
+        car_within_ylinspace = np.isclose(y_space, self.car['position'][1], rtol=1.0e-6).any()
+
+        if (car_on_node_x and car_on_node_y) or (car_within_xlinspace and car_within_ylinspace):
             return True
         else:
             return False
