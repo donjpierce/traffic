@@ -83,8 +83,6 @@ class FrontView:
         if car_on_node_x and car_on_node_y:
             return True
         else:
-            print('car position: {}'.format((car_xposition, car_yposition)) + str('\n'),
-                  'next_node_position: {}'.format((next_node_xposition, next_node_yposition)) + str('\n'))
             return False
 
 
