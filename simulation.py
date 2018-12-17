@@ -9,8 +9,8 @@ import numpy as np
 
 # fill the initial state with N cars
 speed_limit = 300
-stop_distance = 0.0001
-free_distance = 10
+stop_distance = 5
+free_distance = 30
 
 TEMP_dest_node = 53028190
 # TEMP_dest_node = 1989931095
@@ -72,7 +72,7 @@ def road_curvature_factor(angles, d):
     :param             d: double:  distance from car to next node
     :return speed_factor: double:  factor by which to diminish speed
     """
-    if len(angles) <= 2:
+    if len(angles) < 1:
         # if it's the end of the route, treat the last node like a hard-stop intersection
         theta = math.pi/2
     else:
@@ -81,11 +81,14 @@ def road_curvature_factor(angles, d):
     if theta == 0:
         curvature_factor = 1
     else:
-        if (stop_distance < d) and (d < free_distance):
-            curvature_factor = math.log(d / (stop_distance * 2 * theta / math.pi)) / \
-                               math.log(free_distance / (stop_distance * 2 * theta / math.pi))
+        if np.isclose(stop_distance, d, rtol=1.0e-3):
+            curvature_factor = 0.01
         else:
-            curvature_factor = 1
+            if (stop_distance < d) and (d < free_distance):
+                curvature_factor = math.log(d / (stop_distance * 2 * theta / math.pi)) / \
+                                   math.log(free_distance / (stop_distance * 2 * theta / math.pi))
+            else:
+                curvature_factor = 1
     return curvature_factor
 
 

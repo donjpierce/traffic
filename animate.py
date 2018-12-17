@@ -5,7 +5,7 @@ import osmnx as ox
 import simulation as sim
 
 dt = 1 / 1000
-N = 33
+N = 1
 
 # load figure for animation
 G = ox.load_graphml('piedmont.graphml')
