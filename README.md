@@ -1,2 +1,2 @@
 # traffic
-minimilist traffic simulations using OpenStreetMap and OSMnx
+minimilist traffic simulations using OpenStreetMaps and OSMnx
