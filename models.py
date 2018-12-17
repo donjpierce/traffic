@@ -44,24 +44,6 @@ def path_decompiler(lines):
     return clean_path
 
 
-def linspace(car):
-    """
-    this function returns a 2D linspace between the current two nodes
-
-    :param    car:  dict
-    :return space: tuple: tuple of np.arrays
-    """
-    current_node, next_node = car['path'][0], car['path'][1]
-    x_distance_between = abs(next_node[0] - current_node[0]) * 10
-    y_distance_between = abs(next_node[1] - current_node[1]) * 10
-
-    nx, ny = (x_distance_between, y_distance_between)
-    x = np.linspace(current_node[0], next_node[0], nx)
-    y = np.linspace(current_node[1], next_node[1], ny)
-    space = (x, y)
-    return space
-
-
 def upcoming_linspace(view):
     """
     this function returns a 2D linspace between the next two nodes in the view

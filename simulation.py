@@ -8,7 +8,7 @@ import numpy as np
 
 
 # fill the initial state with N cars
-speed_limit = 300
+speed_limit = 200
 stop_distance = 5
 free_distance = 30
 
@@ -58,9 +58,10 @@ def update_speed_factor(car):
     """
     obstacles = nav.FrontView(car)
     angles = obstacles.upcoming_angles()
-    distance = obstacles.distance_to_node()
-    car_factor = car_obstacle_factor(distance)  # for later use with car obstacles
-    speed_factor = road_curvature_factor(angles, distance)
+    distance_to_node = obstacles.distance_to_node()
+    # distance_to_car = obstacles.distance_to_car()
+    car_factor = car_obstacle_factor(distance_to_car)  # for later use with car obstacles
+    speed_factor = road_curvature_factor(angles, distance_to_node)
     return speed_factor
 
 
@@ -99,6 +100,7 @@ def car_obstacle_factor(d):
     :param      d: double:   distance to car in front_view
     :return speed: double:  new speed
     """
+
     if (stop_distance < d) and (d < free_distance):
         obstacle_factor = math.log(d / stop_distance) / math.log(free_distance / stop_distance)
     else:
