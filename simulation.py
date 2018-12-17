@@ -12,9 +12,9 @@ speed_limit = 200
 stop_distance = 5
 free_distance = 30
 
-# TEMP_dest_node = 53028190   # Piedmont destination
+TEMP_dest_node = 53028190   # Piedmont destination
 # TEMP_dest_node = 1989931095  # Manhattan destination
-TEMP_dest_node = 65307322  # San Francisco destination
+# TEMP_dest_node = 65307322  # San Francisco destination
 
 
 def update_path(car):
