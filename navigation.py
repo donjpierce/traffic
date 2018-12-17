@@ -78,6 +78,9 @@ class FrontView:
 
         :return view: tuple: returns upcoming node coords in the path
         """
+        if len(self.view) <= 1:
+            # if it's the end of the route, then the upcoming_node is simply the only node in view
+            return self.view[0]
 
         space = models.upcoming_linspace(self.view)
         x_space = space[0]

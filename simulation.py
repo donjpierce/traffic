@@ -22,6 +22,9 @@ def update_path(car):
     :param   car: dict
     :return path: origin path if stored node
     """
+    if len(car['path']) <= 1:
+        return car['path']
+    
     obstacles = nav.FrontView(car)
     if obstacles.crossed_node_event():
         return car['path'][1:]
@@ -36,6 +39,9 @@ def update_velocity(car):
     :param       car: dict
     :return velocity: list
     """
+    if len(car['path']) < 1:
+        velocity = np.array([0., 0.])
+        return velocity
     next_node = car['path'][0]
     position = np.array(car['position'])
     velocity_direction = models.unit_vector(next_node - position)
@@ -67,6 +73,7 @@ def road_curvature_factor(angles, d):
     :return speed_factor: double:  factor by which to diminish speed
     """
     if len(angles) <= 2:
+        # if it's the end of the route, treat the last node like a hard-stop intersection
         theta = math.pi/2
     else:
         theta = angles[0]

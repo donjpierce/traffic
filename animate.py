@@ -47,6 +47,6 @@ def animate(i):
 
 
 # create animation object
-ani = animation.FuncAnimation(fig, animate, init_func=init, frames=4000, interval=30, blit=True)
+ani = animation.FuncAnimation(fig, animate, init_func=init, frames=4000, interval=1, blit=True)
 # plt.show()
-ani.save('traffic.html', fps=30, extra_args=['-vcodec', 'libx264'])
+ani.save('traffic.html', fps=100, extra_args=['-vcodec', 'libx264'])
