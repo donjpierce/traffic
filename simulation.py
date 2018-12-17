@@ -12,8 +12,9 @@ speed_limit = 200
 stop_distance = 5
 free_distance = 30
 
-TEMP_dest_node = 53028190
-# TEMP_dest_node = 1989931095
+# TEMP_dest_node = 53028190   # Piedmont destination
+# TEMP_dest_node = 1989931095  # Manhattan destination
+TEMP_dest_node = 65307322  # San Francisco destination
 
 
 def update_path(car):
@@ -59,7 +60,7 @@ def update_speed_factor(car):
     obstacles = nav.FrontView(car)
     angles = obstacles.upcoming_angles()
     distance_to_node = obstacles.distance_to_node()
-    # distance_to_car = obstacles.distance_to_car()
+    distance_to_car = obstacles.distance_to_car()
     car_factor = car_obstacle_factor(distance_to_car)  # for later use with car obstacles
     speed_factor = road_curvature_factor(angles, distance_to_node)
     return speed_factor
@@ -111,6 +112,35 @@ def car_obstacle_factor(d):
     return obstacle_factor
 
 
+def init_random_node_start_location(n):
+    """
+    initializes n cars at n random nodes
+
+    :param      n: int
+    :return state: dict
+    """
+    nodes = nav.find_nodes(n)
+
+    cars = []
+
+    for i in range(n):
+        start_node = nodes[i]
+        position = nav.get_position_of_node(start_node)
+        cars.append(
+            {'position': position,
+             'velocity': np.array([0, 0]),
+             'acceleration': np.array([0, 0]),
+             'front-view': {'distance-to-car': 0, 'distance-to-node': 0},
+             'origin': start_node,
+             'destination': TEMP_dest_node
+             }
+        )
+        cars[i]['path'] = np.array(nav.get_init_path(cars[i]))
+        cars[i]['front-view']['distance-to-node'] = nav.FrontView(cars[i]).upcoming_distances()[0]
+
+    return cars
+
+
 def init_culdesac_start_location(n):
     """
     initializes N cars into N culdesacs
@@ -139,7 +169,8 @@ def init_culdesac_start_location(n):
              'velocity': np.array([0, 0]),
              'acceleration': np.array([0, 0]),
              'front-view': {'distance-to-car': 0, 'distance-to-node': 0},
-             'destination': TEMP_dest_node,
+             'origin': start_node,
+             'destination': TEMP_dest_node
              }
         )
         cars[i]['path'] = np.array(nav.get_init_path(cars[i]))

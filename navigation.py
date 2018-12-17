@@ -10,7 +10,8 @@ import numpy as np
 import osmnx as ox
 
 
-G = ox.load_graphml('piedmont.graphml')
+# G = ox.load_graphml('piedmont.graphml')
+G = ox.load_graphml('sanfrancisco.graphml')
 G = ox.project_graph(G)
 
 
@@ -62,6 +63,15 @@ class FrontView:
         distance = models.magnitude(distance_vector)
         return distance
 
+    def distance_to_car(self):
+        """
+        If there is a car between position and next node, this method returns a distance to that car
+
+        :return distance: double
+        """
+        # any_car_obstacles = find_car_obstacles(self)
+        return 0
+
     def upcoming_distances(self):
         """
         Determines the distances to the next n nodes
@@ -110,6 +120,15 @@ class FrontView:
             return False
 
 
+# def find_car_obstacles(frontview):
+#     """
+#
+#     :param car:
+#     :return:
+#     """
+#
+
+
 def find_culdesacs():
     """
     culdesacs are nodes with only one edge connection and which are not on the boundary of the OpenStreetMap
@@ -118,6 +137,19 @@ def find_culdesacs():
     """
     culdesacs = [key for key, value in G.graph['streets_per_node'].items() if value == 1]
     return culdesacs
+
+
+def find_nodes(n):
+    """
+    returns n node IDs from the networkx graph
+
+    :param      n: int
+    :return nodes: list
+    """
+    nodes = []
+    for node in G.nodes():
+        nodes.append(node)
+    return nodes[:n]
 
 
 def get_position_of_node(node):
@@ -160,9 +192,9 @@ def shortest_path_lines_nx(car):
         [(double, double), ...]:   each tuple represents the bend-point in a straight road
     """
 
-    yx_car_position = (car['position'][1], car['position'][0])
-    origin = ox.utils.get_nearest_node(G, yx_car_position)
-    route = nx.shortest_path(G, origin, car['destination'], weight='length')
+    # yx_car_position = (car['position'][1], car['position'][0])
+    # origin = ox.utils.get_nearest_node(G, yx_car_position)
+    route = nx.shortest_path(G, car['origin'], car['destination'], weight='length')
 
     # find the route lines
     edge_nodes = list(zip(route[:-1], route[1:]))
