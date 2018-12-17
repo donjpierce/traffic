@@ -24,7 +24,7 @@ def update_path(car):
     """
     if len(car['path']) <= 1:
         return car['path']
-    
+
     obstacles = nav.FrontView(car)
     if obstacles.crossed_node_event():
         return car['path'][1:]
