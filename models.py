@@ -66,6 +66,7 @@ def upcoming_linspace(view):
 def upcoming_vectors(view):
     """
     determines the vectors between the nodes in a view
+
     :param     view: list:  list of n upcoming nodes
     :return vectors: list:  list of (n-1) vectors pointing between the nodes along the path of travel
     """
@@ -80,6 +81,7 @@ def upcoming_vectors(view):
 def get_angles(view):
     """
     determines the angles between the upcoming vectors
+
     :param   view: list: list of coordinate points of next five nodes in path
     :return  angles: list: list of the next angles of road curvature
     """
@@ -95,6 +97,7 @@ def get_angles(view):
 def get_distances(view):
     """
     determines the upcoming distances (lengths of upcoming_vectors)
+
     :param        view: list: list of coordinate points of next five nodes in path
     :return: distances: list: list of the next distances between upcoming nodes on the road
     """

@@ -58,9 +58,9 @@ def update_speed_factor(car):
     :return: speed_factor: double
     """
     obstacles = nav.FrontView(car)
-    angles = obstacles.upcoming_angles()
+    angles = obstacles.angles
     distance_to_node = obstacles.distance_to_node()
-    distance_to_car = obstacles.distance_to_car()
+    distance_to_car = car['distance-to-car']
     car_factor = car_obstacle_factor(distance_to_car)  # for later use with car obstacles
     speed_factor = road_curvature_factor(angles, distance_to_node)
     return speed_factor
@@ -70,8 +70,13 @@ def road_curvature_factor(angles, d):
     """
     calculates the speed factor (between 0 and 1) for road curvature
 
+    Parameters
+    __________
     :param        angles: double:  angles of road curvature ahead
     :param             d: double:  distance from car to next node
+
+    Returns
+    _______
     :return speed_factor: double:  factor by which to diminish speed
     """
     if len(angles) < 1:
@@ -136,7 +141,7 @@ def init_random_node_start_location(n):
              }
         )
         cars[i]['path'] = np.array(nav.get_init_path(cars[i]))
-        cars[i]['front-view']['distance-to-node'] = nav.FrontView(cars[i]).upcoming_distances()[0]
+        cars[i]['front-view']['distance-to-node'] = nav.FrontView(cars[i]).distances[0]
 
     return cars
 
@@ -174,6 +179,6 @@ def init_culdesac_start_location(n):
              }
         )
         cars[i]['path'] = np.array(nav.get_init_path(cars[i]))
-        cars[i]['front-view']['distance-to-node'] = nav.FrontView(cars[i]).upcoming_distances()[0]
+        cars[i]['front-view']['distance-to-node'] = nav.FrontView(cars[i]).distances[0]
 
     return cars

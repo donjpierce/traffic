@@ -23,12 +23,12 @@ class FrontView:
         :param car: dict
         :param look_ahead_nodes:
         """
-        self.car = car
-        self.angles = 0
-        self.distances = 0
-        self.obstacle_cars = 0
         self.look_ahead_nodes = look_ahead_nodes
+        self.car = car
         self.view = self.determine_view()
+        self.angles = models.get_angles(self.view)
+        self.obstacle_cars = 0
+        self.distances = models.get_distances(self.view)
 
     def determine_view(self):
         """
@@ -40,16 +40,6 @@ class FrontView:
             return [self.car['path'][i] for i in range(self.look_ahead_nodes)]
         else:
             return self.car['path']
-
-    def upcoming_angles(self):
-        """
-        Determines the road curvature immediately 5 nodes ahead ahead
-
-        :return: angles_in_view:   list: list of 3 angles corresponding to the 5-node curve
-        """
-        angles_in_view = models.get_angles(self.view)
-        self.angles = angles_in_view
-        return angles_in_view
 
     def distance_to_node(self):
         """
@@ -63,24 +53,16 @@ class FrontView:
         distance = models.magnitude(distance_vector)
         return distance
 
-    def distance_to_car(self):
-        """
-        If there is a car between position and next node, this method returns a distance to that car
-
-        :return distance: double
-        """
-        # any_car_obstacles = find_car_obstacles(self)
-        return 0
-
-    def upcoming_distances(self):
-        """
-        Determines the distances to the next n nodes
-
-        :return: distances_to_nodes:    list:   list of (n-1) distances corresponding to the n-nodes ahead
-        """
-        distances_in_view = models.get_distances(self.view)
-        self.distances = distances_in_view
-        return distances_in_view
+    # def distance_to_car(self):
+    #     """
+    #     if there is a car between position and next node, this method returns a distance to that car
+    #
+    #     :return distance: double
+    #     """
+    #     position = self.car['position']
+    #     space = models.upcoming_linspace(self.view)
+    #     any_car_obstacles = find_car_obstacles(self)
+    #     return 0
 
     def upcoming_node_position(self):
         """
@@ -120,13 +102,15 @@ class FrontView:
             return False
 
 
-# def find_car_obstacles(frontview):
-#     """
-#
-#     :param car:
-#     :return:
-#     """
-#
+def car_obstacles(state):
+    """
+
+    :param state:
+    :return distance: double or bool (returns False if no car in view)
+    """
+    
+
+
 
 
 def find_culdesacs():
