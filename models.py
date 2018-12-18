@@ -22,8 +22,9 @@ def weigh_factors(car_factor, curvature_factor, distance_to_car, distance_to_nod
     distance_to_car = distance_to_car / free_distance
     distance_to_node = distance_to_node / free_distance
 
-    # superpose the two distances on a unit circle
+    # superpose the two distances on a unit circle depending on their relative magnitude
     factor = car_factor * math.cos(distance_to_car) + curvature_factor * math.sin(distance_to_node)
+
     return factor
 
 

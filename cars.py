@@ -38,7 +38,8 @@ class Cars:
         self.time_elapsed += dt
 
         for i, car in enumerate(self.state):
-            car['distance-to-car'] = self.find_car_obstacles(car, i)
+            car['front-view']['distance-to-car'] = self.find_car_obstacles(car, i)
+            car['front-view']['distance-to-node'] = nav.FrontView(car).distance_to_node()
             car['path'] = sim.update_path(car)
             car['velocity'] = sim.update_velocity(car)
             position = car['position']
