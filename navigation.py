@@ -63,9 +63,8 @@ class FrontView:
             # if it's the end of the route, then the upcoming_node is simply the only node in view
             return self.view[0]
 
-        space = models.upcoming_linspace(self.view)
-        x_space = space[0]
-        y_space = space[1]
+        space = models.upcoming_linspace(self.view, self.car['position'])
+        x_space, y_space = space[0], space[1]
 
         car_within_xlinspace = np.isclose(x_space, self.car['position'][0], rtol=1.0e-6).any()
         car_within_ylinspace = np.isclose(y_space, self.car['position'][1], rtol=1.0e-6).any()
