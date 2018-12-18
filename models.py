@@ -2,6 +2,30 @@ import math
 import numpy as np
 
 
+def weight_factors(car_factor, curvature_factor, distance_to_car, distance_to_node, free_distance):
+    """
+    weights factors in quadrant I of a unit circle
+
+    Parameters
+    __________
+    :param car_factor:
+    :param curvature_factor:
+    :param distance_to_car:
+    :param distance_to_node:
+
+    Returns
+    _______
+    :return factor:
+    """
+    # normalize distances
+    distance_to_car = distance_to_car / free_distance
+    distance_to_node = distance_to_node / free_distance
+
+    # superpose the two distances on a unit circle
+    factor = car_factor * math.cos(distance_to_car) + curvature_factor * math.sin(distance_to_node)
+    return factor
+
+
 def magnitude(vector):
     """ Returns the magnitude of a vector """
     return np.linalg.norm(vector)
