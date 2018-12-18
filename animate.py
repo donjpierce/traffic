@@ -56,6 +56,6 @@ def animate(i):
 # ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
 
 # for creating movies
-ani = animation.FuncAnimation(fig, animate, init_func=init, frames=4000)
+ani = animation.FuncAnimation(fig, animate, init_func=init, frames=5000)
 mywriter = animation.FFMpegWriter(fps=250)
 ani.save('movie.mp4', writer=mywriter)

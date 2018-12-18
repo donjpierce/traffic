@@ -9,8 +9,8 @@ import numpy as np
 
 # fill the initial state with N cars
 speed_limit = 200
-stop_distance = 5
-free_distance = 30
+stop_distance = 10
+free_distance = 40
 
 TEMP_dest_node = 53028190   # Piedmont destination
 # TEMP_dest_node = 1989931095  # Manhattan destination
@@ -99,14 +99,11 @@ def road_curvature_factor(angles, d):
     if theta == 0:
         curvature_factor = 1
     else:
-        if np.isclose(stop_distance, d, rtol=1.0e-3):
-            curvature_factor = 0.01
+        if (stop_distance <= d) and (d <= free_distance):
+            curvature_factor = math.log(d / (stop_distance * 2 * theta / math.pi)) / \
+                               math.log(free_distance / (stop_distance * 2 * theta / math.pi))
         else:
-            if (stop_distance < d) and (d < free_distance):
-                curvature_factor = math.log(d / (stop_distance * 2 * theta / math.pi)) / \
-                                   math.log(free_distance / (stop_distance * 2 * theta / math.pi))
-            else:
-                curvature_factor = 1
+            curvature_factor = 1
     return curvature_factor
 
 
@@ -123,7 +120,7 @@ def car_obstacle_factor(d):
     :return obstacle_factor: double:  factor by which to diminish speed
     """
 
-    if (stop_distance < d) and (d < free_distance):
+    if (stop_distance <= d) and (d <= free_distance):
         obstacle_factor = math.log(d / stop_distance) / math.log(free_distance / stop_distance)
     else:
         if d < stop_distance:
