@@ -9,14 +9,13 @@ N = 33
 
 # load figure for animation
 G = ox.load_graphml('piedmont.graphml')
+G = ox.project_graph(G)
 fig, ax = ox.plot_graph(G)
 ax.set_title('Piedmont, California')
 
 # G = ox.load_graphml('sanfrancisco.graphml')
 # fig, ax = ox.plot_graph(G, fig_height=12, fig_width=10, node_size=0, edge_linewidth=0.5)
 # ax.set_title('San Francisco, California')
-
-G = ox.project_graph(G)
 
 # initialize empty particle points for animation
 cars = sum([ax.plot([], [], 'ro', ms=3) for n in np.arange(N)], [])
@@ -53,10 +52,10 @@ def animate(i):
 
 
 # for creating HTML frame-movies
-ani = animation.FuncAnimation(fig, animate, init_func=init, frames=1200, interval=30, blit=True)
-ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
+# ani = animation.FuncAnimation(fig, animate, init_func=init, frames=1200, interval=30, blit=True)
+# ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
 
 # for creating movies
-# ani = animation.FuncAnimation(fig, animate, init_func=init, frames=4000)
-# mywriter = animation.FFMpegWriter(fps=200)
-# ani.save('movie.mp4', writer=mywriter)
+ani = animation.FuncAnimation(fig, animate, init_func=init, frames=4000)
+mywriter = animation.FFMpegWriter(fps=250)
+ani.save('movie.mp4', writer=mywriter)
