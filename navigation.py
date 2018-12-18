@@ -53,17 +53,6 @@ class FrontView:
         distance = models.magnitude(distance_vector)
         return distance
 
-    # def distance_to_car(self):
-    #     """
-    #     if there is a car between position and next node, this method returns a distance to that car
-    #
-    #     :return distance: double
-    #     """
-    #     position = self.car['position']
-    #     space = models.upcoming_linspace(self.view)
-    #     any_car_obstacles = find_car_obstacles(self)
-    #     return 0
-
     def upcoming_node_position(self):
         """
         Determines the coordinates of the next node in view

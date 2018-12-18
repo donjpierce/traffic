@@ -112,10 +112,15 @@ def road_curvature_factor(angles, d):
 
 def car_obstacle_factor(d):
     """
-    function to update speed for a car in the front_view
+    calculates the speed factor (between 0 and 1) for road curvature
 
-    :param      d: double:   distance to car in front_view
-    :return speed: double:  new speed
+    Parameters
+    _________
+    :param                d: double:   distance to car in front_view
+
+    Returns
+    _______
+    :return obstacle_factor: double:  factor by which to diminish speed
     """
 
     if (stop_distance < d) and (d < free_distance):
