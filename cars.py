@@ -37,21 +37,24 @@ class Cars:
         """
         self.time_elapsed += dt
 
-        for car in self.state:
-            car['distance-to-car'] = self.find_car_obstacles()
+        for i, car in enumerate(self.state):
+            car['distance-to-car'] = self.find_car_obstacles(car, i)
             car['path'] = sim.update_path(car)
             car['velocity'] = sim.update_velocity(car)
             car['position'] = car['position'] + car['velocity'] * dt
 
         return self.state
 
-    def find_car_obstacles(self):
+    def find_car_obstacles(self, car, i):
         """
         finds the distance to cars in the view for a specific car in the state
 
-        :return distance: double or bool (returns False if no car in view)
+        :param       car:           dict: specific car of interest
+        :param         i:            int: ID of the car in the state list
+        :return distance: double or bool: returns False if no car in view
         """
-        return nav.car_obstacles(self.state)
+        state = self.state.pop(i)
+        return nav.car_obstacles(state, car)
 
 
     # def traffic_lights(self):

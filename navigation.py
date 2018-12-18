@@ -102,15 +102,39 @@ class FrontView:
             return False
 
 
-def car_obstacles(state):
+def car_obstacles(state, car):
     """
 
-    :param state:
-    :return distance: double or bool (returns False if no car in view)
+    Parameters
+    __________
+    :param state:  list:  the entire car state with the car of interest removed
+    :param   car:  dict:  the car of interest
+
+    Returns
+    _______
+    :return distance: double or None (returns None if no car obstacle found)
     """
-    
+    obstacles = FrontView(car)
+    space = models.upcoming_linspace(obstacles.view)
+    x_space = space[0]
+    y_space = space[1]
 
+    obstacle_position = []
+    for potential_obstacle in state:
+        car_within_xlinspace = np.isclose(x_space, potential_obstacle['position'][0], rtol=1.0e-6).any()
+        car_within_ylinspace = np.isclose(y_space, potential_obstacle['position'][1], rtol=1.0e-6).any()
 
+        if car_within_xlinspace and car_within_ylinspace:
+            obstacle_position.append(potential_obstacle['position'])
+
+    if obstacle_position:
+        first_obstacle = obstacle_position[0]
+        x, y = first_obstacle[0], first_obstacle[1]
+        vector = (x - car['position'][0], y - car['position'][1])
+        distance = models.magnitude(vector)
+        return distance
+    else:
+        return None
 
 
 def find_culdesacs():
