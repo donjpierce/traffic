@@ -103,6 +103,8 @@ def road_curvature_factor(angles, d):
             curvature_factor = math.log(d / (stop_distance * 2 * theta / math.pi)) / \
                                math.log(free_distance / (stop_distance * 2 * theta / math.pi))
             # a physical exception is needed so that cars don't stop moving in the limit where d --> stop_distance
+            # note that this exception must depend on curvature factor, NOT solely distance
+            # an exception depending solely on distance looses information about theta
             if np.isclose(0, curvature_factor, rtol=1.0e-3):
                 curvature_factor = 0.1
         else:
