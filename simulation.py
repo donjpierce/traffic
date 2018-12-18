@@ -99,14 +99,14 @@ def road_curvature_factor(angles, d):
     if theta == 0:
         curvature_factor = 1
     else:
-        if d <= stop_distance:
-            curvature_factor = 0.001
+        if (stop_distance <= d) and (d <= free_distance):
+            curvature_factor = math.log(d / (stop_distance * 2 * theta / math.pi)) / \
+                               math.log(free_distance / (stop_distance * 2 * theta / math.pi))
+            # a physical exception is needed so that cars don't stop moving in the limit where d --> stop_distance
+            if np.isclose(0, curvature_factor, rtol=1.0e-3):
+                curvature_factor = 0.1
         else:
-            if (stop_distance < d) and (d <= free_distance):
-                curvature_factor = math.log(d / (stop_distance * 2 * theta / math.pi)) / \
-                                   math.log(free_distance / (stop_distance * 2 * theta / math.pi))
-            else:
-                curvature_factor = 1
+            curvature_factor = 1
     return curvature_factor
 
 
