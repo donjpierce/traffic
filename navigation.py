@@ -104,7 +104,7 @@ def car_obstacles(state, car):
     :return distance: double or None (returns None if no car obstacle found)
     """
     obstacles = FrontView(car)
-    space = models.upcoming_linspace(obstacles.view)
+    space = models.upcoming_linspace(obstacles.view, car['position'])
     x_space = space[0]
     y_space = space[1]
 

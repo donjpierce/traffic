@@ -57,5 +57,5 @@ def animate(i):
 
 # for creating movies
 ani = animation.FuncAnimation(fig, animate, init_func=init, frames=11000)
-mywriter = animation.FFMpegWriter(fps=250)
+mywriter = animation.FFMpegWriter(fps=300)
 ani.save('movie.mp4', writer=mywriter)

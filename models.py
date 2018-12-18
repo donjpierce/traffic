@@ -70,15 +70,22 @@ def path_decompiler(lines):
     return clean_path
 
 
-def upcoming_linspace(view):
+def upcoming_linspace(view, position):
     """
     this function returns a 2D linspace between the next two nodes in the view
 
-    :param   view:  list: list of n upcoming nodes
-    :return space: tuple: of np.arrays
+    :param     view:  list: list of n upcoming nodes
+    :param position:  list: coordinate position of car
+    :return   space: tuple: of np.arrays
     """
-    nearest_node = view[0]
-    next_node = view[1]
+    if len(view) < 2:
+        # the car has reached the end of the route
+        nearest_node = position
+        next_node = view[0]
+    else:
+        nearest_node = view[0]
+        next_node = view[1]
+
     x_distance_between = abs(next_node[0] - nearest_node[0])
     y_distance_between = abs(next_node[1] - nearest_node[1])
 
