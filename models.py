@@ -2,20 +2,21 @@ import math
 import numpy as np
 
 
-def weight_factors(car_factor, curvature_factor, distance_to_car, distance_to_node, free_distance):
+def weigh_factors(car_factor, curvature_factor, distance_to_car, distance_to_node, free_distance):
     """
     weights factors in quadrant I of a unit circle
 
     Parameters
     __________
-    :param car_factor:
-    :param curvature_factor:
-    :param distance_to_car:
-    :param distance_to_node:
+    :param       car_factor:    double
+    :param curvature_factor:    double
+    :param  distance_to_car:    double
+    :param distance_to_node:    double
+    :param    free_distance:    int or double
 
     Returns
     _______
-    :return factor:
+    :return factor: double
     """
     # normalize distances
     distance_to_car = distance_to_car / free_distance

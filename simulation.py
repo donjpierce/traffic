@@ -61,15 +61,18 @@ def update_speed_factor(car):
     angles = obstacles.angles
     distance_to_node = obstacles.distance_to_node()
     distance_to_car = car['distance-to-car']
-    car_factor = car_obstacle_factor(distance_to_car)  # for later use with car obstacles
     curvature_factor = road_curvature_factor(angles, distance_to_node)
 
-    if distance_to_car > distance_to_node:
-        final_factor = models.weight_factors(
-            car_factor, curvature_factor, distance_to_car, distance_to_node, free_distance
-        )
+    if distance_to_car:
+        car_factor = car_obstacle_factor(distance_to_car)
+        if distance_to_car > distance_to_node:
+            final_factor = models.weigh_factors(
+                car_factor, curvature_factor, distance_to_car, distance_to_node, free_distance
+            )
+        else:
+            final_factor = car_factor
     else:
-        final_factor = car_factor
+        final_factor = curvature_factor
 
     return final_factor
 

@@ -41,7 +41,8 @@ class Cars:
             car['distance-to-car'] = self.find_car_obstacles(car, i)
             car['path'] = sim.update_path(car)
             car['velocity'] = sim.update_velocity(car)
-            car['position'] = car['position'] + car['velocity'] * dt
+            position = car['position']
+            car['position'] = position + car['velocity'] * dt
 
         return self.state
 
@@ -53,7 +54,8 @@ class Cars:
         :param         i:            int: ID of the car in the state list
         :return distance: double or bool: returns False if no car in view
         """
-        state = self.state.pop(i)
+        state = self.state.copy()
+        state.pop(i)
         return nav.car_obstacles(state, car)
 
 
