@@ -113,12 +113,6 @@ def road_curvature_factor(angles, d):
         if (stop_distance <= d) and (d <= free_distance):
             curvature_factor = math.log(d / (stop_distance * 2 * theta / math.pi)) / \
                                math.log(free_distance / (stop_distance * 2 * theta / math.pi))
-            # a physical exception is needed so that cars don't stop moving in the limit where d --> stop_distance
-            # note that this exception must depend on curvature factor, NOT solely distance
-            # an exception depending solely on distance looses information about theta
-            # TODO: this logic needs to manifest itself in an acceleration framework
-            if np.isclose(0, curvature_factor, atol=0.1):
-                curvature_factor = 0.1
         else:
             curvature_factor = 1
 
@@ -140,10 +134,6 @@ def car_obstacle_factor(d):
 
     if (stop_distance <= d) and (d <= free_distance):
         obstacle_factor = math.log(d / stop_distance) / math.log(free_distance / stop_distance)
-        # a physical exception is needed so that cars don't stop moving permanently
-        # TODO: this logic needs to manifest itself in an acceleration framework
-        if np.isclose(0, obstacle_factor, atol=0.1):
-            obstacle_factor = 0.1
     else:
         if d < stop_distance:
             obstacle_factor = 0
@@ -163,6 +153,32 @@ def car_timer(car, dt):
         return dt
     else:
         return 0
+
+
+def new_light_instructions(light, time_elapsed):
+    """
+
+    :param        light:   dict
+    :param time_elapsed: double
+    :return:
+    """
+    half_switch_time = light['switch-time']
+    if np.isclose(time_elapsed, half_switch_time, rtol=1.0e-4):
+        print('Switch Time: {}'.format(half_switch_time), 'Light time: {}'.format(time_elapsed))
+        light['switch-counter'] += 1
+        if light['switch-counter'] % 2:
+            instructions = light['go']
+            new_instructions = []
+            for face in instructions:
+                if face:
+                    new_instructions.append(False)
+                else:
+                    new_instructions.append(True)
+            return new_instructions
+        else:
+            return None
+    else:
+        return None
 
 
 def init_random_node_start_location(n):
@@ -257,14 +273,3 @@ def init_traffic_lights():
         lights[i]['switch-time'] = models.determine_traffic_light_timer()
 
     return lights
-
-
-
-
-
-
-
-
-
-
-

@@ -3,14 +3,22 @@ import numpy as np
 import random
 
 
+def initial_light_colors(n):
+    """
+
+    :return:
+    """
+    init_colors = [random.choice(['red', 'green']) for n in range(n)]
+    return init_colors
+
+
 def determine_traffic_light_timer():
     """
     For now, wait times are determined by taking a random fraction of the degree
 
     :return random_wait: double: wait time in units of dt
     """
-    random_wait = random.random() * 5
-    print(random_wait)
+    random_wait = round(random.random() * 5, 2)
     return random_wait
 
 

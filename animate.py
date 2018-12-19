@@ -1,5 +1,6 @@
 from cars import Cars, TrafficLights
 from matplotlib import animation
+import models
 import numpy as np
 import osmnx as ox
 import simulation as sim
@@ -21,8 +22,13 @@ ax.set_title('Piedmont, California')
 cars_state = Cars(sim.init_culdesac_start_location(N))
 cars = sum([ax.plot([], [], color='brown', marker='o', ms=3) for n in np.arange(N)], [])
 # state = Cars(sim.init_random_node_start_location(N))
+
+
+# initialize traffic lights
+number_of_lights = len(sim.init_traffic_lights())
+initial_colors = models.initial_light_colors(number_of_lights)
 lights_state = TrafficLights(sim.init_traffic_lights())
-lights = sum([ax.plot([], [], color='red', marker='o', ms=2) for l in np.arange(len(sim.init_traffic_lights()))], [])
+lights = sum([ax.plot([], [], color=initial_colors[l], marker='o', ms=2) for l in np.arange(number_of_lights)], [])
 
 
 def init():
