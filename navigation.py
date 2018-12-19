@@ -140,7 +140,7 @@ def light_obstacles(car, light_conditions):
         car_within_xlinspace = np.isclose(x_space, location[0], rtol=1.0e-6).any()
         car_within_ylinspace = np.isclose(y_space, location[1], rtol=1.0e-6).any()
 
-        if car_within_xlinspace and car_within_ylinspace:
+        # if car_within_xlinspace and car_within_ylinspace:
 
     if obstacle_position:
         first_obstacle = obstacle_position[0]
@@ -156,33 +156,39 @@ def determine_pedigree(node_id):
     """
      each traffic light has a list of vectors, pointing in the direction of the road a light color should influence
 
-     :param  node_id:
-     :return vectors:
+     :param  node_id:    int
+     :return vectors:   list: list of vectors pointing from the intersection to the nearest point on the out roads
      """
     position = get_position_of_node(node_id)
 
-    vectors = []
-    edges_left = []
-    edges_right = []
+    left_edges = []
+    right_edges = []
     for edge in G.edges():
         if edge[0] == node_id:
-            edges_left.append(edge)
+            left_edges.append(edge)
         if edge[1] == node_id:
-            edges_right.append(edge)
+            right_edges.append(edge)
 
-    for oneway in edges_left:
-        for i, twoway in enumerate(edges_right):
-            if (oneway[0] == twoway[1]) or (oneway[1] == twoway[0]):
+    for left in left_edges:
+        for i, right in enumerate(right_edges):
+            if (left[1] == right[0]) and (right[1] == left[0]):
+                right_edges.pop(i)
 
+    intersection_edges = left_edges + right_edges
 
-            position_of_out_node = get_position_of_node(edge[1])
-        vectors.append((position_of_out_node[0] - position[0], position_of_out_node[1] - position[1]))
+    out_nodes = []
+    for edge in intersection_edges:
+        if edge[0] == node_id:
+            out_nodes.append(edge[1])
+        else:
+            out_nodes.append(edge[0])
+
+    vectors = []
+    for node in out_nodes:
+        point = lines_to_node(node_id, node)[0][1]
+        vectors.append((point[0] - position[0], point[1] - position[1]))
 
     return vectors
-
-
-
-
 
 
 def find_culdesacs():
@@ -247,6 +253,41 @@ def get_init_path(car):
     lines = shortest_path_lines_nx(car)
     path = models.path_decompiler(lines)
     return path
+
+
+def lines_to_node(origin, destination):
+    """
+
+    :param origin:
+    :param destination:
+    :return:
+    """
+
+    route = nx.shortest_path(G, origin, destination, weight='length')
+
+    # find the route lines
+    edge_nodes = list(zip(route[:-1], route[1:]))
+    lines = []
+    for u, v in edge_nodes:
+        # if there are parallel edges, select the shortest in length
+        data = min(G.get_edge_data(u, v).values(), key=lambda x: x['length'])
+
+        # if it has a geometry attribute (ie, a list of line segments)
+        if 'geometry' in data:
+            # add them to the list of lines to plot
+            xs, ys = data['geometry'].xy
+            lines.append(list(zip(xs, ys)))
+        else:
+            # if it doesn't have a geometry attribute, the edge is a straight
+            # line from node to node
+            x1 = G.nodes[u]['x']
+            y1 = G.nodes[u]['y']
+            x2 = G.nodes[v]['x']
+            y2 = G.nodes[v]['y']
+            line = ((x1, y1), (x2, y2))
+            lines.append(line)
+
+    return lines
 
 
 def shortest_path_lines_nx(car):
