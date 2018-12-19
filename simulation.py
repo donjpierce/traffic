@@ -56,10 +56,20 @@ def update_velocity(car):
 
 
 def accelerate(car):
-    if car['front-view']['distance-to-car'] > stop_distance:
+    """
+    determines if there is a car ahead. If there is, determines if its farther away than the stop_distance
+    returns True or False if the car should accelerate or not respectively
+
+    :param   car:
+    :return bool:
+    """
+    if not car['front-view']['distance-to-car']:
         return True
     else:
-        return False
+        if car['front-view']['distance-to-car'] > stop_distance:
+            return True
+        else:
+            return False
 
 
 def update_speed_factor(car):
@@ -144,10 +154,11 @@ def car_obstacle_factor(d):
 
 def car_timer(car, dt):
     """
+    This function increments a car's clock in all cases except when it is at its destination
 
-    :param car:
-    :param  dt:
-    :return:
+    :param car:   dict
+    :param  dt: double
+    :return dt or 0: double: 0 only if car is at destination
     """
     if not np.isclose(car['position'], nav.get_position_of_node(car['destination']), atol=1).all():
         return dt
@@ -157,10 +168,16 @@ def car_timer(car, dt):
 
 def new_light_instructions(light, time_elapsed):
     """
+    determines if it's time for a light to switch colors, then returns the new colors
 
+    Parameters
+    __________
     :param        light:   dict
     :param time_elapsed: double
-    :return:
+
+    Returns
+    _______
+    :return new_instructions or None: list or None: list if time to switch, None if not
     """
     half_switch_time = light['switch-time']
     if np.isclose(time_elapsed, half_switch_time, rtol=1.0e-4):
