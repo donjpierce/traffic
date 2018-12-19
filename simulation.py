@@ -254,7 +254,7 @@ def init_traffic_lights():
              'switch-counter': 0
              }
         )
-        lights[i]['switch-time'] = models.determine_traffic_light_timer(degree)
+        lights[i]['switch-time'] = models.determine_traffic_light_timer()
 
     return lights
 
