@@ -50,6 +50,11 @@ def update_velocity(car):
     return velocity
 
 
+def acceleration(car):
+    if car['front-view']['distance-to-car'] > stop_distance:
+        
+
+
 def update_speed_factor(car):
     """
     handles logic for updating speed according to road curvature and car obstacles
@@ -62,7 +67,6 @@ def update_speed_factor(car):
     distance_to_node = car['front-view']['distance-to-node']
     distance_to_car = car['front-view']['distance-to-car']
     curvature_factor = road_curvature_factor(angles, distance_to_node)
-
     if distance_to_car:
         car_factor = car_obstacle_factor(distance_to_car)
         if distance_to_car > distance_to_node:
@@ -105,10 +109,12 @@ def road_curvature_factor(angles, d):
             # a physical exception is needed so that cars don't stop moving in the limit where d --> stop_distance
             # note that this exception must depend on curvature factor, NOT solely distance
             # an exception depending solely on distance looses information about theta
-            if np.isclose(0, curvature_factor, rtol=1.0e-3):
+            # TODO: this logic needs to manifest itself in an acceleration framework
+            if np.isclose(0, curvature_factor, atol=0.1):
                 curvature_factor = 0.1
         else:
             curvature_factor = 1
+
     return curvature_factor
 
 
@@ -127,6 +133,10 @@ def car_obstacle_factor(d):
 
     if (stop_distance <= d) and (d <= free_distance):
         obstacle_factor = math.log(d / stop_distance) / math.log(free_distance / stop_distance)
+        # a physical exception is needed so that cars don't stop moving permanently
+        # TODO: this logic needs to manifest itself in an acceleration framework
+        if np.isclose(0, obstacle_factor, atol=0.1):
+            obstacle_factor = 0.1
     else:
         if d < stop_distance:
             obstacle_factor = 0
