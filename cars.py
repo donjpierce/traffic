@@ -84,10 +84,12 @@ class TrafficLights:
             new_instructions = []
             for face in instructions:
                 if light['switch-time'] % self.time_elapsed == light['switch-time']:
-                    if face:
-                        new_instructions.append(False)
-                    else:
-                        new_instructions.append(True)
+                    light['switch-counter'] += 1
+                    if light['switch-counter'] % 2:
+                        if face:
+                            new_instructions.append(False)
+                        else:
+                            new_instructions.append(True)
                 else:
                     new_instructions.append(face)
             light['go'] = new_instructions
