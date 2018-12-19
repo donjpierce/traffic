@@ -10,7 +10,7 @@ def determine_traffic_light_timer(degree):
     :param       degree:    int: degree of intersection
     :return random_wait: double: wait time in units of dt
     """
-    random_wait = random.random() * degree * 100
+    random_wait = random.random() * degree
     return random_wait
 
 
