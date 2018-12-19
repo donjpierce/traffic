@@ -95,7 +95,8 @@ class TrafficLights:
         for light in self.state:
             new_instructions = sim.new_light_instructions(light, self.time_elapsed)
             if new_instructions:
-                light['go'] = new_instructions
+                for i, instruction in enumerate(new_instructions):
+                    light['pedigree'][i]['go'] = instruction
             else:
                 continue
 

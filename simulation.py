@@ -276,20 +276,23 @@ def init_traffic_lights():
 
     for i, light in enumerate(light_nodes):
         node_id = light[0]
-        degree = light[1]
+        out_vectors = nav.determine_pedigree(node_id)
+        degree = len(out_vectors)
         position = nav.get_position_of_node(node_id)
         go = [False, True] * degree * 2
         go = go[:degree]
-        out_vectors = nav.determine_pedigree(node_id)
-        pedigree = {
-            ''
-        }
+
+        pedigree = [{
+            'vector': out_vectors[i],
+            'go': go[i]
+        } for i in range(len(out_vectors))]
+
         lights.append(
             {'position': position,
-             'degree': degree,
+             'degree': len(out_vectors),
              'go': go,
              'switch-counter': 0,
-             'pedigree':
+             'pedigree': pedigree
              }
         )
         lights[i]['switch-time'] = models.determine_traffic_light_timer()
