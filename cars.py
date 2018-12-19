@@ -2,8 +2,8 @@
 Description of module..
 
 Traffic lights when color=red are obstacles just like cars
-Cars slow down logarithmically as radius of road curvature gets smaller
-Cars slow down for obstacles logarithmically as obstacles get closer, and stop at stop_distance
+Cars slow down exponentially as radius of road curvature gets smaller
+Cars slow down for obstacles exponentially as obstacles get closer, and stop at stop_distance
 """
 import simulation as sim
 import navigation as nav
@@ -16,7 +16,7 @@ class Cars:
 
         Parameters
         __________
-        :param init_state: list:    each entry in the list is a car dict
+        :param init_state: dataframe:    each entry in the dataframe is a car
         """
         self.init_state = init_state
         self.state = self.init_state.copy()
@@ -36,7 +36,6 @@ class Cars:
         :return:
         """
         self.time_elapsed += dt
-        print('car time: {}'.format(self.time_elapsed))
 
         for i, car in enumerate(self.state):
             car['front-view']['distance-to-car'] = self.find_car_obstacles(car, i)

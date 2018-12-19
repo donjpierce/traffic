@@ -23,7 +23,6 @@ cars_state = Cars(sim.init_culdesac_start_location(N))
 cars = sum([ax.plot([], [], color='brown', marker='o', ms=3) for n in np.arange(N)], [])
 # state = Cars(sim.init_random_node_start_location(N))
 
-
 # initialize traffic lights
 number_of_lights = len(sim.init_traffic_lights())
 initial_colors = models.initial_light_colors(number_of_lights)
