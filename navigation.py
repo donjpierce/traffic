@@ -126,6 +126,8 @@ def car_obstacles(state, car):
 
 
 def light_obstacles(car):
+    position = car['position']
+
 
 
 

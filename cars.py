@@ -9,6 +9,15 @@ import simulation as sim
 import navigation as nav
 
 
+def communication():
+    """
+
+    :param car:
+    :return:
+    """
+    state =
+
+
 class Cars:
     def __init__(self, init_state):
         """
@@ -16,7 +25,7 @@ class Cars:
 
         Parameters
         __________
-        :param init_state: dataframe:    each entry in the dataframe is a car
+        :param init_state: list:    each entry in the list is a car dict
         """
         self.init_state = init_state
         self.state = self.init_state.copy()
@@ -68,14 +77,15 @@ class Cars:
         :param        car:           dict: specific car of interest
         :return: distance: double or bool: returns False if no car in view
         """
-
-
+        
 
 
 class TrafficLights:
     def __init__(self, light_state):
         """
         traffic light objects are used for finding, updating, and timing traffic light nodes
+
+        :param light_state: list: each entry in the list is a light dictionary
         """
         self.init_state = light_state
         self.state = self.init_state.copy()
@@ -83,7 +93,7 @@ class TrafficLights:
 
     def update(self, dt):
         """
-        update the state of the traffic light
+        update the state of the traffic lights
 
         :param dt:
         :return:

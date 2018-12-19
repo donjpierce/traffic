@@ -8,7 +8,7 @@ def initial_light_colors(n):
 
     :return:
     """
-    init_colors = [random.choice(['red', 'green']) for n in range(n)]
+    init_colors = [random.choice(['red', 'green']) for c in range(n)]
     return init_colors
 
 

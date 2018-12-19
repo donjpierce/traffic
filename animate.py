@@ -26,6 +26,7 @@ cars = sum([ax.plot([], [], color='brown', marker='o', ms=3) for n in np.arange(
 # initialize traffic lights
 number_of_lights = len(sim.init_traffic_lights())
 initial_colors = models.initial_light_colors(number_of_lights)
+print(initial_colors)
 lights_state = TrafficLights(sim.init_traffic_lights())
 lights = sum([ax.plot([], [], color=initial_colors[l], marker='o', ms=2) for l in np.arange(number_of_lights)], [])
 
@@ -51,8 +52,8 @@ def animate(i):
     :return:
     """
 
-    cars_state.update(dt)
     lights_state.update(dt)
+    cars_state.update(dt)
 
     for car, car_dict in zip(cars, cars_state.state):
         x = car_dict['position'][0]

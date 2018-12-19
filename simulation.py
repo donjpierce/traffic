@@ -20,6 +20,7 @@ TEMP_dest_node = 53028190   # Piedmont destination
 
 def update_path(car):
     """
+    This function shortens the stored path of a car after determining if the car crossed the next node in the path
 
     :param   car: dict
     :return path: origin path if stored node
