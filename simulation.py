@@ -284,9 +284,11 @@ def init_traffic_lights():
             {'position': position,
              'degree': degree,
              'go': go,
-             'switch-counter': 0
+             'switch-counter': 0,
+             'pedigree': nav.determine_pedigree(node_id)
              }
         )
         lights[i]['switch-time'] = models.determine_traffic_light_timer()
 
     return lights
+

@@ -53,7 +53,11 @@ def animate(i):
     """
 
     lights_state.update(dt)
-    cars_state.update(dt)
+
+    light_conditions = [(lights_state.state[i]['position'], lights_state.state[i]['go'])
+                        for i in range(len(lights_state.state))]
+
+    cars_state.update(dt, light_conditions)
 
     for car, car_dict in zip(cars, cars_state.state):
         x = car_dict['position'][0]

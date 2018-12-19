@@ -9,15 +9,6 @@ import simulation as sim
 import navigation as nav
 
 
-def communication():
-    """
-
-    :param car:
-    :return:
-    """
-    state =
-
-
 class Cars:
     def __init__(self, init_state):
         """
@@ -31,14 +22,14 @@ class Cars:
         self.state = self.init_state.copy()
         self.time_elapsed = 0
 
-    def update(self, dt):
+    def update(self, dt, light_conditions):
         """
         update the position of the car by a dt time step
 
         Parameters
         __________
-        :param self:    object
-        :param dt:      double
+        :param               dt:  double
+        :param light_conditions:    list
 
         Returns
         _______
@@ -47,7 +38,7 @@ class Cars:
         self.time_elapsed += dt
 
         for i, car in enumerate(self.state):
-            car['front-view']['distance-to-red-light'] = self.find_light_obstacles(car)
+            car['front-view']['distance-to-red-light'] = self.find_light_obstacles(car, light_conditions)
             car['front-view']['distance-to-car'] = self.find_car_obstacles(car, i)
             car['front-view']['distance-to-node'] = nav.FrontView(car).distance_to_node()
             car['path'] = sim.update_path(car)
@@ -70,14 +61,15 @@ class Cars:
         state.pop(i)
         return nav.car_obstacles(state, car)
 
-    def find_light_obstacles(self, car):
+    def find_light_obstacles(self, car, light_conditions):
         """
         finds the distance to red lights in the view for a specific car in the state
 
-        :param        car:           dict: specific car of interest
+        :param              car:           dict: specific car of interest
+        :param light_conditions:           list:
         :return: distance: double or bool: returns False if no car in view
         """
-        
+        obstacles = nav.light_obstacles(car, light_conditions)
 
 
 class TrafficLights:

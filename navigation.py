@@ -125,8 +125,62 @@ def car_obstacles(state, car):
         return None
 
 
-def light_obstacles(car):
-    position = car['position']
+def light_obstacles(car, light_conditions):
+
+    obstacles = FrontView(car)
+    space = models.upcoming_linspace(obstacles.view, car['position'])
+    x_space = space[0]
+    y_space = space[1]
+
+    locations_of_lights = [light_conditions[i][0] for i in range(len(light_conditions))]
+    color_of_lights = [light_conditions[i][1] for i in range(len(light_conditions))]
+
+    obstacle_position = []
+    for location, color in zip(locations_of_lights, color_of_lights):
+        car_within_xlinspace = np.isclose(x_space, location[0], rtol=1.0e-6).any()
+        car_within_ylinspace = np.isclose(y_space, location[1], rtol=1.0e-6).any()
+
+        if car_within_xlinspace and car_within_ylinspace:
+
+    if obstacle_position:
+        first_obstacle = obstacle_position[0]
+        x, y = first_obstacle[0], first_obstacle[1]
+        vector = (x - car['position'][0], y - car['position'][1])
+        distance = models.magnitude(vector)
+        return distance
+    else:
+        return None
+
+
+def determine_pedigree(node_id):
+    """
+     each traffic light has a list of vectors, pointing in the direction of the road a light color should influence
+
+     :param  node_id:
+     :return vectors:
+     """
+    position = get_position_of_node(node_id)
+
+    vectors = []
+    edges_left = []
+    edges_right = []
+    for edge in G.edges():
+        if edge[0] == node_id:
+            edges_left.append(edge)
+        if edge[1] == node_id:
+            edges_right.append(edge)
+
+    for oneway in edges_left:
+        for i, twoway in enumerate(edges_right):
+            if (oneway[0] == twoway[1]) or (oneway[1] == twoway[0]):
+
+
+            position_of_out_node = get_position_of_node(edge[1])
+        vectors.append((position_of_out_node[0] - position[0], position_of_out_node[1] - position[1]))
+
+    return vectors
+
+
 
 
 
