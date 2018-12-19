@@ -152,6 +152,19 @@ def car_obstacle_factor(d):
     return obstacle_factor
 
 
+def car_timer(car, dt):
+    """
+
+    :param car:
+    :param  dt:
+    :return:
+    """
+    if not np.isclose(car['position'], nav.get_position_of_node(car['destination']), atol=1).all():
+        return dt
+    else:
+        return 0
+
+
 def init_random_node_start_location(n):
     """
     initializes n cars at n random nodes
@@ -207,7 +220,7 @@ def init_culdesac_start_location(n):
         cars.append(
             {'position': position,
              'velocity': np.array([0, 0]),
-             'acceleration': np.array([0, 0]),
+             'route-time': 0,
              'front-view': {'distance-to-car': 0, 'distance-to-node': 0},
              'origin': start_node,
              'destination': TEMP_dest_node
@@ -217,3 +230,40 @@ def init_culdesac_start_location(n):
         cars[i]['front-view']['distance-to-node'] = nav.FrontView(cars[i]).distances[0]
 
     return cars
+
+
+def init_traffic_lights():
+    """
+
+    :return lights: list
+    """
+    light_nodes = nav.find_traffic_lights()
+
+    lights = []
+
+    for i, light in enumerate(light_nodes):
+        node_id = light[0]
+        degree = light[1]
+        position = nav.get_position_of_node(node_id)
+        go = [False, True] * degree * 2
+        go = go[:degree]
+        lights.append(
+            {'position': position,
+             'degree': degree,
+             'go': go
+             }
+        )
+        lights[i]['switch-time'] = models.determine_traffic_light_timer(degree)
+
+    return lights
+
+
+
+
+
+
+
+
+
+
+
