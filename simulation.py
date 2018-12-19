@@ -164,7 +164,6 @@ def new_light_instructions(light, time_elapsed):
     """
     half_switch_time = light['switch-time']
     if np.isclose(time_elapsed, half_switch_time, rtol=1.0e-4):
-        print('Switch Time: {}'.format(half_switch_time), 'Light time: {}'.format(time_elapsed))
         light['switch-counter'] += 1
         if light['switch-counter'] % 2:
             instructions = light['go']
