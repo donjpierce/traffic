@@ -11,6 +11,7 @@ import numpy as np
 speed_limit = 200
 stop_distance = 10
 free_distance = 30
+default_acceleration = 5
 
 TEMP_dest_node = 53028190   # Piedmont destination
 # TEMP_dest_node = 1989931095  # Manhattan destination
@@ -47,12 +48,18 @@ def update_velocity(car):
     position = np.array(car['position'])
     velocity_direction = models.unit_vector(next_node - position)
     velocity = velocity_direction * speed_limit * update_speed_factor(car)
+
+    if np.isclose(0, velocity, atol=0.1).all() and accelerate(car):
+        velocity += default_acceleration
+
     return velocity
 
 
-def acceleration(car):
+def accelerate(car):
     if car['front-view']['distance-to-car'] > stop_distance:
-        
+        return True
+    else:
+        return False
 
 
 def update_speed_factor(car):
@@ -78,7 +85,7 @@ def update_speed_factor(car):
     else:
         final_factor = curvature_factor
 
-    return final_factor
+    return abs(final_factor)
 
 
 def road_curvature_factor(angles, d):
