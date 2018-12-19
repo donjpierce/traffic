@@ -1,5 +1,17 @@
 import math
 import numpy as np
+import random
+
+
+def determine_traffic_light_timer(degree):
+    """
+    For now, wait times are determined by taking a random fraction of the degree
+
+    :param       degree:    int: degree of intersection
+    :return random_wait: double: wait time in units of dt
+    """
+    random_wait = random.random() * degree * 100
+    return random_wait
 
 
 def weigh_factors(car_factor, curvature_factor, distance_to_car, distance_to_node, free_distance):

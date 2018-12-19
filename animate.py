@@ -1,4 +1,4 @@
-from cars import Cars
+from cars import Cars, TrafficLights
 from matplotlib import animation
 import numpy as np
 import osmnx as ox
@@ -10,7 +10,7 @@ N = 33
 # load figure for animation
 G = ox.load_graphml('piedmont.graphml')
 G = ox.project_graph(G)
-fig, ax = ox.plot_graph(G)
+fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
 ax.set_title('Piedmont, California')
 
 # G = ox.load_graphml('sanfrancisco.graphml')
@@ -18,9 +18,11 @@ ax.set_title('Piedmont, California')
 # ax.set_title('San Francisco, California')
 
 # initialize empty particle points for animation
-cars = sum([ax.plot([], [], 'ro', ms=3) for n in np.arange(N)], [])
-state = Cars(sim.init_culdesac_start_location(N))
+cars_state = Cars(sim.init_culdesac_start_location(N))
+cars = sum([ax.plot([], [], color='brown', marker='o', ms=3) for n in np.arange(N)], [])
 # state = Cars(sim.init_random_node_start_location(N))
+lights_state = TrafficLights(sim.init_traffic_lights())
+lights = sum([ax.plot([], [], color='red', marker='o', ms=2) for l in np.arange(len(sim.init_traffic_lights()))], [])
 
 
 def init():
@@ -30,7 +32,11 @@ def init():
     """
     for car in cars:
         car.set_data([], [])
-    return cars
+
+    for light in lights:
+        light.set_data([], [])
+
+    return cars + lights
 
 
 def animate(i):
@@ -40,15 +46,26 @@ def animate(i):
     :return:
     """
 
-    state.update(dt)
+    cars_state.update(dt)
+    lights_state.update(dt)
 
-    for car, car_dict in zip(cars, state.state):
+    for car, car_dict in zip(cars, cars_state.state):
         x = car_dict['position'][0]
         y = car_dict['position'][1]
         car.set_data(x, y)
 
+    for light, light_dict in zip(lights, lights_state.state):
+        x = light_dict['position'][0]
+        y = light_dict['position'][1]
+        go = light_dict['go'][0]
+        light.set_data(x, y)
+        if go:
+            light.set_color('green')
+        else:
+            light.set_color('red')
+
     fig.canvas.draw()
-    return cars
+    return cars + lights
 
 
 # for creating HTML frame-movies
