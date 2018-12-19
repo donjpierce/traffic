@@ -38,6 +38,7 @@ class Cars:
         self.time_elapsed += dt
 
         for i, car in enumerate(self.state):
+            car['front-view']['distance-to-red-light'] = self.find_light_obstacles(car)
             car['front-view']['distance-to-car'] = self.find_car_obstacles(car, i)
             car['front-view']['distance-to-node'] = nav.FrontView(car).distance_to_node()
             car['path'] = sim.update_path(car)
@@ -59,6 +60,16 @@ class Cars:
         state = self.state.copy()
         state.pop(i)
         return nav.car_obstacles(state, car)
+
+    def find_light_obstacles(self, car):
+        """
+        finds the distance to red lights in the view for a specific car in the state
+
+        :param        car:           dict: specific car of interest
+        :return: distance: double or bool: returns False if no car in view
+        """
+
+
 
 
 class TrafficLights:

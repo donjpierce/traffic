@@ -125,6 +125,10 @@ def car_obstacles(state, car):
         return None
 
 
+def light_obstacles(car):
+
+
+
 def find_culdesacs():
     """
     culdesacs are nodes with only one edge connection and which are not on the boundary of the OpenStreetMap

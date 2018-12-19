@@ -180,10 +180,10 @@ def new_light_instructions(light, time_elapsed):
     :return new_instructions or None: list or None: list if time to switch, None if not
     """
     half_switch_time = light['switch-time']
+    instructions = light['go']
     if np.isclose(time_elapsed, half_switch_time, rtol=1.0e-4):
         light['switch-counter'] += 1
         if light['switch-counter'] % 2:
-            instructions = light['go']
             new_instructions = []
             for face in instructions:
                 if face:
@@ -192,9 +192,9 @@ def new_light_instructions(light, time_elapsed):
                     new_instructions.append(True)
             return new_instructions
         else:
-            return None
+            return instructions
     else:
-        return None
+        return instructions
 
 
 def init_random_node_start_location(n):
@@ -214,7 +214,7 @@ def init_random_node_start_location(n):
         cars.append(
             {'position': position,
              'velocity': np.array([0, 0]),
-             'acceleration': np.array([0, 0]),
+             'route-time': 0,
              'front-view': {'distance-to-car': 0, 'distance-to-node': 0},
              'origin': start_node,
              'destination': TEMP_dest_node
@@ -253,7 +253,7 @@ def init_culdesac_start_location(n):
             {'position': position,
              'velocity': np.array([0, 0]),
              'route-time': 0,
-             'front-view': {'distance-to-car': 0, 'distance-to-node': 0},
+             'front-view': {'distance-to-car': 0, 'distance-to-node': 0, 'distance-to-red-light': 0},
              'origin': start_node,
              'destination': TEMP_dest_node
              }
