@@ -43,7 +43,6 @@ def update_velocity(car):
     :return velocity: list
     """
     if len(car['path']) < 1:
-        print(car['path'])
         velocity = np.array([0., 0.])
         return velocity
     next_node = car['path'][0]
@@ -262,15 +261,14 @@ def init_culdesac_start_location(n):
     cars = []
 
     for i in range(n):
-        start_node = culdesacs[i]
-        position = nav.get_position_of_node(start_node)
+        position = nav.get_position_of_node(culdesacs[i])
         cars.append(
             {'position': position,
              'velocity': np.array([0, 0]),
              'route-time': 0,
              'front-view': {'distance-to-car': 0, 'distance-to-node': 0, 'distance-to-red-light': 0},
-             'origin': start_node,
-             'destination': TEMP_dest_node
+             'origin': culdesacs[i],
+             'destination': culdesacs[i + 1]
              }
         )
         cars[i]['path'] = np.array(nav.get_init_path(cars[i]))

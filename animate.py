@@ -6,7 +6,7 @@ import osmnx as ox
 import simulation as sim
 
 dt = 1 / 1000
-N = 1
+N = 6
 
 # load figure for animation
 G = ox.load_graphml('piedmont.graphml')
@@ -100,6 +100,6 @@ def animate(i):
 # ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
 
 # for creating movies
-ani = animation.FuncAnimation(fig, animate, init_func=init, frames=11000)
+ani = animation.FuncAnimation(fig, animate, init_func=init, frames=20000)
 mywriter = animation.FFMpegWriter(fps=300)
 ani.save('movie.mp4', writer=mywriter)
