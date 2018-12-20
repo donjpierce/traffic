@@ -43,6 +43,7 @@ def update_velocity(car):
     :return velocity: list
     """
     if len(car['path']) < 1:
+        print(car['path'])
         velocity = np.array([0., 0.])
         return velocity
     next_node = car['path'][0]
@@ -280,16 +281,19 @@ def init_culdesac_start_location(n):
 
 def init_traffic_lights():
     """
+    traffic lights are initialized here.
 
     :return lights: list
     """
+    epsilon = 0.2
+
     light_nodes = nav.find_traffic_lights()
 
     lights = []
 
     for i, light in enumerate(light_nodes):
         node_id = light[0]
-        out_vectors = nav.determine_pedigree(node_id)
+        out_vectors = np.array(nav.determine_pedigree(node_id))
         degree = len(out_vectors)
         position = nav.get_position_of_node(node_id)
         go = [False, True] * degree * 2
@@ -305,7 +309,7 @@ def init_traffic_lights():
              'degree': len(out_vectors),
              'switch-counter': 0,
              'pedigree': pedigree,
-             'out-positions': [position + out_vectors[i] for i in range(degree)]
+             'out-positions': [position + epsilon * out_vectors[i] for i in range(degree)]
              }
         )
         lights[i]['switch-time'] = models.determine_traffic_light_timer()

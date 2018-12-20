@@ -55,7 +55,7 @@ class Cars:
 
         :param       car:           dict: specific car of interest
         :param         i:            int: ID of the car in the state list
-        :return distance: double or bool: returns False if no car in view
+        :return distance: double or bool: returns None if no car in view
         """
         state = self.state.copy()
         state.pop(i)
@@ -67,10 +67,9 @@ class Cars:
 
         :param                     car:           dict: specific car of interest
         :param        light_conditions:           list:
-        :return: distance_to_red_light: double or bool: returns False if no car in view
+        :return: distance_to_red_light: double or bool: returns None if no car in view
         """
-        distance_to_red_light = nav.light_obstacles(car, light_conditions)
-        return distance_to_red_light
+        return nav.light_obstacles(car, light_conditions)
 
 
 class TrafficLights:
@@ -92,7 +91,8 @@ class TrafficLights:
         :return:
         """
         self.time_elapsed += dt
-        print(self.time_elapsed)
+        if not round(self.time_elapsed, 0) % 2:
+            print(self.time_elapsed)
 
         for light in self.state:
             new_instructions = sim.new_light_instructions(light, self.time_elapsed)
