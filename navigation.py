@@ -135,24 +135,31 @@ def light_obstacles(car, light_conditions):
 
     locations_of_lights = [light_conditions[i][0] for i in range(len(light_conditions))]
 
-    pedigree_index = []
+    light_index = []
     for i, location in enumerate(locations_of_lights):
         light_within_xlinspace = np.isclose(x_space, location[0], rtol=1.0e-6).any()
         light_within_ylinspace = np.isclose(y_space, location[1], rtol=1.0e-6).any()
 
-        if light_within_xlinspace and light_within_ylinspace :
-            pedigree_index.append(i)
+        if light_within_xlinspace and light_within_ylinspace:
+            light_index.append(i)
 
-    if pedigree_index:
-        light_position, pedigree = light_conditions[pedigree_index[0]]
+    if light_index:
+        light_position, pedigree = light_conditions[light_index[0]]
         car_vector = light_position - car['position']
-
+        face_value = []
         for face in pedigree:
-            if models.determine_parralel_vectors(car_vector, face['vector']) and not face['go']:
+            if models.determine_parralel_vectors(car_vector, face['vector']):
+                face_value.append(face)
+            else:
+                continue
+        if face_value:
+            if not face_value[0]['go']:
                 distance = models.magnitude(car_vector)
                 return distance
             else:
                 return None
+        else:
+            return None
     else:
         return None
 

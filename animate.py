@@ -1,12 +1,11 @@
 from cars import Cars, TrafficLights
 from matplotlib import animation
-import models
 import numpy as np
 import osmnx as ox
 import simulation as sim
 
 dt = 1 / 1000
-N = 1
+N = 33
 
 # load figure for animation
 # G = ox.load_graphml('lowermanhattan.graphml')
@@ -17,8 +16,8 @@ N = 1
 G = ox.load_graphml('piedmont.graphml')
 G = ox.project_graph(G)
 fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
-ax.set_xlim(566730, 567270)
-ax.set_ylim(4185840, 4186260)
+# ax.set_xlim(566730, 567270)
+# ax.set_ylim(4185840, 4186260)
 ax.set_title('Piedmont, California')
 
 # G = ox.load_graphml('sanfrancisco.graphml')
@@ -98,8 +97,14 @@ def animate(i):
         else:
             face.set_color('red')
 
-    ax.set_xlim(566730, 567270)
-    ax.set_ylim(4185840, 4186260)
+    # limits for 1 car TEMP_dest_node path view
+    # ax.set_xlim(566730, 567270)
+    # ax.set_ylim(4185840, 4186260)
+
+    # limits for 1 traffic light view
+    # ax.set_xlim(566930, 567404)
+    # ax.set_ylim(4186020, 4186280)
+
     fig.canvas.draw()
     return cars + lights + faces
 
@@ -109,6 +114,6 @@ def animate(i):
 # ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
 
 # for creating movies
-ani = animation.FuncAnimation(fig, animate, init_func=init, frames=5000)
+ani = animation.FuncAnimation(fig, animate, init_func=init, frames=50000)
 mywriter = animation.FFMpegWriter(fps=300)
 ani.save('movie.mp4', writer=mywriter)

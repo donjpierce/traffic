@@ -113,6 +113,7 @@ def immediate_linspace(view, position):
     :return:  space:   tuple:
     """
     next_node = view[0]
+
     x_distance_between = abs(next_node[0] - position[0])
     y_distance_between = abs(next_node[1] - position[1])
 
