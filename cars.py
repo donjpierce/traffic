@@ -92,6 +92,7 @@ class TrafficLights:
         :return:
         """
         self.time_elapsed += dt
+        print(self.time_elapsed)
 
         for light in self.state:
             new_instructions = sim.new_light_instructions(light, self.time_elapsed)

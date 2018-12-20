@@ -128,7 +128,7 @@ def car_obstacles(state, car):
 def light_obstacles(car, light_conditions):
 
     obstacles = FrontView(car)
-    space = models.upcoming_linspace(obstacles.view, car['position'])
+    space = models.immediate_linspace(obstacles.view, car['position'])
     x_space = space[0]
     y_space = space[1]
 
@@ -147,7 +147,7 @@ def light_obstacles(car, light_conditions):
         car_vector = light_position - car['position']
 
         for face in pedigree:
-            if models.determine_parralel_vectors(car_vector, face['vector']) and face['go']:
+            if models.determine_parralel_vectors(car_vector, face['vector']) and not face['go']:
                 distance = models.magnitude(car_vector)
                 return distance
             else:

@@ -64,13 +64,16 @@ def accelerate(car):
     :param   car:
     :return bool:
     """
-    if not car['front-view']['distance-to-car']:
-        return True
-    else:
-        if car['front-view']['distance-to-car'] > stop_distance:
+    if not car['front-view']['distance-to-red-light']:
+        if not car['front-view']['distance-to-car']:
             return True
         else:
-            return False
+            if car['front-view']['distance-to-car'] > stop_distance:
+                return True
+            else:
+                return False
+    else:
+        return False
 
 
 def update_speed_factor(car):
