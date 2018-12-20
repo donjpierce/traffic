@@ -4,6 +4,7 @@ Description of module...
 import math
 import models
 import navigation as nav
+from networkx.exception import NetworkXNoPath
 import numpy as np
 
 
@@ -262,18 +263,21 @@ def init_culdesac_start_location(n):
 
     for i in range(n):
         position = nav.get_position_of_node(culdesacs[i])
-        cars.append(
-            {'position': position,
-             'velocity': np.array([0, 0]),
-             'route-time': 0,
-             'front-view': {'distance-to-car': 0, 'distance-to-node': 0, 'distance-to-red-light': 0},
-             'origin': culdesacs[i],
-             'destination': culdesacs[i + 1]
+        new_car = {
+            'position': position,
+            'velocity': np.array([0, 0]),
+            'route-time': 0,
+            'front-view': {'distance-to-car': 0, 'distance-to-node': 0, 'distance-to-red-light': 0},
+            'origin': culdesacs[i],
+            'destination': culdesacs[i + 1]
              }
-        )
-        cars[i]['path'] = np.array(nav.get_init_path(cars[i]))
-        cars[i]['front-view']['distance-to-node'] = nav.FrontView(cars[i]).distances[0]
-
+        try:
+            new_car['path'] = np.array(nav.get_init_path(new_car))
+            new_car['front-view']['distance-to-node'] = nav.FrontView(new_car).distances[0]
+            cars.append(new_car)
+        except NetworkXNoPath:
+            continue
+    print('Number of cars: {}'.format(len(cars)))
     return cars
 
 
@@ -291,26 +295,30 @@ def init_traffic_lights():
 
     for i, light in enumerate(light_nodes):
         node_id = light[0]
-        out_vectors = np.array(nav.determine_pedigree(node_id))
+        try:
+            out_vectors = np.array(nav.determine_pedigree(node_id))
+        except NetworkXNoPath or ValueError:
+            continue
+
         degree = len(out_vectors)
         position = nav.get_position_of_node(node_id)
         go = [False, True] * degree * 2
         go = go[:degree]
 
         pedigree = [{
-            'vector': out_vectors[i],
-            'go': go[i]
-        } for i in range(len(out_vectors))]
+            'vector': out_vectors[j],
+            'go': go[j]
+        } for j in range(degree)]
 
         lights.append(
             {'position': position,
-             'degree': len(out_vectors),
+             'degree': degree,
              'switch-counter': 0,
              'pedigree': pedigree,
-             'out-positions': [position + epsilon * out_vectors[i] for i in range(degree)]
+             'out-positions': [position + epsilon * out_vectors[j] for j in range(degree)],
+             'switch-time': models.determine_traffic_light_timer()
              }
         )
-        lights[i]['switch-time'] = models.determine_traffic_light_timer()
 
     return lights
 
