@@ -125,6 +125,76 @@ def car_obstacles(state, car):
         return None
 
 
+def light_obstacles(car, light_conditions):
+
+    obstacles = FrontView(car)
+    space = models.immediate_linspace(obstacles.view, car['position'])
+    x_space = space[0]
+    y_space = space[1]
+
+    locations_of_lights = [light_conditions[i][0] for i in range(len(light_conditions))]
+
+    pedigree_index = []
+    for i, location in enumerate(locations_of_lights):
+        light_within_xlinspace = np.isclose(x_space, location[0], rtol=1.0e-6).any()
+        light_within_ylinspace = np.isclose(y_space, location[1], rtol=1.0e-6).any()
+
+        if light_within_xlinspace and light_within_ylinspace :
+            pedigree_index.append(i)
+
+    if pedigree_index:
+        light_position, pedigree = light_conditions[pedigree_index[0]]
+        car_vector = light_position - car['position']
+
+        for face in pedigree:
+            if models.determine_parralel_vectors(car_vector, face['vector']) and not face['go']:
+                distance = models.magnitude(car_vector)
+                return distance
+            else:
+                return None
+    else:
+        return None
+
+
+def determine_pedigree(node_id):
+    """
+     each traffic light has a list of vectors, pointing in the direction of the road a light color should influence
+
+     :param  node_id:    int
+     :return vectors:   list: list of vectors pointing from the intersection to the nearest point on the out roads
+     """
+    position = get_position_of_node(node_id)
+
+    left_edges = []
+    right_edges = []
+    for edge in G.edges():
+        if edge[0] == node_id:
+            left_edges.append(edge)
+        if edge[1] == node_id:
+            right_edges.append(edge)
+
+    for left in left_edges:
+        for i, right in enumerate(right_edges):
+            if (left[1] == right[0]) and (right[1] == left[0]):
+                right_edges.pop(i)
+
+    intersection_edges = left_edges + right_edges
+
+    out_nodes = []
+    for edge in intersection_edges:
+        if edge[0] == node_id:
+            out_nodes.append(edge[1])
+        else:
+            out_nodes.append(edge[0])
+
+    vectors = []
+    for node in out_nodes:
+        point = lines_to_node(node_id, node)[0][1]
+        vectors.append((point[0] - position[0], point[1] - position[1]))
+
+    return vectors
+
+
 def find_culdesacs():
     """
     culdesacs are nodes with only one edge connection and which are not on the boundary of the OpenStreetMap
@@ -133,6 +203,21 @@ def find_culdesacs():
     """
     culdesacs = [key for key, value in G.graph['streets_per_node'].items() if value == 1]
     return culdesacs
+
+
+def find_traffic_lights():
+    """
+    traffic lights are nodes in the graph which have degree > 3
+
+    :return light_intersections: a list of node IDs suitable for traffic lights
+    """
+    prescale = 20
+    light_intersections = []
+    for i, node in enumerate(G.degree()):
+        if (node[1] > 3) and not (i % prescale):
+            light_intersections.append(node)
+
+    return light_intersections
 
 
 def find_nodes(n):
@@ -172,6 +257,41 @@ def get_init_path(car):
     lines = shortest_path_lines_nx(car)
     path = models.path_decompiler(lines)
     return path
+
+
+def lines_to_node(origin, destination):
+    """
+
+    :param origin:
+    :param destination:
+    :return:
+    """
+
+    route = nx.shortest_path(G, origin, destination, weight='length')
+
+    # find the route lines
+    edge_nodes = list(zip(route[:-1], route[1:]))
+    lines = []
+    for u, v in edge_nodes:
+        # if there are parallel edges, select the shortest in length
+        data = min(G.get_edge_data(u, v).values(), key=lambda x: x['length'])
+
+        # if it has a geometry attribute (ie, a list of line segments)
+        if 'geometry' in data:
+            # add them to the list of lines to plot
+            xs, ys = data['geometry'].xy
+            lines.append(list(zip(xs, ys)))
+        else:
+            # if it doesn't have a geometry attribute, the edge is a straight
+            # line from node to node
+            x1 = G.nodes[u]['x']
+            y1 = G.nodes[u]['y']
+            x2 = G.nodes[v]['x']
+            y2 = G.nodes[v]['y']
+            line = ((x1, y1), (x2, y2))
+            lines.append(line)
+
+    return lines
 
 
 def shortest_path_lines_nx(car):

@@ -20,6 +20,7 @@ TEMP_dest_node = 53028190   # Piedmont destination
 
 def update_path(car):
     """
+    This function shortens the stored path of a car after determining if the car crossed the next node in the path
 
     :param   car: dict
     :return path: origin path if stored node
@@ -42,6 +43,7 @@ def update_velocity(car):
     :return velocity: list
     """
     if len(car['path']) < 1:
+        print(car['path'])
         velocity = np.array([0., 0.])
         return velocity
     next_node = car['path'][0]
@@ -56,8 +58,21 @@ def update_velocity(car):
 
 
 def accelerate(car):
-    if car['front-view']['distance-to-car'] > stop_distance:
-        return True
+    """
+    determines if there is a car ahead. If there is, determines if its farther away than the stop_distance
+    returns True or False if the car should accelerate or not respectively
+
+    :param   car:
+    :return bool:
+    """
+    if not car['front-view']['distance-to-red-light']:
+        if not car['front-view']['distance-to-car']:
+            return True
+        else:
+            if car['front-view']['distance-to-car'] > stop_distance:
+                return True
+            else:
+                return False
     else:
         return False
 
@@ -73,17 +88,28 @@ def update_speed_factor(car):
     angles = obstacles.angles
     distance_to_node = car['front-view']['distance-to-node']
     distance_to_car = car['front-view']['distance-to-car']
+    distance_to_red_light = car['front-view']['distance-to-red-light']
     curvature_factor = road_curvature_factor(angles, distance_to_node)
-    if distance_to_car:
-        car_factor = car_obstacle_factor(distance_to_car)
-        if distance_to_car > distance_to_node:
-            final_factor = models.weigh_factors(
-                car_factor, curvature_factor, distance_to_car, distance_to_node, free_distance
-            )
+
+    if distance_to_car and distance_to_red_light:
+        if distance_to_car <= distance_to_red_light:
+            final_factor = obstacle_factor(distance_to_car)
         else:
-            final_factor = car_factor
+            final_factor = obstacle_factor(distance_to_red_light)
     else:
-        final_factor = curvature_factor
+        if distance_to_car and not distance_to_red_light:
+            car_factor = obstacle_factor(distance_to_car)
+            if distance_to_car > distance_to_node:
+                final_factor = models.weigh_factors(
+                    car_factor, curvature_factor, distance_to_car, distance_to_node, free_distance
+                )
+            else:
+                final_factor = car_factor
+        else:
+            if distance_to_red_light:
+                final_factor = obstacle_factor(distance_to_red_light)
+            else:
+                final_factor = curvature_factor
 
     return abs(final_factor)
 
@@ -113,19 +139,13 @@ def road_curvature_factor(angles, d):
         if (stop_distance <= d) and (d <= free_distance):
             curvature_factor = math.log(d / (stop_distance * 2 * theta / math.pi)) / \
                                math.log(free_distance / (stop_distance * 2 * theta / math.pi))
-            # a physical exception is needed so that cars don't stop moving in the limit where d --> stop_distance
-            # note that this exception must depend on curvature factor, NOT solely distance
-            # an exception depending solely on distance looses information about theta
-            # TODO: this logic needs to manifest itself in an acceleration framework
-            if np.isclose(0, curvature_factor, atol=0.1):
-                curvature_factor = 0.1
         else:
             curvature_factor = 1
 
     return curvature_factor
 
 
-def car_obstacle_factor(d):
+def obstacle_factor(d):
     """
     calculates the speed factor (between 0 and 1) for road curvature
 
@@ -137,19 +157,59 @@ def car_obstacle_factor(d):
     _______
     :return obstacle_factor: double:  factor by which to diminish speed
     """
-
     if (stop_distance <= d) and (d <= free_distance):
-        obstacle_factor = math.log(d / stop_distance) / math.log(free_distance / stop_distance)
-        # a physical exception is needed so that cars don't stop moving permanently
-        # TODO: this logic needs to manifest itself in an acceleration framework
-        if np.isclose(0, obstacle_factor, atol=0.1):
-            obstacle_factor = 0.1
+        factor = math.log(d / stop_distance) / math.log(free_distance / stop_distance)
     else:
         if d < stop_distance:
-            obstacle_factor = 0
+            factor = 0
         else:
-            obstacle_factor = 1
-    return obstacle_factor
+            factor = 1
+    return factor
+
+
+def car_timer(car, dt):
+    """
+    This function increments a car's clock in all cases except when it is at its destination
+
+    :param car:   dict
+    :param  dt: double
+    :return dt or 0: double: 0 only if car is at destination
+    """
+    if not np.isclose(car['position'], nav.get_position_of_node(car['destination']), atol=1).all():
+        return dt
+    else:
+        return 0
+
+
+def new_light_instructions(light, time_elapsed):
+    """
+    determines if it's time for a light to switch colors, then returns the new colors
+
+    Parameters
+    __________
+    :param        light:   dict
+    :param time_elapsed: double
+
+    Returns
+    _______
+    :return new_instructions or None: list or None: list if time to switch, None if not
+    """
+    half_switch_time = light['switch-time']
+    instructions = [light['pedigree'][i]['go'] for i in range(light['degree'])]
+    if np.isclose(time_elapsed, half_switch_time, rtol=1.0e-4):
+        light['switch-counter'] += 1
+        if light['switch-counter'] % 2:
+            new_instructions = []
+            for face in instructions:
+                if face:
+                    new_instructions.append(False)
+                else:
+                    new_instructions.append(True)
+            return new_instructions
+        else:
+            return instructions
+    else:
+        return instructions
 
 
 def init_random_node_start_location(n):
@@ -169,8 +229,8 @@ def init_random_node_start_location(n):
         cars.append(
             {'position': position,
              'velocity': np.array([0, 0]),
-             'acceleration': np.array([0, 0]),
-             'front-view': {'distance-to-car': 0, 'distance-to-node': 0},
+             'route-time': 0,
+             'front-view': {'distance-to-car': 0, 'distance-to-node': 0, 'distance-to-red-light': 0},
              'origin': start_node,
              'destination': TEMP_dest_node
              }
@@ -207,8 +267,8 @@ def init_culdesac_start_location(n):
         cars.append(
             {'position': position,
              'velocity': np.array([0, 0]),
-             'acceleration': np.array([0, 0]),
-             'front-view': {'distance-to-car': 0, 'distance-to-node': 0},
+             'route-time': 0,
+             'front-view': {'distance-to-car': 0, 'distance-to-node': 0, 'distance-to-red-light': 0},
              'origin': start_node,
              'destination': TEMP_dest_node
              }
@@ -217,3 +277,42 @@ def init_culdesac_start_location(n):
         cars[i]['front-view']['distance-to-node'] = nav.FrontView(cars[i]).distances[0]
 
     return cars
+
+
+def init_traffic_lights():
+    """
+    traffic lights are initialized here.
+
+    :return lights: list
+    """
+    epsilon = 0.2
+
+    light_nodes = nav.find_traffic_lights()
+
+    lights = []
+
+    for i, light in enumerate(light_nodes):
+        node_id = light[0]
+        out_vectors = np.array(nav.determine_pedigree(node_id))
+        degree = len(out_vectors)
+        position = nav.get_position_of_node(node_id)
+        go = [False, True] * degree * 2
+        go = go[:degree]
+
+        pedigree = [{
+            'vector': out_vectors[i],
+            'go': go[i]
+        } for i in range(len(out_vectors))]
+
+        lights.append(
+            {'position': position,
+             'degree': len(out_vectors),
+             'switch-counter': 0,
+             'pedigree': pedigree,
+             'out-positions': [position + epsilon * out_vectors[i] for i in range(degree)]
+             }
+        )
+        lights[i]['switch-time'] = models.determine_traffic_light_timer()
+
+    return lights
+

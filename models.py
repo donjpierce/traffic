@@ -1,5 +1,25 @@
 import math
 import numpy as np
+import random
+
+
+def initial_light_colors(n):
+    """
+
+    :return:
+    """
+    init_colors = [random.choice(['red', 'green']) for c in range(n)]
+    return init_colors
+
+
+def determine_traffic_light_timer():
+    """
+    For now, wait times are determined by taking a random fraction of the degree
+
+    :return random_wait: double: wait time in units of dt
+    """
+    random_wait = round(random.random() * 5, 2)
+    return random_wait
 
 
 def weigh_factors(car_factor, curvature_factor, distance_to_car, distance_to_node, free_distance):
@@ -49,6 +69,16 @@ def angle_between(v1, v2):
     return angle
 
 
+def determine_parralel_vectors(v1, v2):
+    """ Returns True if two vectors are close to parallel """
+    v1, v2 = unit_vector(v1), unit_vector(v2)
+    angle = np.arccos(np.clip(np.dot(v1, v2), -1.0, 1.0))
+    if np.isclose([0., math.pi], angle, rtol=1.0e-3).any():
+        return True
+    else:
+        return False
+
+
 def path_decompiler(lines):
     """
     Decompiles a path from its geometry configuration into a pure list of tuples
@@ -72,6 +102,25 @@ def path_decompiler(lines):
             clean_path.append(path[i])
 
     return clean_path
+
+
+def immediate_linspace(view, position):
+    """
+    this function returns a 2D linspace between the car's immediate position and the next node in the view
+
+    :param     view:    list:   list of n upcoming nodes
+    :param position:    list:   coordinate position of car
+    :return:  space:   tuple:
+    """
+    next_node = view[0]
+    x_distance_between = abs(next_node[0] - position[0])
+    y_distance_between = abs(next_node[1] - position[1])
+
+    nx, ny = (x_distance_between, y_distance_between)
+    x = np.linspace(position[0], next_node[0], nx)
+    y = np.linspace(position[1], next_node[1], ny)
+    space = (x, y)
+    return space
 
 
 def upcoming_linspace(view, position):
