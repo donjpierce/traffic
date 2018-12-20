@@ -65,11 +65,12 @@ class Cars:
         """
         finds the distance to red lights in the view for a specific car in the state
 
-        :param              car:           dict: specific car of interest
-        :param light_conditions:           list:
-        :return: distance: double or bool: returns False if no car in view
+        :param                     car:           dict: specific car of interest
+        :param        light_conditions:           list:
+        :return: distance_to_red_light: double or bool: returns False if no car in view
         """
-        obstacles = nav.light_obstacles(car, light_conditions)
+        distance_to_red_light = nav.light_obstacles(car, light_conditions)
+        return distance_to_red_light
 
 
 class TrafficLights:

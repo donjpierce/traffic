@@ -84,17 +84,28 @@ def update_speed_factor(car):
     angles = obstacles.angles
     distance_to_node = car['front-view']['distance-to-node']
     distance_to_car = car['front-view']['distance-to-car']
+    distance_to_red_light = car['front-view']['distance-to-red-light']
     curvature_factor = road_curvature_factor(angles, distance_to_node)
-    if distance_to_car:
-        car_factor = car_obstacle_factor(distance_to_car)
-        if distance_to_car > distance_to_node:
-            final_factor = models.weigh_factors(
-                car_factor, curvature_factor, distance_to_car, distance_to_node, free_distance
-            )
+
+    if distance_to_car and distance_to_red_light:
+        if distance_to_car <= distance_to_red_light:
+            final_factor = obstacle_factor(distance_to_car)
         else:
-            final_factor = car_factor
+            final_factor = obstacle_factor(distance_to_red_light)
     else:
-        final_factor = curvature_factor
+        if distance_to_car and not distance_to_red_light:
+            car_factor = obstacle_factor(distance_to_car)
+            if distance_to_car > distance_to_node:
+                final_factor = models.weigh_factors(
+                    car_factor, curvature_factor, distance_to_car, distance_to_node, free_distance
+                )
+            else:
+                final_factor = car_factor
+        else:
+            if distance_to_red_light:
+                final_factor = obstacle_factor(distance_to_red_light)
+            else:
+                final_factor = curvature_factor
 
     return abs(final_factor)
 
@@ -130,7 +141,7 @@ def road_curvature_factor(angles, d):
     return curvature_factor
 
 
-def car_obstacle_factor(d):
+def obstacle_factor(d):
     """
     calculates the speed factor (between 0 and 1) for road curvature
 
@@ -142,15 +153,14 @@ def car_obstacle_factor(d):
     _______
     :return obstacle_factor: double:  factor by which to diminish speed
     """
-
     if (stop_distance <= d) and (d <= free_distance):
-        obstacle_factor = math.log(d / stop_distance) / math.log(free_distance / stop_distance)
+        factor = math.log(d / stop_distance) / math.log(free_distance / stop_distance)
     else:
         if d < stop_distance:
-            obstacle_factor = 0
+            factor = 0
         else:
-            obstacle_factor = 1
-    return obstacle_factor
+            factor = 1
+    return factor
 
 
 def car_timer(car, dt):
@@ -216,7 +226,7 @@ def init_random_node_start_location(n):
             {'position': position,
              'velocity': np.array([0, 0]),
              'route-time': 0,
-             'front-view': {'distance-to-car': 0, 'distance-to-node': 0},
+             'front-view': {'distance-to-car': 0, 'distance-to-node': 0, 'distance-to-red-light': 0},
              'origin': start_node,
              'destination': TEMP_dest_node
              }
@@ -290,7 +300,6 @@ def init_traffic_lights():
         lights.append(
             {'position': position,
              'degree': len(out_vectors),
-             'go': go,
              'switch-counter': 0,
              'pedigree': pedigree
              }
