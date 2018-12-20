@@ -91,7 +91,7 @@ class TrafficLights:
         :return:
         """
         self.time_elapsed += dt
-        if not round(self.time_elapsed, 0) % 2:
+        if not self.time_elapsed % 0.5:
             print(self.time_elapsed)
 
         for light in self.state:
