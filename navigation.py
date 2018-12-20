@@ -142,9 +142,8 @@ def light_obstacles(car, light_conditions):
         if light_within_xlinspace and light_within_ylinspace :
             pedigree_index.append(i)
 
-    first_light = pedigree_index[0]
-    if first_light:
-        light_position, pedigree = light_conditions[first_light]
+    if pedigree_index:
+        light_position, pedigree = light_conditions[pedigree_index[0]]
         car_vector = light_position - car['position']
 
         for face in pedigree:

@@ -191,7 +191,7 @@ def new_light_instructions(light, time_elapsed):
     :return new_instructions or None: list or None: list if time to switch, None if not
     """
     half_switch_time = light['switch-time']
-    instructions = light['go']
+    instructions = [light['pedigree'][i]['go'] for i in range(light['degree'])]
     if np.isclose(time_elapsed, half_switch_time, rtol=1.0e-4):
         light['switch-counter'] += 1
         if light['switch-counter'] % 2:
@@ -301,7 +301,8 @@ def init_traffic_lights():
             {'position': position,
              'degree': len(out_vectors),
              'switch-counter': 0,
-             'pedigree': pedigree
+             'pedigree': pedigree,
+             'out-positions': [position + out_vectors[i] for i in range(degree)]
              }
         )
         lights[i]['switch-time'] = models.determine_traffic_light_timer()
