@@ -9,8 +9,8 @@ import numpy as np
 
 
 # fill the initial state with N cars
-speed_limit = 200
-stop_distance = 10
+speed_limit = 100
+stop_distance = 1
 free_distance = 30
 default_acceleration = 5
 
@@ -269,7 +269,7 @@ def init_culdesac_start_location(n):
             'route-time': 0,
             'front-view': {'distance-to-car': 0, 'distance-to-node': 0, 'distance-to-red-light': 0},
             'origin': culdesacs[i],
-            'destination': culdesacs[i + 1]
+            'destination': TEMP_dest_node  # culdesacs[i + 1]
              }
         try:
             new_car['path'] = np.array(nav.get_init_path(new_car))

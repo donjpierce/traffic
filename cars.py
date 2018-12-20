@@ -36,6 +36,7 @@ class Cars:
         :return:
         """
         self.time_elapsed += dt
+        print(self.time_elapsed)
 
         for i, car in enumerate(self.state):
             car['front-view']['distance-to-red-light'] = self.find_light_obstacles(car, light_conditions)
@@ -91,8 +92,6 @@ class TrafficLights:
         :return:
         """
         self.time_elapsed += dt
-        if not self.time_elapsed % 0.5:
-            print(self.time_elapsed)
 
         for light in self.state:
             new_instructions = sim.new_light_instructions(light, self.time_elapsed)

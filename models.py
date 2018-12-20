@@ -149,29 +149,35 @@ def upcoming_linspace(view, position):
     return space
 
 
-def upcoming_vectors(view):
+def upcoming_vectors(car, view):
     """
     determines the vectors between the nodes in a view
 
+    :param      car: dict
     :param     view: list:  list of n upcoming nodes
     :return vectors: list:  list of (n-1) vectors pointing between the nodes along the path of travel
     """
+    position_view = [car['position']]
+    for point in view:
+        position_view.append(point)
+
     vectors = []
-    for i in range(len(view)):
-        if i < len(view) - 1:
-            vectors.append(np.array([view[i + 1][0] - view[i][0], view[i + 1][1] - view[i][1]]) /
-                           math.sqrt(np.dot(view[i], view[i + 1])))
+    for i in range(len(position_view)):
+        if i < len(position_view) - 1:
+            vectors.append(np.array([
+                position_view[i + 1][0] - position_view[i][0], position_view[i + 1][1] - position_view[i][1]]) /
+                math.sqrt(np.dot(position_view[i], position_view[i + 1])))
     return np.array(vectors)
 
 
-def get_angles(view):
+def get_angles(car, view):
     """
     determines the angles between the upcoming vectors
 
     :param   view: list: list of coordinate points of next five nodes in path
     :return  angles: list: list of the next angles of road curvature
     """
-    vectors = upcoming_vectors(view)
+    vectors = upcoming_vectors(car, view)
     angles = []
     for i in range(len(vectors)):
         if i < len(vectors) - 1:
@@ -180,14 +186,14 @@ def get_angles(view):
     return angles
 
 
-def get_distances(view):
+def get_distances(car, view):
     """
     determines the upcoming distances (lengths of upcoming_vectors)
 
     :param        view: list: list of coordinate points of next five nodes in path
     :return: distances: list: list of the next distances between upcoming nodes on the road
     """
-    vectors = upcoming_vectors(view)
+    vectors = upcoming_vectors(car, view)
     distances = [np.sqrt(vector.dot(vector)) for vector in vectors]
     return distances
 

@@ -10,9 +10,9 @@ import numpy as np
 import osmnx as ox
 
 
-# G = ox.load_graphml('piedmont.graphml')
+G = ox.load_graphml('piedmont.graphml')
 # G = ox.load_graphml('sanfrancisco.graphml')
-G = ox.load_graphml('lowermanhattan.graphml')
+# G = ox.load_graphml('lowermanhattan.graphml')
 G = ox.project_graph(G)
 
 
@@ -27,9 +27,9 @@ class FrontView:
         self.look_ahead_nodes = look_ahead_nodes
         self.car = car
         self.view = self.determine_view()
-        self.angles = models.get_angles(self.view)
+        self.angles = models.get_angles(self.car, self.view)
         self.obstacle_cars = 0
-        self.distances = models.get_distances(self.view)
+        self.distances = models.get_distances(self.car, self.view)
 
     def determine_view(self):
         """
