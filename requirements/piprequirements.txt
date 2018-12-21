@@ -3,11 +3,12 @@ apturl==0.5.2
 asn1crypto==0.24.0
 beautifulsoup4==4.6.0
 Brlapi==0.6.6
-certifi==2018.1.18
+certifi==2018.11.29
+cffi==1.11.5
 chardet==3.0.4
 command-not-found==0.3
 configobj==5.0.6
-cryptography==2.1.4
+cryptography==2.4.2
 cupshelpers==1.0
 cycler==0.10.0
 decorator==4.1.2
@@ -16,7 +17,7 @@ fasteners==0.12.0
 gcalcli==4.0.0a3
 google-api-python-client==1.5.5
 httplib2==0.9.2
-idna==2.6
+idna==2.8
 ipython==5.5.0
 ipython-genutils==0.2.0
 kiwisolver==1.0.1
@@ -41,6 +42,7 @@ psutil==5.4.2
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
 pycairo==1.16.2
+pycparser==2.19
 pycrypto==2.6.1
 pycups==1.9.73
 pycurl==7.43.0.1
@@ -62,13 +64,13 @@ pytz==2018.3
 pyxdg==0.25
 PyYAML==3.12
 reportlab==3.4.0
-requests==2.18.4
+requests==2.21.0
 requests-unixsocket==0.1.5
 rsa==3.4.2
 sessioninstaller==0.0.0
 setproctitle==1.1.10
 simplegeneric==0.8.1
-six==1.11.0
+six==1.12.0
 SQLAlchemy==1.1.11
 system-service==0.3
 systemd-python==234
@@ -76,6 +78,6 @@ traitlets==4.3.2
 ubuntu-drivers-common==0.0.0
 ufw==0.35
 uritemplate==0.6
-urllib3==1.22
+urllib3==1.24.1
 wcwidth==0.1.7
 xkit==0.0.0
