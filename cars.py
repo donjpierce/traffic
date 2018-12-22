@@ -16,7 +16,7 @@ class Cars:
 
         Parameters
         __________
-        :param init_state: list:    each entry in the list is a car dict
+        :param init_state: dataframe:    each Series row is a car
         """
         self.init_state = init_state
         self.state = self.init_state.copy()

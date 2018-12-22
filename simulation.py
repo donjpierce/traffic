@@ -188,7 +188,7 @@ def new_light_instructions(light, time_elapsed):
 
     Parameters
     __________
-    :param        light:   dict
+    :param        light: Series row from dataframe
     :param time_elapsed: double
 
     Returns
@@ -220,25 +220,42 @@ def init_random_node_start_location(n):
     :param      n: int
     :return state: dict
     """
-    nodes = nav.find_nodes(n)
+    # TODO: combine this function with other car initialization functions using flags
 
-    cars = []
+    nodes = nav.find_nodes(n)
+    cars_data = []
 
     for i in range(n):
-        start_node = nodes[i]
-        position = nav.get_position_of_node(start_node)
-        cars.append(
-            {'position': position,
-             'path': np.array(nav.get_init_path(cars[i])),
-             'velocity': np.array([0, 0]),
-             'route-time': 0,
-             'front-view': {'distance-to-car': 0,
-                            'distance-to-node':  nav.FrontView(cars[i]).distances[0],
-                            'distance-to-red-light': 0},
-             'origin': start_node,
-             'destination': TEMP_dest_node
-             }
-        )
+        if i < n - 1:
+            origin = nodes[i]
+            destination = nodes[i + 1]
+
+            try:
+                path = nav.get_init_path(origin, destination)
+            except NetworkXNoPath:
+                print('No path between {} and {}.'.format(nodes[i], nodes[i + 1]))
+                continue
+
+            position = nav.get_position_of_node(nodes[i])
+
+            car = {'object': 'car',
+                   'x': position[0],
+                   'y': position[1],
+                   'vx': 0,
+                   'vy': 0,
+                   'route-time': 0,
+                   'origin': nodes[i],
+                   'destination': nodes[i + 1],
+                   'xpath': [path[i][0] for i in range(len(path))],
+                   'ypath': [path[i][1] for i in range(len(path))],
+                   'distance-to-car': 0,
+                   'distance-to-node': 0,
+                   'distance-to-red-light': 0}
+
+            cars_data.append(car)
+
+    cars = pd.DataFrame(cars_data)
+    print('Number of cars: {}'.format(len(cars)))
 
     return cars
 
@@ -255,6 +272,8 @@ def init_culdesac_start_location(n):
     _______
     :return cars:   dataframe
     """
+    # TODO: combine this function with other car initialization functions using flags
+
     culdesacs = nav.find_culdesacs()
 
     if n > len(culdesacs):
@@ -281,6 +300,7 @@ def init_culdesac_start_location(n):
                'y': position[1],
                'vx': 0,
                'vy': 0,
+               'route-time': 0,
                'origin': culdesacs[i],
                'destination': culdesacs[i + 1],
                'xpath': [path[i][0] for i in range(len(path))],
@@ -343,4 +363,3 @@ def init_traffic_lights():
     lights = pd.DataFrame(lights_data)
 
     return lights
-
