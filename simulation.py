@@ -6,6 +6,7 @@ import models
 import navigation as nav
 from networkx.exception import NetworkXNoPath
 import numpy as np
+import pandas as pd
 
 
 # fill the initial state with N cars
@@ -260,24 +261,37 @@ def init_culdesac_start_location(n):
         raise ValueError('Number of cars greater than culdesacs to place them. '
                          'Choose a number less than {}'.format(len(culdesacs)))
 
-    cars = []
+    cars_data = []
 
     for i in range(n):
+
         position = nav.get_position_of_node(culdesacs[i])
-        new_car = {
-            'position': position,
-            'velocity': np.array([0, 0]),
-            'route-time': 0,
-            'front-view': {'distance-to-car': 0, 'distance-to-node': 0, 'distance-to-red-light': 0},
-            'origin': culdesacs[i],
-            'destination': culdesacs[i + 1]
-             }
+        origin = culdesacs[i]
+        destination = culdesacs[i + 1]
+
         try:
-            new_car['path'] = np.array(nav.get_init_path(new_car))
-            new_car['front-view']['distance-to-node'] = nav.FrontView(new_car).distances[0]
-            cars.append(new_car)
+            path = nav.get_init_path(origin, destination)
+            car = {'object': 'car',
+                   'x': position[0],
+                   'y': position[1],
+                   'vx': 0,
+                   'vy': 0,
+                   'origin': culdesacs[i],
+                   'destination': culdesacs[i + 1],
+                   'xpath': [path[i][0] for i in range(len(path))],
+                   'ypath': [path[i][1] for i in range(len(path))],
+                   'distance-to-car': 0,
+                   'distance-to-node': 0,
+                   'distance-to-red-light': 0}
+
+            # car['distance-to-node'] = nav.FrontView(car).distances[0]
+            cars_data.append(car)
         except NetworkXNoPath:
+            print('No path between {} and {}.'.format(culdesacs[i], culdesacs[i + 1]))
             continue
+
+    cars = pd.DataFrame(cars_data)
+
     print('Number of cars: {}'.format(len(cars)))
     return cars
 
@@ -288,7 +302,7 @@ def init_traffic_lights():
 
     :return lights: list
     """
-    epsilon = 0.2
+    epsilon = 0.2  # a factor which forces the positions of the light faces to be close to the intersection
 
     light_nodes = nav.find_traffic_lights()
 

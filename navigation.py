@@ -38,9 +38,10 @@ class FrontView:
         :return view: list of nodes immediately ahead of the car
         """
         if len(self.car['path']) > self.look_ahead_nodes:
-            return [self.car['path'][i] for i in range(self.look_ahead_nodes)]
+            return ([self.car['xpath'][i] for i in range(self.look_ahead_nodes)],
+                    [self.car['ypath'][i] for i in range(self.look_ahead_nodes)])
         else:
-            return self.car['path']
+            return self.car['xpath'], self.car['ypath']
 
     def distance_to_node(self):
         """
@@ -255,14 +256,14 @@ def get_position_of_node(node):
     return position
 
 
-def get_init_path(car):
+def get_init_path(origin, destination):
     """
     compiles a list of tuples which represents a route
 
     :param car: dict
     :return path: list where each entry is a tuple of tuples
     """
-    lines = shortest_path_lines_nx(car)
+    lines = shortest_path_lines_nx(origin, destination)
     path = models.path_decompiler(lines)
     return path
 
@@ -302,7 +303,7 @@ def lines_to_node(origin, destination):
     return lines
 
 
-def shortest_path_lines_nx(car):
+def shortest_path_lines_nx(origin, destination):
     """
     uses the default shortest path algorithm available through networkx
 
@@ -318,7 +319,7 @@ def shortest_path_lines_nx(car):
 
     # yx_car_position = (car['position'][1], car['position'][0])
     # origin = ox.utils.get_nearest_node(G, yx_car_position)
-    route = nx.shortest_path(G, car['origin'], car['destination'], weight='length')
+    route = nx.shortest_path(G, origin, destination, weight='length')
 
     # find the route lines
     edge_nodes = list(zip(route[:-1], route[1:]))
