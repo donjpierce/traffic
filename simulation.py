@@ -228,15 +228,16 @@ def init_random_node_start_location(n):
         position = nav.get_position_of_node(start_node)
         cars.append(
             {'position': position,
+             'path': np.array(nav.get_init_path(cars[i])),
              'velocity': np.array([0, 0]),
              'route-time': 0,
-             'front-view': {'distance-to-car': 0, 'distance-to-node': 0, 'distance-to-red-light': 0},
+             'front-view': {'distance-to-car': 0,
+                            'distance-to-node':  nav.FrontView(cars[i]).distances[0],
+                            'distance-to-red-light': 0},
              'origin': start_node,
              'destination': TEMP_dest_node
              }
         )
-        cars[i]['path'] = np.array(nav.get_init_path(cars[i]))
-        cars[i]['front-view']['distance-to-node'] = nav.FrontView(cars[i]).distances[0]
 
     return cars
 
