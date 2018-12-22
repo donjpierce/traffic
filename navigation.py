@@ -21,8 +21,8 @@ class FrontView:
         """
         take a car object and determines the obstacles it faces in its front_view
 
-        :param car: dict
-        :param look_ahead_nodes:
+        :param              car: Series row of the main dataframe
+        :param look_ahead_nodes: int
         """
         self.look_ahead_nodes = look_ahead_nodes
         self.car = car

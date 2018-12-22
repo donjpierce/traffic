@@ -253,7 +253,7 @@ def init_culdesac_start_location(n):
 
     Returns
     _______
-    :return cars:   array:  [dict, ...]
+    :return cars:   dataframe
     """
     culdesacs = nav.find_culdesacs()
 
@@ -265,40 +265,41 @@ def init_culdesac_start_location(n):
 
     for i in range(n):
 
-        position = nav.get_position_of_node(culdesacs[i])
         origin = culdesacs[i]
         destination = culdesacs[i + 1]
 
         try:
             path = nav.get_init_path(origin, destination)
-            car = {'object': 'car',
-                   'x': position[0],
-                   'y': position[1],
-                   'vx': 0,
-                   'vy': 0,
-                   'origin': culdesacs[i],
-                   'destination': culdesacs[i + 1],
-                   'xpath': [path[i][0] for i in range(len(path))],
-                   'ypath': [path[i][1] for i in range(len(path))],
-                   'distance-to-car': 0,
-                   'distance-to-node': 0,
-                   'distance-to-red-light': 0}
-
-            # car['distance-to-node'] = nav.FrontView(car).distances[0]
-            cars_data.append(car)
         except NetworkXNoPath:
             print('No path between {} and {}.'.format(culdesacs[i], culdesacs[i + 1]))
             continue
 
-    cars = pd.DataFrame(cars_data)
+        position = nav.get_position_of_node(culdesacs[i])
 
+        car = {'object': 'car',
+               'x': position[0],
+               'y': position[1],
+               'vx': 0,
+               'vy': 0,
+               'origin': culdesacs[i],
+               'destination': culdesacs[i + 1],
+               'xpath': [path[i][0] for i in range(len(path))],
+               'ypath': [path[i][1] for i in range(len(path))],
+               'distance-to-car': 0,
+               'distance-to-node': 0,
+               'distance-to-red-light': 0}
+
+        cars_data.append(car)
+
+    cars = pd.DataFrame(cars_data)
     print('Number of cars: {}'.format(len(cars)))
+
     return cars
 
 
 def init_traffic_lights():
     """
-    traffic lights are initialized here.
+    traffic lights are initialized here
 
     :return lights: list
     """
@@ -306,13 +307,16 @@ def init_traffic_lights():
 
     light_nodes = nav.find_traffic_lights()
 
-    lights = []
+    lights_data = []
 
     for i, light in enumerate(light_nodes):
+
         node_id = light[0]
+
         try:
             out_vectors = np.array(nav.determine_pedigree(node_id))
         except NetworkXNoPath or ValueError:
+            print('Could not determine pedigree for light at node {}'.format(node_id))
             continue
 
         degree = len(out_vectors)
@@ -320,20 +324,23 @@ def init_traffic_lights():
         go = [False, True] * degree * 2
         go = go[:degree]
 
-        pedigree = [{
-            'vector': out_vectors[j],
-            'go': go[j]
-        } for j in range(degree)]
+        light = {'object': 'light',
+                 'x': position[0],
+                 'y': position[1],
+                 'switch-counter': 0,
+                 'switch-time': models.determine_traffic_light_timer()
+                 }
 
-        lights.append(
-            {'position': position,
-             'degree': degree,
-             'switch-counter': 0,
-             'pedigree': pedigree,
-             'out-positions': [position + epsilon * out_vectors[j] for j in range(degree)],
-             'switch-time': models.determine_traffic_light_timer()
-             }
-        )
+        for j in range(degree):
+            light['out-xposition{}'.format(j)] = position[0] + epsilon * out_vectors[j][0]
+            light['out-yposition{}'.format(j)] = position[1] + epsilon * out_vectors[j][1]
+            light['out-xvector{}'.format(j)] = out_vectors[j][0]
+            light['out-yvector{}'.format(j)] = out_vectors[j][1]
+            light['go-value{}'.format(j)] = go[j]
+
+        lights_data.append(light)
+
+    lights = pd.DataFrame(lights_data)
 
     return lights
 
