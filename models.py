@@ -1,21 +1,24 @@
 import math
 import numpy as np
+import pandas as pd
 import random
 
 
-def radixsort(n_nodes, dataframe):
+def radixsort(n_nodes, df):
     """
     uses the dataframe and information about the graph to sort the cars and traffic lights by position
 
     Parameters
     __________
     :param   n_nodes: number of nodes in the graph
-    :param dataframe: pandas dataframe
+    :param        df: pandas dataframe
 
     Returns
     _______
     :return dataframe: sorted pandas dataframe
     """
+
+
     return 0
 
 
@@ -166,15 +169,14 @@ def upcoming_linspace(view, position):
     return space
 
 
-def upcoming_vectors(car, view):
+def upcoming_vectors(view):
     """
     determines the vectors between the nodes in a view
 
-    :param      car: dataframe
     :param     view:     tuple:  tuple (x,y) of lists representing n upcoming noce positions
     :return vectors:      list:  list of (n-1) vectors pointing between the nodes along the path of travel
     """
-    position_view = [(car['x'], car['y'])]
+    position_view = []
     for point in view:
         position_view.append(point)
 
@@ -182,20 +184,19 @@ def upcoming_vectors(car, view):
     for i in range(len(position_view)):
         if i < len(position_view) - 1:
             vectors.append(np.array([
-                position_view[i + 1][0] - position_view[i][0], position_view[i + 1][1] - position_view[i][1]]) /
-                math.sqrt(np.dot(position_view[i], position_view[i + 1])))
+                position_view[i + 1][0] - position_view[i][0], position_view[i + 1][1] - position_view[i][1]]
+            ) / math.sqrt(np.dot(position_view[i], position_view[i + 1])))
     return np.array(vectors)
 
 
-def get_angles(car, view):
+def get_angles(view):
     """
     determines the angles between the upcoming vectors
 
-    :param    car: Series
     :param   view: list: list of coordinate points of next five nodes in path
     :return  angles: list: list of the next angles of road curvature
     """
-    vectors = upcoming_vectors(car, view)
+    vectors = upcoming_vectors(view)
     angles = []
     for i in range(len(vectors)):
         if i < len(vectors) - 1:
@@ -204,14 +205,14 @@ def get_angles(car, view):
     return angles
 
 
-def get_distances(car, view):
+def get_distances(view):
     """
     determines the upcoming distances (lengths of upcoming_vectors)
 
     :param        view: list: list of coordinate points of next five nodes in path
     :return: distances: list: list of the next distances between upcoming nodes on the road
     """
-    vectors = upcoming_vectors(car, view)
+    vectors = upcoming_vectors(view)
     distances = [np.sqrt(vector.dot(vector)) for vector in vectors]
     return distances
 

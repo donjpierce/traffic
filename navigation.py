@@ -27,9 +27,9 @@ class FrontView:
         self.look_ahead_nodes = look_ahead_nodes
         self.car = car
         self.view = self.determine_view()
-        self.angles = models.get_angles(self.car, self.view)
+        self.angles = models.get_angles(self.view)
         self.obstacle_cars = 0
-        self.distances = models.get_distances(self.car, self.view)
+        self.distances_to_nodes = models.get_distances(self.view)
 
     def determine_view(self):
         """
@@ -38,10 +38,9 @@ class FrontView:
         :return view: list of nodes immediately ahead of the car
         """
         if len(self.car['xpath']) > self.look_ahead_nodes:
-            return ([self.car['xpath'][i] for i in range(self.look_ahead_nodes)],
-                    [self.car['ypath'][i] for i in range(self.look_ahead_nodes)])
+            return [(self.car['xpath'][i], self.car['ypath'][i]) for i in range(self.look_ahead_nodes)]
         else:
-            return self.car['xpath'], self.car['ypath']
+            return [(self.car['xpath'][i], self.car['ypath'][i]) for i in range(len(self.car['xpath']))]
 
     def distance_to_car(self):
         """
