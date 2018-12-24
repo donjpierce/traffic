@@ -22,14 +22,14 @@ class Cars:
         self.state = self.init_state.copy()
         self.time_elapsed = 0
 
-    def update(self, dt, light_conditions):
+    def update(self, dt, lights_state):
         """
         update the position of the car by a dt time step
 
         Parameters
         __________
         :param               dt:  double
-        :param light_conditions:    list
+        :param lights_state:  dataframe
 
         Returns
         _______
@@ -38,15 +38,15 @@ class Cars:
         self.time_elapsed += dt
         print(self.time_elapsed)
 
-        for i, car in enumerate(self.state):
-            car['front-view']['distance-to-red-light'] = self.find_light_obstacles(car, light_conditions)
-            car['front-view']['distance-to-car'] = self.find_car_obstacles(car, i)
-            car['front-view']['distance-to-node'] = nav.FrontView(car).distance_to_node()
-            car['path'] = sim.update_path(car)
-            car['velocity'] = sim.update_velocity(car)
-            position = car['position']
-            car['position'] = position + car['velocity'] * dt
-            car['route-time'] += sim.car_timer(car, dt)
+        for car in self.state.iterrows():
+            car[1]['distance-to-red-light'] = self.find_light_obstacles(car[1], lights_state)
+            car[1]['distance-to-car'] = self.find_car_obstacles(car[1], lights_state)
+            car[1]['distance-to-node'] = nav.FrontView(car[1]).distance_to_node()
+            car[1]['path'] = sim.update_path(car[1])
+            car[1]['velocity'] = sim.update_velocity(car[1])
+            car[1]['x'] = car[1]['x'] + car['vx'] * dt
+            car[1]['y'] = car[1]['y'] + car['vy'] * dt
+            car[1]['route-time'] += sim.car_timer(car[1], dt)
 
         return self.state
 
@@ -54,7 +54,7 @@ class Cars:
         """
         finds the distance to cars in the view for a specific car in the state
 
-        :param       car:           dict: specific car of interest
+        :param       car:         Series: specific car of interest
         :param         i:            int: ID of the car in the state list
         :return distance: double or bool: returns None if no car in view
         """
@@ -66,8 +66,8 @@ class Cars:
         """
         finds the distance to red lights in the view for a specific car in the state
 
-        :param                     car:           dict: specific car of interest
-        :param        light_conditions:           list:
+        :param                     car:      dataframe: specific car of interest
+        :param        light_conditions:      dataframe:
         :return: distance_to_red_light: double or bool: returns None if no car in view
         """
         return nav.light_obstacles(car, light_conditions)

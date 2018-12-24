@@ -16,26 +16,33 @@ N = 33
 G = ox.load_graphml('piedmont.graphml')
 G = ox.project_graph(G)
 fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
+ax.set_title('Piedmont, California')
+
+
+# grab / set information about the figure and axes
+axis_range = ax.axis()
+xrange, yrange = (axis_range[1] - axis_range[0], axis_range[2] - axis_range[1])
 # ax.set_xlim(566730, 567270)
 # ax.set_ylim(4185840, 4186260)
-ax.set_title('Piedmont, California')
 
 # G = ox.load_graphml('sanfrancisco.graphml')
 # fig, ax = ox.plot_graph(G, fig_height=12, fig_width=10, node_size=0, edge_linewidth=0.5)
 # ax.set_title('San Francisco, California')
 
-# initialize empty particle points for animation
-cars_state = Cars(sim.init_culdesac_start_location(N))
-cars = sum([ax.plot([], [], color='blue', marker='o', ms=3) for n in np.arange(N)], [])
-# state = Cars(sim.init_random_node_start_location(N))
-
 # initialize traffic lights
 number_of_lights = len(sim.init_traffic_lights())
-number_of_faces = sum([sim.init_traffic_lights()[i]['degree'] for i in range(number_of_lights)])
-# initial_colors = models.initial_light_colors(number_of_lights)
-lights_state = TrafficLights(sim.init_traffic_lights())
+number_of_faces = sum([sim.init_traffic_lights()['degree'][i] for i in range(number_of_lights)])
+
+
+# initialize empty points for animation
+cars = sum([ax.plot([], [], color='blue', marker='o', ms=3) for n in np.arange(N)], [])
 lights = sum([ax.plot([], [], color='red', marker='+', ms=2) for l in np.arange(number_of_lights)], [])
 faces = sum([ax.plot([], [], color='red', marker='^', ms=2) for f in np.arange(number_of_faces)], [])
+
+
+# initialize the car and light state objects
+cars_state = Cars(sim.init_culdesac_start_location(N))
+lights_state = TrafficLights(sim.init_traffic_lights())
 
 
 def init():
@@ -62,11 +69,7 @@ def animate(i):
     :return:
     """
     lights_state.update(dt)
-
-    light_conditions = [(lights_state.state[i]['position'], lights_state.state[i]['pedigree'])
-                        for i in range(len(lights_state.state))]
-
-    cars_state.update(dt, light_conditions)
+    cars_state.update(dt, lights_state)
 
     for car, car_dict in zip(cars, cars_state.state):
         x = car_dict['position'][0]
@@ -97,11 +100,11 @@ def animate(i):
         else:
             face.set_color('red')
 
-    # limits for 1 car TEMP_dest_node path view
+    # limits for the path view of 1 car with TEMP_dest_node destination
     # ax.set_xlim(566730, 567270)
     # ax.set_ylim(4185840, 4186260)
 
-    # limits for 1 traffic light view
+    # limits for viewing 1st traffic light in Piedmont
     # ax.set_xlim(566930, 567404)
     # ax.set_ylim(4186020, 4186280)
 

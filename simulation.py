@@ -15,10 +15,6 @@ stop_distance = 1
 free_distance = 40
 default_acceleration = 5
 
-TEMP_dest_node = 53028190   # Piedmont destination
-# TEMP_dest_node = 1989931095  # Manhattan destination
-# TEMP_dest_node = 65307322  # San Francisco destination
-
 
 def update_path(car):
     """
@@ -345,6 +341,7 @@ def init_traffic_lights():
         go = go[:degree]
 
         light = {'object': 'light',
+                 'degree': degree,
                  'x': position[0],
                  'y': position[1],
                  'switch-counter': 0,
