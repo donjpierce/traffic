@@ -21,56 +21,47 @@ class Cars:
         self.init_state = init_state
         self.state = self.init_state.copy()
         self.time_elapsed = 0
+        self.lights = 0
 
-    def update(self, dt, lights_state):
+    def update(self, dt, lights):
         """
         update the position of the car by a dt time step
 
         Parameters
         __________
-        :param               dt:  double
-        :param lights_state:  dataframe
+        :param     dt:  double
+        :param lights:  dataframe
 
         Returns
         _______
         :return:
         """
+        self.lights = lights
         self.time_elapsed += dt
         print(self.time_elapsed)
 
-        for car in self.state.iterrows():
-            car[1]['distance-to-red-light'] = self.find_light_obstacles(car[1], lights_state)
-            car[1]['distance-to-car'] = self.find_car_obstacles(car[1], lights_state)
-            car[1]['distance-to-node'] = nav.FrontView(car[1]).distance_to_node()
-            car[1]['path'] = sim.update_path(car[1])
-            car[1]['velocity'] = sim.update_velocity(car[1])
-            car[1]['x'] = car[1]['x'] + car['vx'] * dt
-            car[1]['y'] = car[1]['y'] + car['vy'] * dt
-            car[1]['route-time'] += sim.car_timer(car[1], dt)
+        node_distances, car_distances, light_distances = self.find_obstacles()
+
+        self.state['distance-to-node'] = node_distances
+        self.state['distance-to-car'] = car_distances
+        self.state['distance-to-red-light'] = light_distances
+        self.state['path'] = sim.update_path(car[1])
+        self.state['velocity'] = sim.update_velocity(car[1])
+        self.state['x'] = car[1]['x'] + car['vx'] * dt
+        self.state['y'] = car[1]['y'] + car['vy'] * dt
+        self.state['route-time'] += sim.car_timer(car[1], dt)
 
         return self.state
 
-    def find_car_obstacles(self, car, i):
-        """
-        finds the distance to cars in the view for a specific car in the state
+    def find_obstacles(self):
+        node_distances, car_distances, light_distances = [], [], []
+        for car in self.state.iterrows():
+            view = nav.FrontView(car[1])
+            node_distances.append(view.distance_to_node())
+            car_distances.append(view.distance_to_car())
+            light_distances.append(view.distance_to_light(self.lights))
 
-        :param       car:         Series: specific car of interest
-        :param         i:            int: ID of the car in the state list
-        :return distance: double or bool: returns None if no car in view
-        """
-        state = self.state.copy()
-        state.pop(i)
-        return nav.car_obstacles(state, car)
-
-    def find_light_obstacles(self, car, light_conditions):
-        """
-        finds the distance to red lights in the view for a specific car in the state
-
-        :param                     car:      dataframe: specific car of interest
-        :param        light_conditions:      dataframe:
-        :return: distance_to_red_light: double or bool: returns None if no car in view
-        """
-        return nav.light_obstacles(car, light_conditions)
+        return node_distances, car_distances, light_distances
 
 
 class TrafficLights:

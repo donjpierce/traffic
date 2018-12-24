@@ -19,7 +19,7 @@ G = ox.project_graph(G)
 class FrontView:
     def __init__(self, car, look_ahead_nodes=3):
         """
-        take a car object and determines the obstacles it faces in its front_view
+        take a car Series and determines the obstacles it faces in its frontal view
 
         :param              car: Series row of the main dataframe
         :param look_ahead_nodes: int
@@ -42,6 +42,20 @@ class FrontView:
                     [self.car['ypath'][i] for i in range(self.look_ahead_nodes)])
         else:
             return self.car['xpath'], self.car['ypath']
+
+    def distance_to_car(self):
+        """
+        dispatches a car Series into another nav function and retrieves the distance to a car obstacle if there is one
+
+        :return distance:
+        """
+
+    def distance_to_light(self, lights):
+        """
+        dispatches a car Series into another nav function and retrieves the distance to a red light if there is one
+
+        :return distance:
+        """
 
     def distance_to_node(self):
         """
@@ -92,17 +106,16 @@ class FrontView:
             return False
 
 
-def car_obstacles(state, car):
+def car_obstacles(state):
     """
 
     Parameters
     __________
-    :param state:  list:  the entire car state with the car of interest removed
-    :param   car:  dict:  the car of interest
+    :param state:  list:  the entire car state dataframe
 
     Returns
     _______
-    :return distance: double or None (returns None if no car obstacle found)
+    :return distances: list: double or None (returns None if no car obstacle found)
     """
     obstacles = FrontView(car)
     space = models.upcoming_linspace(obstacles.view, car['position'])
