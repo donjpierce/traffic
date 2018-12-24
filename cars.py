@@ -31,7 +31,7 @@ class Cars:
         __________
         :param       dt:  double
         :param   lights:  dataframe
-        :param xy_range:  tuple
+        :param xy_range:  tuple:    the geographical dimensions of the figure, and thus also the graph
 
         Returns
         _______

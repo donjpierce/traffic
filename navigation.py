@@ -26,10 +26,9 @@ class FrontView:
         """
         self.look_ahead_nodes = look_ahead_nodes
         self.car = car
+        self.position = car['x'], car['y']
         self.view = self.determine_view()
         self.angles = models.get_angles(self.view)
-        self.obstacle_cars = 0
-        self.distances_to_nodes = models.get_distances(self.view)
 
     def determine_view(self):
         """
@@ -48,6 +47,7 @@ class FrontView:
 
         :return distance:
         """
+        distance = car_obstacles(self.car, self.view)
 
     def distance_to_light(self, lights):
         """
@@ -62,9 +62,8 @@ class FrontView:
 
         :return distance: double
         """
-        position = self.car['position']
         next_node = np.array(self.upcoming_node_position())
-        distance_vector = next_node - position
+        distance_vector = next_node - self.position
         distance = models.magnitude(distance_vector)
         return distance
 
@@ -78,11 +77,11 @@ class FrontView:
             # if it's the end of the route, then the upcoming_node is simply the only node in view
             return self.view[0]
 
-        space = models.upcoming_linspace(self.view, self.car['position'])
+        space = models.upcoming_linspace(self.view, self.position)
         x_space, y_space = space[0], space[1]
 
-        car_within_xlinspace = np.isclose(x_space, self.car['position'][0], rtol=1.0e-6).any()
-        car_within_ylinspace = np.isclose(y_space, self.car['position'][1], rtol=1.0e-6).any()
+        car_within_xlinspace = np.isclose(x_space, self.car['x'], rtol=1.0e-6).any()
+        car_within_ylinspace = np.isclose(y_space, self.car['y'], rtol=1.0e-6).any()
 
         if car_within_xlinspace and car_within_ylinspace:
             return self.view[1]
@@ -96,8 +95,8 @@ class FrontView:
 
         :return bool: True if the car is passing a node, False otherwise
         """
-        car_near_xnode = np.isclose(self.view[0][0], self.car['position'][0], rtol=1.0e-6)
-        car_near_ynode = np.isclose(self.view[0][1], self.car['position'][1], rtol=1.0e-6)
+        car_near_xnode = np.isclose(self.view[0][0], self.car['x'], rtol=1.0e-6)
+        car_near_ynode = np.isclose(self.view[0][1], self.car['y'], rtol=1.0e-6)
 
         if car_near_xnode and car_near_ynode:
             return True
@@ -105,18 +104,21 @@ class FrontView:
             return False
 
 
-def car_obstacles(car):
+def car_obstacles(car, view):
     """
 
     Parameters
     __________
-    :param car:  Series:
+    :param  car:  Series:
+    :param view:    list: list of upcoming nodes in the view
 
     Returns
     _______
     :return distances: list: double or None (returns None if no car obstacle found)
     """
-    space = models.upcoming_linspace(obstacles.view, car['position'])
+    position = car['x'], car['y']
+
+    space = models.upcoming_linspace(view, position)
     x_space = space[0]
     y_space = space[1]
 

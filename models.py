@@ -204,17 +204,3 @@ def get_angles(view):
 
     return angles
 
-
-def get_distances(view):
-    """
-    determines the upcoming distances (lengths of upcoming_vectors)
-
-    :param        view: list: list of coordinate points of next five nodes in path
-    :return: distances: list: list of the next distances between upcoming nodes on the road
-    """
-    vectors = upcoming_vectors(view)
-    distances = [np.sqrt(vector.dot(vector)) for vector in vectors]
-    return distances
-
-
-
