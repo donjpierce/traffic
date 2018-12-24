@@ -37,7 +37,7 @@ class FrontView:
 
         :return view: list of nodes immediately ahead of the car
         """
-        if len(self.car['path']) > self.look_ahead_nodes:
+        if len(self.car['xpath']) > self.look_ahead_nodes:
             return ([self.car['xpath'][i] for i in range(self.look_ahead_nodes)],
                     [self.car['ypath'][i] for i in range(self.look_ahead_nodes)])
         else:
@@ -106,18 +106,17 @@ class FrontView:
             return False
 
 
-def car_obstacles(state):
+def car_obstacles(car):
     """
 
     Parameters
     __________
-    :param state:  list:  the entire car state dataframe
+    :param car:  Series:
 
     Returns
     _______
     :return distances: list: double or None (returns None if no car obstacle found)
     """
-    obstacles = FrontView(car)
     space = models.upcoming_linspace(obstacles.view, car['position'])
     x_space = space[0]
     y_space = space[1]

@@ -8,11 +8,18 @@ dt = 1 / 1000
 N = 33
 
 # load figure for animation
+"""Lower Manhattan"""
 # G = ox.load_graphml('lowermanhattan.graphml')
 # G = ox.project_graph(G)
 # fig, ax = ox.plot_graph(G, fig_height=12, node_size=0, edge_linewidth=0.5)
 # ax.set_title('Lower Manhattan, New York City')
 
+"""San Francisco"""
+# G = ox.load_graphml('sanfrancisco.graphml')
+# fig, ax = ox.plot_graph(G, fig_height=12, fig_width=10, node_size=0, edge_linewidth=0.5)
+# ax.set_title('San Francisco, California')
+
+"""Piedmont, California"""
 G = ox.load_graphml('piedmont.graphml')
 G = ox.project_graph(G)
 fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
@@ -21,13 +28,10 @@ ax.set_title('Piedmont, California')
 
 # grab / set information about the figure and axes
 axis_range = ax.axis()
-xrange, yrange = (axis_range[1] - axis_range[0], axis_range[2] - axis_range[1])
+xy_range = (axis_range[1] - axis_range[0], axis_range[3] - axis_range[2])
 # ax.set_xlim(566730, 567270)
 # ax.set_ylim(4185840, 4186260)
 
-# G = ox.load_graphml('sanfrancisco.graphml')
-# fig, ax = ox.plot_graph(G, fig_height=12, fig_width=10, node_size=0, edge_linewidth=0.5)
-# ax.set_title('San Francisco, California')
 
 # initialize traffic lights
 number_of_lights = len(sim.init_traffic_lights())
@@ -69,7 +73,7 @@ def animate(i):
     :return:
     """
     lights_state.update(dt)
-    cars_state.update(dt, lights_state)
+    cars_state.update(dt, lights_state, xy_range)
 
     for car, car_dict in zip(cars, cars_state.state):
         x = car_dict['position'][0]

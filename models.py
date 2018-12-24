@@ -170,11 +170,11 @@ def upcoming_vectors(car, view):
     """
     determines the vectors between the nodes in a view
 
-    :param      car: dict
-    :param     view: list:  list of n upcoming nodes
-    :return vectors: list:  list of (n-1) vectors pointing between the nodes along the path of travel
+    :param      car: dataframe
+    :param     view:     tuple:  tuple (x,y) of lists representing n upcoming noce positions
+    :return vectors:      list:  list of (n-1) vectors pointing between the nodes along the path of travel
     """
-    position_view = [car['position']]
+    position_view = [(car['x'], car['y'])]
     for point in view:
         position_view.append(point)
 
@@ -191,6 +191,7 @@ def get_angles(car, view):
     """
     determines the angles between the upcoming vectors
 
+    :param    car: Series
     :param   view: list: list of coordinate points of next five nodes in path
     :return  angles: list: list of the next angles of road curvature
     """

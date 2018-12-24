@@ -23,18 +23,19 @@ class Cars:
         self.time_elapsed = 0
         self.lights = 0
 
-    def update(self, dt, lights):
+    def update(self, dt, lights, xy_range):
         """
         update the position of the car by a dt time step
 
         Parameters
         __________
-        :param     dt:  double
-        :param lights:  dataframe
+        :param       dt:  double
+        :param   lights:  dataframe
+        :param xy_range:  tuple
 
         Returns
         _______
-        :return:
+        :return self.state: dataframe
         """
         self.lights = lights
         self.time_elapsed += dt
