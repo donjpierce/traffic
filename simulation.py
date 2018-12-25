@@ -16,22 +16,29 @@ free_distance = 40
 default_acceleration = 5
 
 
-def update_paths(cars):
+def update_cars(cars, dt):
     """
     This function shortens the stored path of a car after determining if the car crossed the next node in the path
     Then calculates the direction and magnitude of the veloicty
 
     :param       cars: dataframe
+    :param         dt: double
     :return quadruple: four Series's suitable for the main dataframe
     """
     new_xpaths = []
     new_ypaths = []
     new_vx = []
     new_vy = []
+    new_times = []
     for car in cars.iterrows():
         if len(car[1]['xpath']) <= 1 and len(car[1]['ypath']) <= 1:
-            return None, None, 0, 0
+            # end of route adds 0 to route timer
+            new_times.append(0)
+            return None, None, 0, 0, 0
         else:
+            # add to route timer
+            new_times.append(car[1]['route-time'] + dt)
+
             frontview = nav.FrontView(car[1])
             if frontview.crossed_node_event():
                 new_xpaths.append(car[1]['xpath'][1:])
@@ -52,7 +59,7 @@ def update_paths(cars):
             new_vx.append(velocity[0])
             new_vy.append(velocity[1])
 
-    return pd.Series(new_xpaths), pd.Series(new_ypaths), pd.Series(new_vx), pd.Series(new_vy)
+    return pd.Series(new_xpaths), pd.Series(new_ypaths), pd.Series(new_vx), pd.Series(new_vy), pd.Series(new_times)
 
 
 def accelerate(car):
@@ -162,26 +169,6 @@ def obstacle_factor(d):
         else:
             factor = 1
     return factor
-
-
-def car_timer(state, dt):
-    """
-    This function increments a car's clock in all cases except when it is at its destination
-
-    :param      state: Series
-    :param         dt: double
-    :return   dt or 0: double: 0 only if car is at destination
-    """
-    new_times = []
-    for car in state.iterrows():
-        x_arrival = np.isclose(car[1]['x'], nav.get_position_of_node(car[1]['destination'])[0], atol=1)
-        y_arrival = np.isclose(car[1]['y'], nav.get_position_of_node(car[1]['destination'])[1], atol=1)
-        if not x_arrival and not y_arrival:
-            new_times.append(dt)
-        else:
-            new_times.append(0)
-
-    return pd.Series(new_times)
 
 
 def new_light_instructions(light, time_elapsed):
