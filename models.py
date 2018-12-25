@@ -123,26 +123,6 @@ def path_decompiler(lines):
     return clean_path
 
 
-def immediate_linspace(view, position):
-    """
-    this function returns a 2D linspace between the car's immediate position and the next node in the view
-
-    :param     view:    list:   list of n upcoming nodes
-    :param position:    list:   coordinate position of car
-    :return:  space:   tuple:
-    """
-    next_node = view[0]
-
-    x_distance_between = abs(next_node[0] - position[0])
-    y_distance_between = abs(next_node[1] - position[1])
-
-    nx, ny = (x_distance_between, y_distance_between)
-    x = np.linspace(position[0], next_node[0], nx)
-    y = np.linspace(position[1], next_node[1], ny)
-    space = (x, y)
-    return space
-
-
 def upcoming_linspace(frontview):
     """
     this function returns a 2D linspace between the next two nodes in the view
@@ -150,15 +130,14 @@ def upcoming_linspace(frontview):
     :param     frontview: object: FrontView object
     :return        space:  tuple: of np.arrays
     """
-    nearest_node = frontview.position
     next_node = frontview.view[0]
 
-    x_distance_between = abs(next_node[0] - nearest_node[0])
-    y_distance_between = abs(next_node[1] - nearest_node[1])
+    x_distance_between = abs(next_node[0] - frontview.car['x'])
+    y_distance_between = abs(next_node[1] - frontview.car['y'])
 
     nx, ny = (x_distance_between, y_distance_between)
-    x = np.linspace(nearest_node[0], next_node[0], nx)
-    y = np.linspace(nearest_node[1], next_node[1], ny)
+    x = np.linspace(frontview.car['x'], next_node[0], nx)
+    y = np.linspace(frontview.car['y'], next_node[1], ny)
     space = (x, y)
     return space
 

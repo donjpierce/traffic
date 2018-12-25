@@ -118,9 +118,8 @@ def car_obstacles(frontview, cars):
 
     Returns
     _______
-    :return distances: list: double or False (returns False if no car obstacle found)
+    :return distance: list: double or False (returns False if no car obstacle found)
     """
-
     space = models.upcoming_linspace(frontview)
     x_space = space[0]
     y_space = space[1]
@@ -143,14 +142,24 @@ def car_obstacles(frontview, cars):
         return False
 
 
-def light_obstacles(car, light_conditions):
+def light_obstacles(frontview, lights):
+    """
+    Determines the distance to red traffic lights. If light is green, returns False
 
-    obstacles = FrontView(car)
-    space = models.immediate_linspace(obstacles.view, car['position'])
+    Parameters
+    __________
+    :param  frontview:    object: FrontView object
+    :param     lights: dataframe:
+
+    Returns
+    _______
+    :return distance: list: double for False (returns False if no red light is found)
+    """
+    space = models.upcoming_linspace(frontview)
     x_space = space[0]
     y_space = space[1]
 
-    locations_of_lights = [light_conditions[i][0] for i in range(len(light_conditions))]
+    locations_of_lights = [lights[i][0] for i in range(len(lights))]
 
     light_index = []
     for i, location in enumerate(locations_of_lights):
@@ -161,8 +170,8 @@ def light_obstacles(car, light_conditions):
             light_index.append(i)
 
     if light_index:
-        light_position, pedigree = light_conditions[light_index[0]]
-        car_vector = light_position - car['position']
+        light_position, pedigree = lights[light_index[0]]
+        car_vector = light_position - frontview.position
         face_value = []
         for face in pedigree:
             if models.determine_parralel_vectors(car_vector, face['vector']):
