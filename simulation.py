@@ -183,6 +183,7 @@ def car_timer(state, dt):
 
     return pd.Series(new_times)
 
+
 def new_light_instructions(light, time_elapsed):
     """
     determines if it's time for a light to switch colors, then returns the new colors
