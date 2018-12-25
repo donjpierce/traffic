@@ -40,12 +40,13 @@ def update_paths(cars):
                 new_xpaths.append(car[1]['xpath'])
                 new_ypaths.append(car[1]['ypath'])
 
-            next_node = frontview.upcoming_node_position()
-            position = frontview.position
-            velocity_direction = models.unit_vector(next_node - position)
-            velocity = velocity_direction * speed_limit * update_speed_factor(car)
+            next_node = np.array(frontview.upcoming_node_position())
+            position = np.array(frontview.position)
 
-            if np.isclose(0, velocity, atol=0.1).all() and accelerate(car):
+            velocity_direction = models.unit_vector(next_node - position)
+            velocity = velocity_direction * speed_limit * update_speed_factor(car[1])
+
+            if np.isclose(0, velocity, atol=0.1).all() and accelerate(car[1]):
                 velocity += default_acceleration
 
             new_vx.append(velocity[0])
@@ -163,21 +164,24 @@ def obstacle_factor(d):
     return factor
 
 
-def car_timer(car, dt):
+def car_timer(state, dt):
     """
     This function increments a car's clock in all cases except when it is at its destination
 
-    :param car:   Series
-    :param  dt: double
-    :return dt or 0: double: 0 only if car is at destination
+    :param      state: Series
+    :param         dt: double
+    :return   dt or 0: double: 0 only if car is at destination
     """
-    x_bool = np.isclose(car['x'], nav.get_position_of_node(car['destination'])[0], atol=1)
-    y_bool = np.isclose(car['y'], nav.get_position_of_node(car['destination'])[1], atol=1)
-    if not x_bool and not y_bool:
-        return dt
-    else:
-        return 0
+    new_times = []
+    for car in state.iterrows():
+        x_arrival = np.isclose(car[1]['x'], nav.get_position_of_node(car[1]['destination'])[0], atol=1)
+        y_arrival = np.isclose(car[1]['y'], nav.get_position_of_node(car[1]['destination'])[1], atol=1)
+        if not x_arrival and not y_arrival:
+            new_times.append(dt)
+        else:
+            new_times.append(0)
 
+    return pd.Series(new_times)
 
 def new_light_instructions(light, time_elapsed):
     """

@@ -47,9 +47,10 @@ class Cars:
         self.state['distance-to-car'] = car_distances
         self.state['distance-to-red-light'] = light_distances
         self.state['xpath'], self.state['ypath'], self.state['vx'], self.state['vy'] = sim.update_paths(self.state)
-        self.state['x'] = self.state[1]['x'] + self.state['vx'] * dt
-        self.state['y'] = self.state[1]['y'] + self.state['vy'] * dt
-        self.state['route-time'] += sim.car_timer(car[1], dt)
+        self.state['x'] = self.state['x'] + self.state['vx'] * dt
+        self.state['y'] = self.state['y'] + self.state['vy'] * dt
+        # TODO: sim.car_timer performs another loop over all cars. So this should be combined with vel and paths
+        self.state['route-time'] += sim.car_timer(self.state, dt)
 
         return self.state
 
@@ -84,11 +85,11 @@ class TrafficLights:
         """
         self.time_elapsed += dt
 
-        for light in self.state:
-            new_instructions = sim.new_light_instructions(light, self.time_elapsed)
+        for light in self.state.iterrows():
+            new_instructions = sim.new_light_instructions(light[1], self.time_elapsed)
             if new_instructions:
                 for i, instruction in enumerate(new_instructions):
-                    light['pedigree'][i]['go'] = instruction
+                    light[1]['pedigree'][i]['go'] = instruction
             else:
                 continue
 
