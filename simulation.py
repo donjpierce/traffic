@@ -16,57 +16,56 @@ free_distance = 40
 default_acceleration = 5
 
 
-def update_path(car):
+def update_paths(cars):
     """
     This function shortens the stored path of a car after determining if the car crossed the next node in the path
+    Then calculates the direction and magnitude of the veloicty
 
-    :param   car: dict
-    :return path: origin path if stored node
+    :param       cars: dataframe
+    :return quadruple: four Series's suitable for the main dataframe
     """
-    if len(car['path']) <= 1:
-        return car['path']
+    new_xpaths = []
+    new_ypaths = []
+    new_vx = []
+    new_vy = []
+    for car in cars.iterrows():
+        if len(car[1]['xpath']) <= 1 and len(car[1]['ypath']) <= 1:
+            return None, None, 0, 0
+        else:
+            frontview = nav.FrontView(car[1])
+            if frontview.crossed_node_event():
+                new_xpaths.append(car[1]['xpath'][1:])
+                new_ypaths.append(car[1]['ypath'][1:])
+            else:
+                new_xpaths.append(car[1]['xpath'])
+                new_ypaths.append(car[1]['ypath'])
 
-    obstacles = nav.FrontView(car)
-    if obstacles.crossed_node_event():
-        return car['path'][1:]
-    else:
-        return car['path']
+            next_node = frontview.upcoming_node_position()
+            position = frontview.position
+            velocity_direction = models.unit_vector(next_node - position)
+            velocity = velocity_direction * speed_limit * update_speed_factor(car)
 
+            if np.isclose(0, velocity, atol=0.1).all() and accelerate(car):
+                velocity += default_acceleration
 
-def update_velocity(car):
-    """
-    updates velocity according to the forward Euler method
+            new_vx.append(velocity[0])
+            new_vy.append(velocity[1])
 
-    :param       car: dict
-    :return velocity: list
-    """
-    if len(car['path']) < 1:
-        velocity = np.array([0., 0.])
-        return velocity
-    next_node = car['path'][0]
-    position = np.array(car['position'])
-    velocity_direction = models.unit_vector(next_node - position)
-    velocity = velocity_direction * speed_limit * update_speed_factor(car)
-
-    if np.isclose(0, velocity, atol=0.1).all() and accelerate(car):
-        velocity += default_acceleration
-
-    return velocity
+    return pd.Series(new_xpaths), pd.Series(new_ypaths), pd.Series(new_vx), pd.Series(new_vy)
 
 
 def accelerate(car):
     """
-    determines if there is a car ahead. If there is, determines if its farther away than the stop_distance
-    returns True or False if the car should accelerate or not respectively
+    determines if there is a car ahead or a red light. Returns True if the car should accelerate, False if not.
 
-    :param   car:
+    :param   car: Series
     :return bool:
     """
-    if not car['front-view']['distance-to-red-light']:
-        if not car['front-view']['distance-to-car']:
+    if not car['distance-to-red-light']:
+        if not car['distance-to-car']:
             return True
         else:
-            if car['front-view']['distance-to-car'] > stop_distance:
+            if car['distance-to-car'] > stop_distance:
                 return True
             else:
                 return False
@@ -78,14 +77,14 @@ def update_speed_factor(car):
     """
     handles logic for updating speed according to road curvature and car obstacles
 
-    :param            car: dict
+    :param            car: Series
     :return: final_factor: double
     """
     obstacles = nav.FrontView(car)
     angles = obstacles.angles
-    distance_to_node = car['front-view']['distance-to-node']
-    distance_to_car = car['front-view']['distance-to-car']
-    distance_to_red_light = car['front-view']['distance-to-red-light']
+    distance_to_node = car['distance-to-node']
+    distance_to_car = car['distance-to-car']
+    distance_to_red_light = car['distance-to-red-light']
     curvature_factor = road_curvature_factor(angles, distance_to_node)
 
     if distance_to_car and distance_to_red_light:
@@ -168,11 +167,13 @@ def car_timer(car, dt):
     """
     This function increments a car's clock in all cases except when it is at its destination
 
-    :param car:   dict
+    :param car:   Series
     :param  dt: double
     :return dt or 0: double: 0 only if car is at destination
     """
-    if not np.isclose(car['position'], nav.get_position_of_node(car['destination']), atol=1).all():
+    x_bool = np.isclose(car['x'], nav.get_position_of_node(car['destination'])[0], atol=1)
+    y_bool = np.isclose(car['y'], nav.get_position_of_node(car['destination'])[1], atol=1)
+    if not x_bool and not y_bool:
         return dt
     else:
         return 0

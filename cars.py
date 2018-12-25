@@ -46,10 +46,9 @@ class Cars:
         self.state['distance-to-node'] = node_distances
         self.state['distance-to-car'] = car_distances
         self.state['distance-to-red-light'] = light_distances
-        self.state['path'] = sim.update_path(car[1])
-        self.state['velocity'] = sim.update_velocity(car[1])
-        self.state['x'] = car[1]['x'] + car['vx'] * dt
-        self.state['y'] = car[1]['y'] + car['vy'] * dt
+        self.state['xpath'], self.state['ypath'], self.state['vx'], self.state['vy'] = sim.update_paths(self.state)
+        self.state['x'] = self.state[1]['x'] + self.state['vx'] * dt
+        self.state['y'] = self.state[1]['y'] + self.state['vy'] * dt
         self.state['route-time'] += sim.car_timer(car[1], dt)
 
         return self.state
