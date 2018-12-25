@@ -41,13 +41,17 @@ class FrontView:
         else:
             return [(self.car['xpath'][i], self.car['ypath'][i]) for i in range(len(self.car['xpath']))]
 
-    def distance_to_car(self):
+    def distance_to_car(self, cars):
         """
         dispatches a car Series into another nav function and retrieves the distance to a car obstacle if there is one
 
+        :param      cars: Dataframe of cars
         :return distance:
         """
-        distance = car_obstacles(self.car, self.view)
+        # TODO: This method is slow because O(n^2) complexity occurs when it is used each times-step.
+        # TODO: Switch to smart sorting.
+        distance = car_obstacles(self, cars)
+        return distance
 
     def distance_to_light(self, lights):
         """
@@ -77,7 +81,7 @@ class FrontView:
             # if it's the end of the route, then the upcoming_node is simply the only node in view
             return self.view[0]
 
-        space = models.upcoming_linspace(self.view, self.position)
+        space = models.upcoming_linspace(self)
         x_space, y_space = space[0], space[1]
 
         car_within_xlinspace = np.isclose(x_space, self.car['x'], rtol=1.0e-6).any()
@@ -104,40 +108,39 @@ class FrontView:
             return False
 
 
-def car_obstacles(car, view):
+def car_obstacles(frontview, cars):
     """
 
     Parameters
     __________
-    :param  car:  Series:
-    :param view:    list: list of upcoming nodes in the view
+    :param frontview:    object: FrontView object
+    :param      cars: dataframe:
 
     Returns
     _______
-    :return distances: list: double or None (returns None if no car obstacle found)
+    :return distances: list: double or False (returns False if no car obstacle found)
     """
-    position = car['x'], car['y']
 
-    space = models.upcoming_linspace(view, position)
+    space = models.upcoming_linspace(frontview)
     x_space = space[0]
     y_space = space[1]
 
-    obstacle_position = []
-    for potential_obstacle in state:
-        car_within_xlinspace = np.isclose(x_space, potential_obstacle['position'][0], rtol=1.0e-6).any()
-        car_within_ylinspace = np.isclose(y_space, potential_obstacle['position'][1], rtol=1.0e-6).any()
+    x_obstacle_position, y_obstacle_position = [], []
+    for x_obstacle, y_obstacle in zip(cars['x'], cars['y']):
+        car_within_xlinspace = np.isclose(x_space, x_obstacle, rtol=1.0e-6).any()
+        car_within_ylinspace = np.isclose(y_space, y_obstacle, rtol=1.0e-6).any()
 
         if car_within_xlinspace and car_within_ylinspace:
-            obstacle_position.append(potential_obstacle['position'])
+            x_obstacle_position.append(x_obstacle)
+            y_obstacle_position.append(y_obstacle)
 
-    if obstacle_position:
-        first_obstacle = obstacle_position[0]
-        x, y = first_obstacle[0], first_obstacle[1]
-        vector = (x - car['position'][0], y - car['position'][1])
+    if x_obstacle_position and y_obstacle_position:
+        first_x, first_y = x_obstacle_position[0], y_obstacle_position[0]
+        vector = (first_x - frontview.car['x'], first_y - frontview.car['y'])
         distance = models.magnitude(vector)
         return distance
     else:
-        return None
+        return False
 
 
 def light_obstacles(car, light_conditions):

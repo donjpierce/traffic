@@ -59,7 +59,7 @@ class Cars:
         for car in self.state.iterrows():
             view = nav.FrontView(car[1])
             node_distances.append(view.distance_to_node())
-            car_distances.append(view.distance_to_car())
+            car_distances.append(view.distance_to_car(self.state))
             light_distances.append(view.distance_to_light(self.lights))
 
         return node_distances, car_distances, light_distances
