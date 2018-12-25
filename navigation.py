@@ -167,9 +167,8 @@ def light_obstacles(frontview, lights):
     if light_index:
         light = lights.loc[light_index[0]]
         car_vector = [light['x'] - frontview.car['x'], light['y'] - frontview.car['y']]
-        face_values = [light['go-value{}'.format(i)] for i in range(light['degree'])]
-        face_vectors = [(light['out-xvector{}'.format(i)], light['out-yvector{}'.format(i)])
-                        for i in range(light['degree'])]
+        face_values = light['go-values']
+        face_vectors = [(light['out-xvectors'][i], light['out-yvectors'][i]) for i in range(light['degree'])]
 
         for value, vector in zip(face_values, face_vectors):
             if not value and models.determine_parralel_vectors(car_vector, vector):

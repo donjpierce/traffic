@@ -84,6 +84,8 @@ class TrafficLights:
         """
         self.time_elapsed += dt
 
+
+
         for light in self.state.iterrows():
             new_instructions = sim.new_light_instructions(light[1], self.time_elapsed)
             if new_instructions:

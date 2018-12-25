@@ -171,35 +171,35 @@ def obstacle_factor(d):
     return factor
 
 
-def new_light_instructions(light, time_elapsed):
+def new_light_instructions(lights, dt):
     """
     determines if it's time for a light to switch colors, then returns the new colors
 
     Parameters
     __________
-    :param        light: Series row from dataframe
-    :param time_elapsed: double
+    :param lights: dataframe
+    :param     dt: double
 
     Returns
     _______
     :return new_instructions or None: list or None: list if time to switch, None if not
     """
     half_switch_time = light['switch-time']
-    instructions = [light['pedigree'][i]['go'] for i in range(light['degree'])]
+    face_values = [light['go-value{}'.format(i)] for i in range(light['degree'])]
     if np.isclose(time_elapsed, half_switch_time, rtol=1.0e-4):
         light['switch-counter'] += 1
         if light['switch-counter'] % 2:
             new_instructions = []
-            for face in instructions:
+            for face in face_values:
                 if face:
                     new_instructions.append(False)
                 else:
                     new_instructions.append(True)
             return new_instructions
         else:
-            return instructions
+            return face_values
     else:
-        return instructions
+        return face_values
 
 
 def init_random_node_start_location(n):
@@ -341,12 +341,11 @@ def init_traffic_lights():
                  'switch-time': models.determine_traffic_light_timer()
                  }
 
-        for j in range(degree):
-            light['out-xposition{}'.format(j)] = position[0] + epsilon * out_vectors[j][0]
-            light['out-yposition{}'.format(j)] = position[1] + epsilon * out_vectors[j][1]
-            light['out-xvector{}'.format(j)] = out_vectors[j][0]
-            light['out-yvector{}'.format(j)] = out_vectors[j][1]
-            light['go-value{}'.format(j)] = go[j]
+        light['out-xpositions'] = [position[0] + epsilon * out_vectors[j][0] for j in range(light['degree'])]
+        light['out-ypositions'] = [position[1] + epsilon * out_vectors[j][1] for j in range(light['degree'])]
+        light['out-xvectors'] = [out_vectors[j][0] for j in range(light['degree'])]
+        light['out-yvectors'] = [out_vectors[j][1] for j in range(light['degree'])]
+        light['go-values'] = [go[j] for j in range(light['degree'])]
 
         lights_data.append(light)
 
