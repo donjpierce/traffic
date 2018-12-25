@@ -80,7 +80,7 @@ class FrontView:
             # if it's the end of the route, then the upcoming_node is simply the only node in view
             return self.view[0]
 
-        if self.crossed_node_event():   
+        if self.crossed_node_event():
             return self.view[1]
         else:
             return self.view[0]
