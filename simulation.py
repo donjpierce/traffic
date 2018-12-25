@@ -184,8 +184,8 @@ def new_light_instructions(lights, dt):
     _______
     :return new_instructions or None: list or None: list if time to switch, None if not
     """
-    half_switch_time = light['switch-time']
-    face_values = [light['go-value{}'.format(i)] for i in range(light['degree'])]
+    half_switch_time = lights['switch-time']
+    time_elapsed = lights['']
     if np.isclose(time_elapsed, half_switch_time, rtol=1.0e-4):
         light['switch-counter'] += 1
         if light['switch-counter'] % 2:
