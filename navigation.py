@@ -48,8 +48,6 @@ class FrontView:
         :param      cars: Dataframe of cars
         :return distance:
         """
-        # TODO: This method is slow because O(n^2) complexity occurs when it is used each times-step.
-        # TODO: Switch to smart sorting.
         return car_obstacles(self, cars)
 
     def distance_to_light(self, lights):
@@ -59,8 +57,6 @@ class FrontView:
         :param    lights: Dataframe of lights
         :return distance:
         """
-        # TODO: This method is slow because O(n^2) complexity occurs when it is used each times-step.
-        # TODO: Switch to smart sorting.
         return light_obstacles(self, lights)
 
     def distance_to_node(self):
@@ -123,6 +119,8 @@ def car_obstacles(frontview, cars):
     _______
     :return distance: list: double or False (returns False if no car obstacle found)
     """
+    # TODO: This method is slow because, for n cars, O(n^2) complexity occurs when it is used each times-step.
+    # TODO: Switch to smart sorting.
     space = models.upcoming_linspace(frontview)
     x_space = space[0]
     y_space = space[1]
@@ -158,6 +156,8 @@ def light_obstacles(frontview, lights):
     _______
     :return distance: list: double for False (returns False if no red light is found)
     """
+    # TODO: This method is slow because, for n lights, O(n^2) complexity occurs when it is used each times-step.
+    # TODO: Switch to smart sorting.
     space = models.upcoming_linspace(frontview)
     x_space = space[0]
     y_space = space[1]
