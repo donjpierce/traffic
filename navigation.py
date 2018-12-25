@@ -50,15 +50,18 @@ class FrontView:
         """
         # TODO: This method is slow because O(n^2) complexity occurs when it is used each times-step.
         # TODO: Switch to smart sorting.
-        distance = car_obstacles(self, cars)
-        return distance
+        return car_obstacles(self, cars)
 
     def distance_to_light(self, lights):
         """
         dispatches a car Series into another nav function and retrieves the distance to a red light if there is one
 
+        :param    lights: Dataframe of lights
         :return distance:
         """
+        # TODO: This method is slow because O(n^2) complexity occurs when it is used each times-step.
+        # TODO: Switch to smart sorting.
+        return light_obstacles(self, lights)
 
     def distance_to_node(self):
         """
@@ -159,35 +162,34 @@ def light_obstacles(frontview, lights):
     x_space = space[0]
     y_space = space[1]
 
-    locations_of_lights = [lights[i][0] for i in range(len(lights))]
-
     light_index = []
-    for i, location in enumerate(locations_of_lights):
-        light_within_xlinspace = np.isclose(x_space, location[0], rtol=1.0e-6).any()
-        light_within_ylinspace = np.isclose(y_space, location[1], rtol=1.0e-6).any()
+    for light in lights.iterrows():
+        light_within_xlinspace = np.isclose(x_space, light[1]['x'], rtol=1.0e-6).any()
+        light_within_ylinspace = np.isclose(y_space, light[1]['y'], rtol=1.0e-6).any()
 
         if light_within_xlinspace and light_within_ylinspace:
-            light_index.append(i)
+            light_index.append(light[0])
 
     if light_index:
-        light_position, pedigree = lights[light_index[0]]
-        car_vector = light_position - frontview.position
-        face_value = []
-        for face in pedigree:
-            if models.determine_parralel_vectors(car_vector, face['vector']):
-                face_value.append(face)
-            else:
-                continue
-        if face_value:
-            if not face_value[0]['go']:
+        light = lights.loc[light_index[0]]
+        car_vector = [light['x'] - frontview.car['x'], light['y'] - frontview.car['y']]
+        face_values = [light['go-value{}'.format(i)] for i in range(light['degree'])]
+        face_vectors = [(light['out-xvector{}'.format(i)], light['out-yvector{}'.format(i)])
+                        for i in range(light['degree'])]
+
+        for value, vector in zip(face_values, face_vectors):
+            if not value and models.determine_parralel_vectors(car_vector, vector):
                 distance = models.magnitude(car_vector)
                 return distance
             else:
-                return None
-        else:
-            return None
+                continue
+
+        # if the above for loop finished without returning a distance, then return False
+        # note that this would happen only in the case where there is a bug (i.e. no parallel vector was found)
+        return False
+
     else:
-        return None
+        return False
 
 
 def determine_pedigree(node_id):
