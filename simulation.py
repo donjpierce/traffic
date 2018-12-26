@@ -319,5 +319,6 @@ def init_traffic_lights():
         lights_data.append(light)
 
     lights = pd.DataFrame(lights_data)
+    print('Number of traffic lights: {}'.format(len(lights)))
 
     return lights
