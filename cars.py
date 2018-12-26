@@ -7,6 +7,7 @@ Cars slow down for obstacles exponentially as obstacles get closer, and stop at 
 """
 import simulation as sim
 import navigation as nav
+import numpy as np
 
 
 class Cars:
@@ -83,13 +84,7 @@ class TrafficLights:
         :return:
         """
         self.time_elapsed += dt
-
-        for light in self.state.iterrows():
-            new_instructions = sim.new_light_instructions(light[1], self.time_elapsed)
-            if new_instructions:
-                for i, instruction in enumerate(new_instructions):
-                    light[1]['pedigree'][i]['go'] = instruction
-            else:
-                continue
+        time_to_switch = np.isclose(self.time_elapsed, self.state['switch-time'], rtol=1.0e-4)
+        self.state['go-values'] = ~self.state['go-values'] * time_to_switch + self.state['go-values'] * ~time_to_switch
 
         return self.state

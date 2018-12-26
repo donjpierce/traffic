@@ -171,37 +171,6 @@ def obstacle_factor(d):
     return factor
 
 
-def new_light_instructions(lights, dt):
-    """
-    determines if it's time for a light to switch colors, then returns the new colors
-
-    Parameters
-    __________
-    :param lights: dataframe
-    :param     dt: double
-
-    Returns
-    _______
-    :return new_instructions or None: list or None: list if time to switch, None if not
-    """
-    half_switch_time = lights['switch-time']
-    time_elapsed = lights['']
-    if np.isclose(time_elapsed, half_switch_time, rtol=1.0e-4):
-        light['switch-counter'] += 1
-        if light['switch-counter'] % 2:
-            new_instructions = []
-            for face in face_values:
-                if face:
-                    new_instructions.append(False)
-                else:
-                    new_instructions.append(True)
-            return new_instructions
-        else:
-            return face_values
-    else:
-        return face_values
-
-
 def init_random_node_start_location(n):
     """
     initializes n cars at n random nodes
@@ -345,7 +314,7 @@ def init_traffic_lights():
         light['out-ypositions'] = [position[1] + epsilon * out_vectors[j][1] for j in range(light['degree'])]
         light['out-xvectors'] = [out_vectors[j][0] for j in range(light['degree'])]
         light['out-yvectors'] = [out_vectors[j][1] for j in range(light['degree'])]
-        light['go-values'] = [go[j] for j in range(light['degree'])]
+        light['go-values'] = np.array([go[j] for j in range(light['degree'])])
 
         lights_data.append(light)
 
