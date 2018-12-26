@@ -34,12 +34,13 @@ class FrontView:
         """
         this method handles the exception where the path is shorter than look_ahead_nodes
 
-        :return view: list of nodes immediately ahead of the car
+        :return view: list or bool: list of nodes immediately ahead of the car or False if end of route
         """
-        if len(self.car['xpath']) > self.look_ahead_nodes:
-            return [(self.car['xpath'][i], self.car['ypath'][i]) for i in range(self.look_ahead_nodes)]
+        if self.car['xpath'] and self.car['ypath']:
+            x, y = self.car['xpath'][:self.look_ahead_nodes], self.car['ypath'][:self.look_ahead_nodes]
+            return [(x[i], y[i]) for i in range(self.look_ahead_nodes)]
         else:
-            return [(self.car['xpath'][i], self.car['ypath'][i]) for i in range(len(self.car['xpath']))]
+            return False
 
     def distance_to_car(self, cars):
         """
@@ -76,14 +77,14 @@ class FrontView:
 
         :return view: tuple: returns upcoming node coords in the path
         """
-        if len(self.view) <= 1:
-            # if it's the end of the route, then the upcoming_node is simply the only node in view
-            return self.view[0]
-
-        if self.crossed_node_event():
-            return self.view[1]
+        if self.view:
+            if self.crossed_node_event():
+                return self.view[1]
+            else:
+                return self.view[0]
         else:
-            return self.view[0]
+            # end of route
+            return get_position_of_node(self.car['destination'])
 
     def crossed_node_event(self):
         """
@@ -218,7 +219,10 @@ def determine_pedigree(node_id):
 
     vectors = []
     for node in out_nodes:
-        point = lines_to_node(node_id, node)[0][1]
+        try:
+            point = lines_to_node(node_id, node)[0][1]
+        except IndexError:
+            continue
         vectors.append((point[0] - position[0], point[1] - position[1]))
 
     return vectors
@@ -240,7 +244,7 @@ def find_traffic_lights():
 
     :return light_intersections: a list of node IDs suitable for traffic lights
     """
-    prescale = 20
+    prescale = 4
     light_intersections = []
     for i, node in enumerate(G.degree()):
         if (node[1] > 3) and not (i % prescale):
@@ -280,7 +284,13 @@ def get_init_path(origin, destination):
     """
     compiles a list of tuples which represents a route
 
-    :param car: dict
+    Parameters
+    __________
+    :param      origin: int:    node ID
+    :param destination: int:    node ID
+
+    Returns
+    _______
     :return path: list where each entry is a tuple of tuples
     """
     lines = shortest_path_lines_nx(origin, destination)
@@ -329,7 +339,8 @@ def shortest_path_lines_nx(origin, destination):
 
     Parameters
     __________
-    :param car: dict
+    :param      origin: int:    node ID
+    :param destination: int:    node ID
 
     Returns
     _______

@@ -31,15 +31,13 @@ def update_cars(cars, dt):
     new_vy = []
     new_times = []
     for car in cars.iterrows():
-        if len(car[1]['xpath']) <= 1 and len(car[1]['ypath']) <= 1:
-            # end of route adds 0 to route timer
-            new_times.append(0)
-            return None, None, 0, 0, 0
-        else:
+        if car[1]['xpath'] and car[1]['ypath']:
             # add to route timer
             new_times.append(car[1]['route-time'] + dt)
 
             frontview = nav.FrontView(car[1])
+
+            # determine if the car has just crossed a node
             if frontview.crossed_node_event():
                 new_xpaths.append(car[1]['xpath'][1:])
                 new_ypaths.append(car[1]['ypath'][1:])
@@ -53,11 +51,16 @@ def update_cars(cars, dt):
             velocity_direction = models.unit_vector(next_node - position)
             velocity = velocity_direction * speed_limit * update_speed_factor(car[1])
 
+            # if the car has stalled and accelerate() returns True, then give it a push
             if np.isclose(0, velocity, atol=0.1).all() and accelerate(car[1]):
                 velocity += default_acceleration
 
             new_vx.append(velocity[0])
             new_vy.append(velocity[1])
+        else:
+            # end of route adds 0 to route timer
+            new_times.append(0)
+            return None, None, 0, 0, car[1]['route-time']
 
     return pd.Series(new_xpaths), pd.Series(new_ypaths), pd.Series(new_vx), pd.Series(new_vy), pd.Series(new_times)
 
