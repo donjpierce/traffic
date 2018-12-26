@@ -45,8 +45,8 @@ faces = sum([ax.plot([], [], color='red', marker='^', ms=2) for f in np.arange(n
 
 
 # initialize the car and light state objects
-cars_state = Cars(sim.init_culdesac_start_location(N))
-lights_state = TrafficLights(sim.init_traffic_lights())
+cars_object = Cars(sim.init_culdesac_start_location(N))
+lights_object = TrafficLights(sim.init_traffic_lights())
 
 
 def init():
@@ -72,24 +72,23 @@ def animate(i):
     :param i:
     :return:
     """
-    lights_state.update(dt)
-    cars_state.update(dt, lights_state, xy_range)
+    lights_object.update(dt)
+    cars_object.update(dt, lights_object.state, xy_range)
 
-    for car, car_dict in zip(cars, cars_state.state):
-        x = car_dict['position'][0]
-        y = car_dict['position'][1]
+    for car, car_series in zip(cars, cars_object.state.iterrows()):
+        x = car_series[1]['x']
+        y = car_series[1]['y']
         car.set_data(x, y)
 
     face_positions = []
     face_colors = []
 
-    for light, light_dict in zip(lights, lights_state.state):
-        xs = [light_dict['out-positions'][i][0] for i in range(light_dict['degree'])]
-        ys = [light_dict['out-positions'][i][1] for i in range(light_dict['degree'])]
-        face_go_values = [light_dict['pedigree'][i]['go'] for i in range(light_dict['degree'])]
+    for light, light_series in zip(lights, lights_object.state.iterrows()):
+        xs = light_series[1]['out-xpositions']
+        ys = light_series[1]['out-ypositions']
+        face_go_values = light_series[1]['go-values']
 
-        x, y = light_dict['position']
-        light.set_data(x, y)
+        light.set_data(light_series[1]['x'], light_series[1]['y'])
 
         for coords in zip(xs, ys):
             face_positions.append(coords)
