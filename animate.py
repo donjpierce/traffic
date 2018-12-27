@@ -1,6 +1,5 @@
 from cars import Cars, TrafficLights
 from matplotlib import animation
-import numpy as np
 import osmnx as ox
 import simulation as sim
 
