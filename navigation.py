@@ -154,8 +154,7 @@ def light_obstacles(frontview, lights):
     # TODO: This method is slow because, for n lights, O(n^2) complexity occurs when it is used each times-step.
     # TODO: Switch to smart sorting.
     space = models.upcoming_linspace(frontview)
-    x_space = space[0]
-    y_space = space[1]
+    x_space, y_space = space[0], space[1]
 
     light_index = []
     for light in lights.iterrows():
