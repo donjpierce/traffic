@@ -77,14 +77,14 @@ class FrontView:
 
         :return view: tuple: returns upcoming node coords in the path
         """
-        if self.view:
-            if self.crossed_node_event():
+        if self.crossed_node_event():
+            if self.view[1]:
                 return self.view[1]
             else:
-                return self.view[0]
+                # end of route
+                return get_position_of_node(self.car['destination'])
         else:
-            # end of route
-            return get_position_of_node(self.car['destination'])
+            return self.view[0]
 
     def crossed_node_event(self):
         """

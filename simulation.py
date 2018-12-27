@@ -19,7 +19,7 @@ default_acceleration = 5
 def update_cars(cars, dt):
     """
     This function shortens the stored path of a car after determining if the car crossed the next node in the path
-    Then calculates the direction and magnitude of the veloicty
+    Then calculates the direction and magnitude of the velocity
 
     :param       cars: dataframe
     :param         dt: double
@@ -115,6 +115,8 @@ def update_speed_factor(car):
         else:
             if distance_to_red_light:
                 final_factor = obstacle_factor(distance_to_red_light)
+                if car['origin'] == 317363251:
+                    print('distance: {} Final Factor: {}'.format(car['distance-to-red-light'], final_factor))
             else:
                 final_factor = curvature_factor
 
