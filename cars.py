@@ -12,6 +12,7 @@ import numpy as np
 # TODO: using machine learning will require logging a bunch of data
 # TODO: start thinking about what data is important to log for your training set
 
+
 class Cars:
     def __init__(self, init_state):
         """
