@@ -38,7 +38,7 @@ class FrontView:
         """
         if self.car['xpath'] and self.car['ypath']:
             x, y = self.car['xpath'][:self.look_ahead_nodes], self.car['ypath'][:self.look_ahead_nodes]
-            return [(x[i], y[i]) for i in range(self.look_ahead_nodes)]
+            return [(x[i], y[i]) for i in range(len(x))]
         else:
             return False
 

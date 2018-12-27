@@ -108,8 +108,8 @@ def animate(i):
     # ax.set_ylim(4185840, 4186260)
 
     # limits for viewing 1st traffic light in Piedmont
-    # ax.set_xlim(566930, 567404)
-    # ax.set_ylim(4186020, 4186280)
+    ax.set_xlim(566930, 567404)
+    ax.set_ylim(4186020, 4186300)
 
     fig.canvas.draw()
     return cars + lights + faces

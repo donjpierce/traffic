@@ -273,8 +273,8 @@ def init_culdesac_start_location(n):
         cars_data.append(car)
 
     cars = pd.DataFrame(cars_data)
-    print('Number of cars: {}'.format(len(cars)))
 
+    print('Number of cars: {}'.format(len(cars)))
     return cars
 
 
@@ -322,6 +322,6 @@ def init_traffic_lights():
         lights_data.append(light)
 
     lights = pd.DataFrame(lights_data)
-    print('Number of traffic lights: {}'.format(len(lights)))
 
+    print('Number of traffic lights: {}'.format(len(lights)))
     return lights
