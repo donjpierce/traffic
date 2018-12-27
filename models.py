@@ -1,21 +1,24 @@
 import math
 import numpy as np
+import pandas as pd
 import random
 
 
-def radixsort(n_nodes, dataframe):
+def radixsort(n_nodes, df):
     """
     uses the dataframe and information about the graph to sort the cars and traffic lights by position
 
     Parameters
     __________
     :param   n_nodes: number of nodes in the graph
-    :param dataframe: pandas dataframe
+    :param        df: pandas dataframe
 
     Returns
     _______
     :return dataframe: sorted pandas dataframe
     """
+
+
     return 0
 
 
@@ -120,61 +123,33 @@ def path_decompiler(lines):
     return clean_path
 
 
-def immediate_linspace(view, position):
-    """
-    this function returns a 2D linspace between the car's immediate position and the next node in the view
-
-    :param     view:    list:   list of n upcoming nodes
-    :param position:    list:   coordinate position of car
-    :return:  space:   tuple:
-    """
-    next_node = view[0]
-
-    x_distance_between = abs(next_node[0] - position[0])
-    y_distance_between = abs(next_node[1] - position[1])
-
-    nx, ny = (x_distance_between, y_distance_between)
-    x = np.linspace(position[0], next_node[0], nx)
-    y = np.linspace(position[1], next_node[1], ny)
-    space = (x, y)
-    return space
-
-
-def upcoming_linspace(view, position):
+def upcoming_linspace(frontview):
     """
     this function returns a 2D linspace between the next two nodes in the view
 
-    :param     view:  list: list of n upcoming nodes
-    :param position:  list: coordinate position of car
-    :return   space: tuple: of np.arrays
+    :param     frontview: object: FrontView object
+    :return        space:  tuple: of np.arrays
     """
-    if len(view) < 2:
-        # the car has reached the end of the route
-        nearest_node = position
-        next_node = view[0]
-    else:
-        nearest_node = view[0]
-        next_node = view[1]
+    next_node = frontview.view[0]
 
-    x_distance_between = abs(next_node[0] - nearest_node[0])
-    y_distance_between = abs(next_node[1] - nearest_node[1])
+    x_distance_between = abs(next_node[0] - frontview.car['x'])
+    y_distance_between = abs(next_node[1] - frontview.car['y'])
 
     nx, ny = (x_distance_between, y_distance_between)
-    x = np.linspace(nearest_node[0], next_node[0], nx)
-    y = np.linspace(nearest_node[1], next_node[1], ny)
+    x = np.linspace(frontview.car['x'], next_node[0], nx)
+    y = np.linspace(frontview.car['y'], next_node[1], ny)
     space = (x, y)
     return space
 
 
-def upcoming_vectors(car, view):
+def upcoming_vectors(view):
     """
     determines the vectors between the nodes in a view
 
-    :param      car: dict
-    :param     view: list:  list of n upcoming nodes
-    :return vectors: list:  list of (n-1) vectors pointing between the nodes along the path of travel
+    :param     view:     tuple:  tuple (x,y) of lists representing n upcoming noce positions
+    :return vectors:      list:  list of (n-1) vectors pointing between the nodes along the path of travel
     """
-    position_view = [car['position']]
+    position_view = []
     for point in view:
         position_view.append(point)
 
@@ -182,37 +157,23 @@ def upcoming_vectors(car, view):
     for i in range(len(position_view)):
         if i < len(position_view) - 1:
             vectors.append(np.array([
-                position_view[i + 1][0] - position_view[i][0], position_view[i + 1][1] - position_view[i][1]]) /
-                math.sqrt(np.dot(position_view[i], position_view[i + 1])))
+                position_view[i + 1][0] - position_view[i][0], position_view[i + 1][1] - position_view[i][1]]
+            ) / math.sqrt(np.dot(position_view[i], position_view[i + 1])))
     return np.array(vectors)
 
 
-def get_angles(car, view):
+def get_angles(view):
     """
     determines the angles between the upcoming vectors
 
     :param   view: list: list of coordinate points of next five nodes in path
     :return  angles: list: list of the next angles of road curvature
     """
-    vectors = upcoming_vectors(car, view)
+    vectors = upcoming_vectors(view)
     angles = []
     for i in range(len(vectors)):
         if i < len(vectors) - 1:
             angles.append(angle_between(vectors[i], vectors[i + 1]))
 
     return angles
-
-
-def get_distances(car, view):
-    """
-    determines the upcoming distances (lengths of upcoming_vectors)
-
-    :param        view: list: list of coordinate points of next five nodes in path
-    :return: distances: list: list of the next distances between upcoming nodes on the road
-    """
-    vectors = upcoming_vectors(car, view)
-    distances = [np.sqrt(vector.dot(vector)) for vector in vectors]
-    return distances
-
-
 

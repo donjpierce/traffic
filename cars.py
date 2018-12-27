@@ -7,6 +7,10 @@ Cars slow down for obstacles exponentially as obstacles get closer, and stop at 
 """
 import simulation as sim
 import navigation as nav
+import numpy as np
+
+# TODO: using machine learning will require logging a bunch of data
+# TODO: start thinking about what data is important to log for your training set
 
 
 class Cars:
@@ -16,61 +20,52 @@ class Cars:
 
         Parameters
         __________
-        :param init_state: list:    each entry in the list is a car dict
+        :param init_state: dataframe:    each Series row is a car
         """
         self.init_state = init_state
         self.state = self.init_state.copy()
         self.time_elapsed = 0
+        self.lights = 0
 
-    def update(self, dt, light_conditions):
+    def update(self, dt, lights, xy_range):
         """
         update the position of the car by a dt time step
 
         Parameters
         __________
-        :param               dt:  double
-        :param light_conditions:    list
+        :param       dt:  double
+        :param   lights:  dataframe
+        :param xy_range:  tuple:    the geographical dimensions of the figure, and thus also the graph
 
         Returns
         _______
-        :return:
+        :return self.state: dataframe
         """
+        self.lights = lights
         self.time_elapsed += dt
         print(self.time_elapsed)
 
-        for i, car in enumerate(self.state):
-            car['front-view']['distance-to-red-light'] = self.find_light_obstacles(car, light_conditions)
-            car['front-view']['distance-to-car'] = self.find_car_obstacles(car, i)
-            car['front-view']['distance-to-node'] = nav.FrontView(car).distance_to_node()
-            car['path'] = sim.update_path(car)
-            car['velocity'] = sim.update_velocity(car)
-            position = car['position']
-            car['position'] = position + car['velocity'] * dt
-            car['route-time'] += sim.car_timer(car, dt)
+        node_distances, car_distances, light_distances = self.find_obstacles()
+
+        self.state['distance-to-node'] = node_distances
+        self.state['distance-to-car'] = car_distances
+        self.state['distance-to-red-light'] = light_distances
+        self.state['xpath'], self.state['ypath'], self.state['vx'], self.state['vy'], self.state['route-time'] \
+            = sim.update_cars(self.state, dt)
+        self.state['x'] = self.state['x'] + self.state['vx'] * dt
+        self.state['y'] = self.state['y'] + self.state['vy'] * dt
 
         return self.state
 
-    def find_car_obstacles(self, car, i):
-        """
-        finds the distance to cars in the view for a specific car in the state
+    def find_obstacles(self):
+        node_distances, car_distances, light_distances = [], [], []
+        for car in self.state.iterrows():
+            frontview = nav.FrontView(car[1])
+            node_distances.append(frontview.distance_to_node())
+            car_distances.append(frontview.distance_to_car(self.state))
+            light_distances.append(frontview.distance_to_light(self.lights))
 
-        :param       car:           dict: specific car of interest
-        :param         i:            int: ID of the car in the state list
-        :return distance: double or bool: returns None if no car in view
-        """
-        state = self.state.copy()
-        state.pop(i)
-        return nav.car_obstacles(state, car)
-
-    def find_light_obstacles(self, car, light_conditions):
-        """
-        finds the distance to red lights in the view for a specific car in the state
-
-        :param                     car:           dict: specific car of interest
-        :param        light_conditions:           list:
-        :return: distance_to_red_light: double or bool: returns None if no car in view
-        """
-        return nav.light_obstacles(car, light_conditions)
+        return node_distances, car_distances, light_distances
 
 
 class TrafficLights:
@@ -92,13 +87,7 @@ class TrafficLights:
         :return:
         """
         self.time_elapsed += dt
-
-        for light in self.state:
-            new_instructions = sim.new_light_instructions(light, self.time_elapsed)
-            if new_instructions:
-                for i, instruction in enumerate(new_instructions):
-                    light['pedigree'][i]['go'] = instruction
-            else:
-                continue
+        time_to_switch = np.isclose(self.time_elapsed, self.state['switch-time'], rtol=1.0e-4)
+        self.state['go-values'] = ~self.state['go-values'] * time_to_switch + self.state['go-values'] * ~time_to_switch
 
         return self.state
