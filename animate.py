@@ -33,20 +33,20 @@ xy_range = (axis_range[1] - axis_range[0], axis_range[3] - axis_range[2])
 # ax.set_ylim(4185840, 4186260)
 
 
-# initialize traffic lights
-number_of_lights = len(sim.init_traffic_lights())
-number_of_faces = sum([sim.init_traffic_lights()['degree'][i] for i in range(number_of_lights)])
-
-
-# initialize empty points for animation
-cars = sum([ax.plot([], [], color='blue', marker='o', ms=3) for n in np.arange(N)], [])
-lights = sum([ax.plot([], [], color='red', marker='+', ms=2) for l in np.arange(number_of_lights)], [])
-faces = sum([ax.plot([], [], color='red', marker='^', ms=2) for f in np.arange(number_of_faces)], [])
-
-
 # initialize the car and light state objects
 cars_object = Cars(sim.init_culdesac_start_location(N))
 lights_object = TrafficLights(sim.init_traffic_lights())
+
+
+# initialize traffic lights
+number_of_lights = len(lights_object.state)
+number_of_faces = sum(lights_object.state['degree'])
+
+
+# initialize empty points for animation
+cars = sum([ax.plot([], [], color='blue', marker='o', ms=3) for n in range(N)], [])
+lights = sum([ax.plot([], [], color='red', marker='+', ms=2) for l in range(number_of_lights)], [])
+faces = sum([ax.plot([], [], color='red', marker='^', ms=2) for f in range(number_of_faces)], [])
 
 
 def init():
