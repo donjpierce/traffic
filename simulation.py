@@ -91,8 +91,8 @@ def update_speed_factor(car):
     :param            car: Series
     :return: final_factor: double
     """
-    obstacles = nav.FrontView(car)
-    angles = obstacles.angles
+    frontview = nav.FrontView(car)
+    angles = frontview.angles
     distance_to_node = car['distance-to-node']
     distance_to_car = car['distance-to-car']
     distance_to_red_light = car['distance-to-red-light']
@@ -115,10 +115,10 @@ def update_speed_factor(car):
         else:
             if distance_to_red_light:
                 final_factor = obstacle_factor(distance_to_red_light)
-                if car['origin'] == 317363251:
-                    print('distance: {} Final Factor: {}'.format(car['distance-to-red-light'], final_factor))
             else:
                 final_factor = curvature_factor
+
+    # print('Distance: {}, Final Factor: {}'.format(distance_to_red_light, final_factor))
 
     return abs(final_factor)
 

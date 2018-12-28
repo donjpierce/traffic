@@ -78,7 +78,7 @@ class FrontView:
         :return view: tuple: returns upcoming node coords in the path
         """
         if self.crossed_node_event():
-            if self.view[1]:
+            if len(self.view) >= 2:
                 return self.view[1]
             else:
                 # end of route
@@ -171,6 +171,8 @@ def light_obstacles(frontview, lights):
         face_vectors = [(light['out-xvectors'][i], light['out-yvectors'][i]) for i in range(light['degree'])]
 
         for value, vector in zip(face_values, face_vectors):
+            # print('LIGHT VALUE: {}'.format(value))
+            # print('PARALLEL: {}'.format(models.determine_parralel_vectors(car_vector, vector)))
             if not value and models.determine_parralel_vectors(car_vector, vector):
                 distance = models.magnitude(car_vector)
                 return distance

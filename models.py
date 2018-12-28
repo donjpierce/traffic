@@ -92,7 +92,7 @@ def determine_parralel_vectors(v1, v2):
     """ Returns True if two vectors are close to parallel """
     v1, v2 = unit_vector(v1), unit_vector(v2)
     angle = np.arccos(np.clip(np.dot(v1, v2), -1.0, 1.0))
-    if np.isclose([0., math.pi], angle, rtol=1.0e-3).any():
+    if np.isclose([0., math.pi], angle, rtol=1.0e-1).any():
         return True
     else:
         return False
