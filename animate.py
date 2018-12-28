@@ -4,7 +4,7 @@ import osmnx as ox
 import simulation as sim
 
 dt = 1 / 1000
-N = 33
+N = 100
 
 # load figure for animation
 """Lower Manhattan"""
@@ -33,7 +33,8 @@ xy_range = (axis_range[1] - axis_range[0], axis_range[3] - axis_range[2])
 
 
 # initialize the car and light state objects
-cars_object = Cars(sim.init_culdesac_start_location(N))
+# cars_object = Cars(sim.init_culdesac_start_location(N))
+cars_object = Cars(sim.init_random_node_start_location(N))
 lights_object = TrafficLights(sim.init_traffic_lights())
 
 
@@ -109,6 +110,10 @@ def animate(i):
     # limits for viewing 1st traffic light in Piedmont
     # ax.set_xlim(566930, 567404)
     # ax.set_ylim(4186020, 4186300)
+
+    # limits for viewing special area for machine learning tests
+    # ax.set_xlim(566960, 567701)
+    # ax.set_ylim(4186510, 4186940)
 
     fig.canvas.draw()
     return cars + lights + faces

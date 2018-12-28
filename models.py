@@ -130,16 +130,19 @@ def upcoming_linspace(frontview):
     :param     frontview: object: FrontView object
     :return        space:  tuple: of np.arrays
     """
-    next_node = frontview.view[0]
+    if frontview.view:
+        next_node = frontview.view[0]
 
-    x_distance_between = abs(next_node[0] - frontview.car['x'])
-    y_distance_between = abs(next_node[1] - frontview.car['y'])
+        x_distance_between = abs(next_node[0] - frontview.car['x'])
+        y_distance_between = abs(next_node[1] - frontview.car['y'])
 
-    nx, ny = (x_distance_between, y_distance_between)
-    x = np.linspace(frontview.car['x'], next_node[0], nx)
-    y = np.linspace(frontview.car['y'], next_node[1], ny)
-    space = (x, y)
-    return space
+        nx, ny = (x_distance_between, y_distance_between)
+        x = np.linspace(frontview.car['x'], next_node[0], nx)
+        y = np.linspace(frontview.car['y'], next_node[1], ny)
+        space = (x, y)
+        return space
+    else:
+        return False
 
 
 def upcoming_vectors(view):
@@ -149,16 +152,12 @@ def upcoming_vectors(view):
     :param     view:     tuple:  tuple (x,y) of lists representing n upcoming noce positions
     :return vectors:      list:  list of (n-1) vectors pointing between the nodes along the path of travel
     """
-    position_view = []
-    for point in view:
-        position_view.append(point)
-
     vectors = []
-    for i in range(len(position_view)):
-        if i < len(position_view) - 1:
+    for i in range(len(view)):
+        if i < len(view) - 1:
             vectors.append(np.array([
-                position_view[i + 1][0] - position_view[i][0], position_view[i + 1][1] - position_view[i][1]]
-            ) / math.sqrt(np.dot(position_view[i], position_view[i + 1])))
+                view[i + 1][0] - view[i][0], view[i + 1][1] - view[i][1]]
+            ) / math.sqrt(np.dot(view[i], view[i + 1])))
     return np.array(vectors)
 
 
@@ -169,11 +168,14 @@ def get_angles(view):
     :param   view: list: list of coordinate points of next five nodes in path
     :return  angles: list: list of the next angles of road curvature
     """
-    vectors = upcoming_vectors(view)
-    angles = []
-    for i in range(len(vectors)):
-        if i < len(vectors) - 1:
-            angles.append(angle_between(vectors[i], vectors[i + 1]))
+    if view and len(view) >= 2:
+        vectors = upcoming_vectors(view)
+        angles = []
+        for i in range(len(vectors)):
+            if i < len(vectors) - 1:
+                angles.append(angle_between(vectors[i], vectors[i + 1]))
 
-    return angles
+        return angles
+    else:
+        return False
 

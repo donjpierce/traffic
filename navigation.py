@@ -77,14 +77,17 @@ class FrontView:
 
         :return view: tuple: returns upcoming node coords in the path
         """
-        if self.crossed_node_event():
-            if len(self.view) >= 2:
-                return self.view[1]
+        if self.view:
+            if self.crossed_node_event():
+                if len(self.view) >= 2:
+                    return self.view[1]
+                else:
+                    return get_position_of_node(self.car['destination'])
             else:
-                # end of route
-                return get_position_of_node(self.car['destination'])
+                return self.view[0]
         else:
-            return self.view[0]
+            # end of route
+            return get_position_of_node(self.car['destination'])
 
     def crossed_node_event(self):
         """
@@ -117,23 +120,26 @@ def car_obstacles(frontview, cars):
     # TODO: This method is slow because, for n cars, O(n^2) complexity occurs when it is used each times-step.
     # TODO: Switch to smart sorting.
     space = models.upcoming_linspace(frontview)
-    x_space = space[0]
-    y_space = space[1]
+    if space:
+        x_space = space[0]
+        y_space = space[1]
 
-    x_obstacle_position, y_obstacle_position = [], []
-    for x_obstacle, y_obstacle in zip(cars['x'], cars['y']):
-        car_within_xlinspace = np.isclose(x_space, x_obstacle, rtol=1.0e-6).any()
-        car_within_ylinspace = np.isclose(y_space, y_obstacle, rtol=1.0e-6).any()
+        x_obstacle_position, y_obstacle_position = [], []
+        for x_obstacle, y_obstacle in zip(cars['x'], cars['y']):
+            car_within_xlinspace = np.isclose(x_space, x_obstacle, rtol=1.0e-6).any()
+            car_within_ylinspace = np.isclose(y_space, y_obstacle, rtol=1.0e-6).any()
 
-        if car_within_xlinspace and car_within_ylinspace:
-            x_obstacle_position.append(x_obstacle)
-            y_obstacle_position.append(y_obstacle)
+            if car_within_xlinspace and car_within_ylinspace:
+                x_obstacle_position.append(x_obstacle)
+                y_obstacle_position.append(y_obstacle)
 
-    if x_obstacle_position and y_obstacle_position:
-        first_x, first_y = x_obstacle_position[0], y_obstacle_position[0]
-        vector = (first_x - frontview.car['x'], first_y - frontview.car['y'])
-        distance = models.magnitude(vector)
-        return distance
+        if x_obstacle_position and y_obstacle_position:
+            first_x, first_y = x_obstacle_position[0], y_obstacle_position[0]
+            vector = (first_x - frontview.car['x'], first_y - frontview.car['y'])
+            distance = models.magnitude(vector)
+            return distance
+        else:
+            return False
     else:
         return False
 
@@ -154,35 +160,38 @@ def light_obstacles(frontview, lights):
     # TODO: This method is slow because, for n lights, O(n^2) complexity occurs when it is used each times-step.
     # TODO: Switch to smart sorting.
     space = models.upcoming_linspace(frontview)
-    x_space, y_space = space[0], space[1]
+    if space:
+        x_space, y_space = space[0], space[1]
 
-    light_index = []
-    for light in lights.iterrows():
-        light_within_xlinspace = np.isclose(x_space, light[1]['x'], rtol=1.0e-6).any()
-        light_within_ylinspace = np.isclose(y_space, light[1]['y'], rtol=1.0e-6).any()
+        light_index = []
+        for light in lights.iterrows():
+            light_within_xlinspace = np.isclose(x_space, light[1]['x'], rtol=1.0e-6).any()
+            light_within_ylinspace = np.isclose(y_space, light[1]['y'], rtol=1.0e-6).any()
 
-        if light_within_xlinspace and light_within_ylinspace:
-            light_index.append(light[0])
+            if light_within_xlinspace and light_within_ylinspace:
+                light_index.append(light[0])
 
-    if light_index:
-        light = lights.loc[light_index[0]]
-        car_vector = [light['x'] - frontview.car['x'], light['y'] - frontview.car['y']]
-        face_values = light['go-values']
-        face_vectors = [(light['out-xvectors'][i], light['out-yvectors'][i]) for i in range(light['degree'])]
+        if light_index:
+            light = lights.loc[light_index[0]]
+            car_vector = [light['x'] - frontview.car['x'], light['y'] - frontview.car['y']]
+            face_values = light['go-values']
+            face_vectors = [(light['out-xvectors'][i], light['out-yvectors'][i]) for i in range(light['degree'])]
 
-        for value, vector in zip(face_values, face_vectors):
-            # print('LIGHT VALUE: {}'.format(value))
-            # print('PARALLEL: {}'.format(models.determine_parralel_vectors(car_vector, vector)))
-            if not value and models.determine_parralel_vectors(car_vector, vector):
-                distance = models.magnitude(car_vector)
-                return distance
-            else:
-                continue
+            for value, vector in zip(face_values, face_vectors):
+                # print('LIGHT VALUE: {}'.format(value))
+                # print('PARALLEL: {}'.format(models.determine_parralel_vectors(car_vector, vector)))
+                if not value and models.determine_parralel_vectors(car_vector, vector):
+                    distance = models.magnitude(car_vector)
+                    return distance
+                else:
+                    continue
 
-        # if the above for loop finished without returning a distance, then return False
-        # note that this would happen only in the case where there is a bug (i.e. no parallel vector was found)
-        return False
+            # if the above for loop finished without returning a distance, then return False
+            # note that this would happen only in the case where there is a bug (i.e. no parallel vector was found)
+            return False
 
+        else:
+            return False
     else:
         return False
 
@@ -245,7 +254,7 @@ def find_traffic_lights():
 
     :return light_intersections: a list of node IDs suitable for traffic lights
     """
-    prescale = 4
+    prescale = 10
     light_intersections = []
     for i, node in enumerate(G.degree()):
         if (node[1] > 3) and not (i % prescale):

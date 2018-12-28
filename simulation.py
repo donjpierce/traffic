@@ -136,7 +136,7 @@ def road_curvature_factor(angles, d):
     _______
     :return speed_factor: double:  factor by which to diminish speed
     """
-    if len(angles) < 1:
+    if not angles or len(angles) < 1:
         # if it's the end of the route, treat the last node like a hard-stop intersection
         theta = math.pi/2
     else:
@@ -186,6 +186,8 @@ def init_random_node_start_location(n):
     # TODO: combine this function with other car initialization functions using flags
 
     nodes = nav.find_nodes(n)
+    culdesacs = nav.find_culdesacs()
+
     cars_data = []
 
     for i in range(n):
@@ -208,7 +210,7 @@ def init_random_node_start_location(n):
                    'vy': 0,
                    'route-time': 0,
                    'origin': nodes[i],
-                   'destination': nodes[i + 1],
+                   'destination': culdesacs[i % len(culdesacs)],
                    'xpath': [path[i][0] for i in range(len(path))],
                    'ypath': [path[i][1] for i in range(len(path))],
                    'distance-to-car': 0,
