@@ -294,7 +294,7 @@ def init_culdesac_start_location(n, axis):
     return cars
 
 
-def init_traffic_lights(axis):
+def init_traffic_lights(axis, prescale=10):
     """
     traffic lights are initialized here
 
@@ -302,7 +302,7 @@ def init_traffic_lights(axis):
     """
     epsilon = 0.2  # a factor which forces the positions of the light faces to be close to the intersection
 
-    light_nodes = nav.find_traffic_lights()
+    light_nodes = nav.find_traffic_lights(prescale)
 
     lights_data = []
 
