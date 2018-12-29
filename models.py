@@ -139,8 +139,7 @@ def upcoming_linspace(frontview):
         nx, ny = int(x_distance_between), int(y_distance_between)
         x = np.linspace(frontview.car['x'], next_node[0], nx)
         y = np.linspace(frontview.car['y'], next_node[1], ny)
-        space = (x, y)
-        return space
+        return x, y
     else:
         return False
 

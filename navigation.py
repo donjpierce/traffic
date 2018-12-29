@@ -118,12 +118,11 @@ def car_obstacles(frontview, cars):
     _______
     :return distance: list: double or False (returns False if no car obstacle found)
     """
-    space = models.upcoming_linspace(frontview)
-    if space:
+    x_space, y_space = models.upcoming_linspace(frontview)
+    if x_space and y_space:
         other_cars = cars.drop(frontview.car.name)
         obstacles = (frontview.car['xbin'] == other_cars['xbin']) & (frontview.car['ybin'] == other_cars['ybin'])
         if obstacles.any():
-            x_space, y_space = space[0], space[1]
             nearby_cars = other_cars[obstacles]
             for car in nearby_cars.iterrows():
                 car_within_xlinspace = np.isclose(x_space, car[1]['x'], rtol=1.0e-6).any()
@@ -155,11 +154,10 @@ def light_obstacles(frontview, lights):
     _______
     :return distance: list: double for False (returns False if no red light is found)
     """
-    space = models.upcoming_linspace(frontview)
-    if space:
+    x_space, y_space = models.upcoming_linspace(frontview)
+    if x_space and y_space:
         obstacles = (frontview.car['xbin'] == lights['xbin']) & (frontview.car['ybin'] == lights['ybin'])
         if obstacles.any():
-            x_space, y_space = space[0], space[1]
             nearby_lights = lights[obstacles]
             for light in nearby_lights.iterrows():
                 light_within_xlinspace = np.isclose(x_space, light[1]['x'], rtol=1.0e-6).any()
