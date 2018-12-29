@@ -329,3 +329,11 @@ def init_traffic_lights():
 
     print('Number of traffic lights: {}'.format(len(lights)))
     return lights
+
+
+def init_bins():
+    """
+    the map is assigned a grid, where each grid section is a bin with an ID
+
+    :return:
+    """

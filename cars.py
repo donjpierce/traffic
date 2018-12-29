@@ -27,7 +27,7 @@ class Cars:
         self.time_elapsed = 0
         self.lights = 0
 
-    def update(self, dt, lights, xy_range):
+    def update(self, dt, lights):
         """
         update the position of the car by a dt time step
 
@@ -35,7 +35,6 @@ class Cars:
         __________
         :param       dt:  double
         :param   lights:  dataframe
-        :param xy_range:  tuple:    the geographical dimensions of the figure, and thus also the graph
 
         Returns
         _______

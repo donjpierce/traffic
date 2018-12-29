@@ -25,11 +25,8 @@ fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
 ax.set_title('Piedmont, California')
 
 
-# grab / set information about the figure and axes
-axis_range = ax.axis()
-xy_range = (axis_range[1] - axis_range[0], axis_range[3] - axis_range[2])
-# ax.set_xlim(566730, 567270)
-# ax.set_ylim(4185840, 4186260)
+# grab the dimensions of the figure
+axis = ax.axis()
 
 
 # initialize the car and light state objects
@@ -73,7 +70,7 @@ def animate(i):
     :return:
     """
     lights_object.update(dt)
-    cars_object.update(dt, lights_object.state, xy_range)
+    cars_object.update(dt, lights_object.state)
 
     for car, car_series in zip(cars, cars_object.state.iterrows()):
         x = car_series[1]['x']
