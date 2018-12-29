@@ -1,25 +1,6 @@
 import math
 import numpy as np
-import pandas as pd
 import random
-
-
-def radixsort(n_nodes, df):
-    """
-    uses the dataframe and information about the graph to sort the cars and traffic lights by position
-
-    Parameters
-    __________
-    :param   n_nodes: number of nodes in the graph
-    :param        df: pandas dataframe
-
-    Returns
-    _______
-    :return dataframe: sorted pandas dataframe
-    """
-
-
-    return 0
 
 
 def initial_light_colors(n):
