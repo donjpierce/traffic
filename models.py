@@ -130,6 +130,7 @@ def upcoming_linspace(frontview):
     :param     frontview: object: FrontView object
     :return        space:  tuple: of np.arrays
     """
+    # TODO: don't make linspace so large. nx and ny should not be so large. it's unnecessary
     if frontview.view:
         next_node = frontview.upcoming_node_position()
 

@@ -119,7 +119,7 @@ def car_obstacles(frontview, cars):
     :return distance: list: double or False (returns False if no car obstacle found)
     """
     x_space, y_space = models.upcoming_linspace(frontview)
-    if x_space and y_space:
+    if x_space.any() and y_space.any():
         other_cars = cars.drop(frontview.car.name)
         obstacles = (frontview.car['xbin'] == other_cars['xbin']) & (frontview.car['ybin'] == other_cars['ybin'])
         if obstacles.any():
@@ -155,7 +155,7 @@ def light_obstacles(frontview, lights):
     :return distance: list: double for False (returns False if no red light is found)
     """
     x_space, y_space = models.upcoming_linspace(frontview)
-    if x_space and y_space:
+    if x_space.any() and y_space.any():
         obstacles = (frontview.car['xbin'] == lights['xbin']) & (frontview.car['ybin'] == lights['ybin'])
         if obstacles.any():
             nearby_lights = lights[obstacles]

@@ -48,6 +48,7 @@ class Cars:
         print(self.time_elapsed)
 
         # determine binning and assign bins to cars
+        # TODO: don't re-sort every time-step. Only place cars in a new bin if their bin is about to change
         x_indices, y_indices = np.digitize(self.state['x'], self.xbins), np.digitize(self.state['y'], self.ybins)
         self.state['xbin'], self.state['ybin'] = pd.Series(x_indices), pd.Series(y_indices)
 
