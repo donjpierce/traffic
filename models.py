@@ -131,12 +131,12 @@ def upcoming_linspace(frontview):
     :return        space:  tuple: of np.arrays
     """
     if frontview.view:
-        next_node = frontview.view[0]
+        next_node = frontview.upcoming_node_position()
 
         x_distance_between = abs(next_node[0] - frontview.car['x'])
         y_distance_between = abs(next_node[1] - frontview.car['y'])
 
-        nx, ny = (x_distance_between, y_distance_between)
+        nx, ny = int(x_distance_between), int(y_distance_between)
         x = np.linspace(frontview.car['x'], next_node[0], nx)
         y = np.linspace(frontview.car['y'], next_node[1], ny)
         space = (x, y)

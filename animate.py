@@ -4,7 +4,7 @@ import osmnx as ox
 import simulation as sim
 
 dt = 1 / 1000
-N = 33
+N = 100
 
 
 # load figure for animation
@@ -33,8 +33,8 @@ axis = ax.axis()
 
 
 # initialize the car and light state objects
-cars_object = Cars(sim.init_culdesac_start_location(N, axis), axis)
-# cars_object = Cars(sim.init_random_node_start_location(N, axis), axis)
+# cars_object = Cars(sim.init_culdesac_start_location(N, axis), axis)
+cars_object = Cars(sim.init_random_node_start_location(N, axis), axis)
 lights_object = TrafficLights(sim.init_traffic_lights(axis), axis)
 
 

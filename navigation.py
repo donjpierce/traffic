@@ -107,6 +107,7 @@ class FrontView:
 
 def car_obstacles(frontview, cars):
     """
+    Determines if there are any other_cars within the car's bin and then
 
     Parameters
     __________
@@ -154,8 +155,6 @@ def light_obstacles(frontview, lights):
     _______
     :return distance: list: double for False (returns False if no red light is found)
     """
-    # TODO: This method is slow because, for n lights, O(n^2) complexity occurs when it is used each times-step.
-    # TODO: Switch to smart sorting.
     space = models.upcoming_linspace(frontview)
     if space:
         obstacles = (frontview.car['xbin'] == lights['xbin']) & (frontview.car['ybin'] == lights['ybin'])
