@@ -50,7 +50,6 @@ class Cars:
         # determine binning and assign bins to cars
         x_indices, y_indices = np.digitize(self.state['x'], self.xbins), np.digitize(self.state['y'], self.ybins)
         self.state['xbin'], self.state['ybin'] = pd.Series(x_indices), pd.Series(y_indices)
-        print(self.state.loc[0]['xbin'], self.state.loc[0]['ybin'])
 
         node_distances, car_distances, light_distances = self.find_obstacles()
 

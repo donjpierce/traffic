@@ -117,27 +117,24 @@ def car_obstacles(frontview, cars):
     _______
     :return distance: list: double or False (returns False if no car obstacle found)
     """
-    # TODO: This method is slow because, for n cars, O(n^2) complexity occurs when it is used each times-step.
-    # TODO: Switch to smart sorting.
     space = models.upcoming_linspace(frontview)
     if space:
-        x_space = space[0]
-        y_space = space[1]
+        other_cars = cars.drop(frontview.car.name)
+        obstacles = (frontview.car['xbin'] == other_cars['xbin']) & (frontview.car['ybin'] == other_cars['ybin'])
+        if obstacles.any():
+            x_space, y_space = space[0], space[1]
+            nearby_cars = other_cars[obstacles]
+            for car in nearby_cars.iterrows():
+                car_within_xlinspace = np.isclose(x_space, car[1]['x'], rtol=1.0e-6).any()
+                car_within_ylinspace = np.isclose(y_space, car[1]['y'], rtol=1.0e-6).any()
 
-        x_obstacle_position, y_obstacle_position = [], []
-        for x_obstacle, y_obstacle in zip(cars['x'], cars['y']):
-            car_within_xlinspace = np.isclose(x_space, x_obstacle, rtol=1.0e-6).any()
-            car_within_ylinspace = np.isclose(y_space, y_obstacle, rtol=1.0e-6).any()
-
-            if car_within_xlinspace and car_within_ylinspace:
-                x_obstacle_position.append(x_obstacle)
-                y_obstacle_position.append(y_obstacle)
-
-        if x_obstacle_position and y_obstacle_position:
-            first_x, first_y = x_obstacle_position[0], y_obstacle_position[0]
-            vector = (first_x - frontview.car['x'], first_y - frontview.car['y'])
-            distance = models.magnitude(vector)
-            return distance
+                if car_within_xlinspace and car_within_ylinspace:
+                    first_x, first_y = car[1]['x'], car[1]['y']
+                    vector = (first_x - frontview.car['x'], first_y - frontview.car['y'])
+                    distance = models.magnitude(vector)
+                    return distance
+                else:
+                    return False
         else:
             return False
     else:
@@ -161,35 +158,28 @@ def light_obstacles(frontview, lights):
     # TODO: Switch to smart sorting.
     space = models.upcoming_linspace(frontview)
     if space:
-        x_space, y_space = space[0], space[1]
+        obstacles = (frontview.car['xbin'] == lights['xbin']) & (frontview.car['ybin'] == lights['ybin'])
+        if obstacles.any():
+            x_space, y_space = space[0], space[1]
+            nearby_lights = lights[obstacles]
+            for light in nearby_lights.iterrows():
+                light_within_xlinspace = np.isclose(x_space, light[1]['x'], rtol=1.0e-6).any()
+                light_within_ylinspace = np.isclose(y_space, light[1]['y'], rtol=1.0e-6).any()
 
-        light_index = []
-        for light in lights.iterrows():
-            light_within_xlinspace = np.isclose(x_space, light[1]['x'], rtol=1.0e-6).any()
-            light_within_ylinspace = np.isclose(y_space, light[1]['y'], rtol=1.0e-6).any()
+                if light_within_xlinspace and light_within_ylinspace:
+                    car_vector = [light[1]['x'] - frontview.car['x'], light[1]['y'] - frontview.car['y']]
+                    face_values = light[1]['go-values']
+                    face_vectors = [(light[1]['out-xvectors'][i], light[1]['out-yvectors'][i])
+                                    for i in range(light[1]['degree'])]
 
-            if light_within_xlinspace and light_within_ylinspace:
-                light_index.append(light[0])
-
-        if light_index:
-            light = lights.loc[light_index[0]]
-            car_vector = [light['x'] - frontview.car['x'], light['y'] - frontview.car['y']]
-            face_values = light['go-values']
-            face_vectors = [(light['out-xvectors'][i], light['out-yvectors'][i]) for i in range(light['degree'])]
-
-            for value, vector in zip(face_values, face_vectors):
-                # print('LIGHT VALUE: {}'.format(value))
-                # print('PARALLEL: {}'.format(models.determine_parralel_vectors(car_vector, vector)))
-                if not value and models.determine_parralel_vectors(car_vector, vector):
-                    distance = models.magnitude(car_vector)
-                    return distance
+                    for value, vector in zip(face_values, face_vectors):
+                        if not value and models.determine_parralel_vectors(car_vector, vector):
+                            distance = models.magnitude(car_vector)
+                            return distance
+                        else:
+                            continue
                 else:
-                    continue
-
-            # if the above for loop finished without returning a distance, then return False
-            # note that this would happen only in the case where there is a bug (i.e. no parallel vector was found)
-            return False
-
+                    return False
         else:
             return False
     else:
@@ -236,16 +226,6 @@ def determine_pedigree(node_id):
         vectors.append((point[0] - position[0], point[1] - position[1]))
 
     return vectors
-
-
-# def determine_bin(x, y):
-#     """
-#     for a given position (x,y), determines which bin the position is in
-#
-#     :param      x: coordinate
-#     :param      y: coordinate
-#     :return tuple: x_bin, y_bin
-#     """
 
 
 def find_culdesacs():
