@@ -235,13 +235,12 @@ def find_culdesacs():
     return culdesacs
 
 
-def find_traffic_lights():
+def find_traffic_lights(prescale=10):
     """
     traffic lights are nodes in the graph which have degree > 3
 
     :return light_intersections: a list of node IDs suitable for traffic lights
     """
-    prescale = 10
     light_intersections = []
     for i, node in enumerate(G.degree()):
         if (node[1] > 3) and not (i % prescale):
