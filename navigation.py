@@ -238,6 +238,16 @@ def determine_pedigree(node_id):
     return vectors
 
 
+# def determine_bin(x, y):
+#     """
+#     for a given position (x,y), determines which bin the position is in
+#
+#     :param      x: coordinate
+#     :param      y: coordinate
+#     :return tuple: x_bin, y_bin
+#     """
+
+
 def find_culdesacs():
     """
     culdesacs are nodes with only one edge connection and which are not on the boundary of the OpenStreetMap

@@ -4,7 +4,8 @@ import osmnx as ox
 import simulation as sim
 
 dt = 1 / 1000
-N = 100
+N = 33
+
 
 # load figure for animation
 """Lower Manhattan"""
@@ -13,10 +14,12 @@ N = 100
 # fig, ax = ox.plot_graph(G, fig_height=12, node_size=0, edge_linewidth=0.5)
 # ax.set_title('Lower Manhattan, New York City')
 
+
 """San Francisco"""
 # G = ox.load_graphml('sanfrancisco.graphml')
 # fig, ax = ox.plot_graph(G, fig_height=12, fig_width=10, node_size=0, edge_linewidth=0.5)
 # ax.set_title('San Francisco, California')
+
 
 """Piedmont, California"""
 G = ox.load_graphml('piedmont.graphml')
@@ -30,9 +33,9 @@ axis = ax.axis()
 
 
 # initialize the car and light state objects
-# cars_object = Cars(sim.init_culdesac_start_location(N))
-cars_object = Cars(sim.init_random_node_start_location(N))
-lights_object = TrafficLights(sim.init_traffic_lights())
+cars_object = Cars(sim.init_culdesac_start_location(N, axis), axis)
+# cars_object = Cars(sim.init_random_node_start_location(N, axis), axis)
+lights_object = TrafficLights(sim.init_traffic_lights(axis), axis)
 
 
 # initialize traffic lights
@@ -105,8 +108,8 @@ def animate(i):
     # ax.set_ylim(4185840, 4186260)
 
     # limits for viewing 1st traffic light in Piedmont
-    # ax.set_xlim(566930, 567404)
-    # ax.set_ylim(4186020, 4186300)
+    ax.set_xlim(566930, 567404)
+    ax.set_ylim(4186020, 4186300)
 
     # limits for viewing special area for machine learning tests
     # ax.set_xlim(566960, 567701)
