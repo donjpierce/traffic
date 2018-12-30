@@ -121,10 +121,10 @@ def animate(i):
 
 
 # for creating HTML frame-movies
-# ani = animation.FuncAnimation(fig, animate, init_func=init, frames=1200, interval=30, blit=True)
-# ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
+ani = animation.FuncAnimation(fig, animate, init_func=init, frames=1200, interval=30, blit=True)
+ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
 
 # for creating movies
-ani = animation.FuncAnimation(fig, animate, init_func=init, frames=50000)
-mywriter = animation.FFMpegWriter(fps=300)
-ani.save('movie.mp4', writer=mywriter)
+# ani = animation.FuncAnimation(fig, animate, init_func=init, frames=50000)
+# mywriter = animation.FFMpegWriter(fps=300)
+# ani.save('movie.mp4', writer=mywriter)
