@@ -294,6 +294,17 @@ def get_init_path(origin, destination):
     return path
 
 
+def get_route(origin, destination):
+    """
+    acquires the typical node-based route list from NetworkX with weight=length
+
+    :param      origin: node ID
+    :param destination: node ID
+    :return:     route
+    """
+    return nx.shortest_path(G, origin, destination, weight='length')
+
+
 def lines_to_node(origin, destination):
     """
 

@@ -23,8 +23,9 @@ def update_cars(cars, dt):
 
     :param       cars: dataframe
     :param         dt: double
-    :return quadruple: four Series's suitable for the main dataframe
+    :return   package: four Series's suitable for the main dataframe
     """
+    new_route = []
     new_xpaths = []
     new_ypaths = []
     new_vx = []
@@ -41,9 +42,11 @@ def update_cars(cars, dt):
             if frontview.crossed_node_event():
                 new_xpaths.append(car[1]['xpath'][1:])
                 new_ypaths.append(car[1]['ypath'][1:])
+                new_route.append(car[1]['route'][1:])
             else:
                 new_xpaths.append(car[1]['xpath'])
                 new_ypaths.append(car[1]['ypath'])
+                new_route.append(car[1]['route'])
 
             next_node = np.array(frontview.upcoming_node_position())
             position = np.array(frontview.position)
@@ -62,7 +65,10 @@ def update_cars(cars, dt):
             new_times.append(0)
             return None, None, 0, 0, car[1]['route-time']
 
-    return pd.Series(new_xpaths), pd.Series(new_ypaths), pd.Series(new_vx), pd.Series(new_vy), pd.Series(new_times)
+    package = pd.Series(new_route), pd.Series(new_xpaths), pd.Series(new_ypaths), pd.Series(new_vx),\
+        pd.Series(new_vy), pd.Series(new_times)
+
+    return package
 
 
 def accelerate(car):
@@ -198,6 +204,7 @@ def init_random_node_start_location(n, axis):
 
             try:
                 path = nav.get_init_path(origin, destination)
+                route = nav.get_route(origin, destination)
             except NetworkXNoPath:
                 print('No path between {} and {}.'.format(nodes[i], culdesacs[i % len(culdesacs)]))
                 continue
@@ -212,6 +219,7 @@ def init_random_node_start_location(n, axis):
                    'route-time': 0,
                    'origin': nodes[i],
                    'destination': culdesacs[i % len(culdesacs)],
+                   'route': route,
                    'xpath': [path[i][0] for i in range(len(path))],
                    'ypath': [path[i][1] for i in range(len(path))],
                    'distance-to-car': 0,
@@ -261,6 +269,7 @@ def init_culdesac_start_location(n, axis):
 
         try:
             path = nav.get_init_path(origin, destination)
+            route = nav.get_route(origin, destination)
         except NetworkXNoPath:
             print('No path between {} and {}.'.format(culdesacs[i], culdesacs[i + 1]))
             continue
@@ -275,6 +284,7 @@ def init_culdesac_start_location(n, axis):
                'route-time': 0,
                'origin': culdesacs[i],
                'destination': culdesacs[i + 1],
+               'route': route,
                'xpath': [path[i][0] for i in range(len(path))],
                'ypath': [path[i][1] for i in range(len(path))],
                'distance-to-car': 0,
