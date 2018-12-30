@@ -176,11 +176,12 @@ def obstacle_factor(d):
     return factor
 
 
-def init_random_node_start_location(n):
+def init_random_node_start_location(n, axis):
     """
-    initializes n cars at n random nodes
+    initializes n cars at n random nodes and sets their destinations as a culdesac
 
-    :param      n: int
+    :param      n:  int
+    :param   axis: list: x_range, y_range of road network
     :return state: dict
     """
     # TODO: combine this function with other car initialization functions using flags
@@ -198,7 +199,7 @@ def init_random_node_start_location(n):
             try:
                 path = nav.get_init_path(origin, destination)
             except NetworkXNoPath:
-                print('No path between {} and {}.'.format(nodes[i], nodes[i + 1]))
+                print('No path between {} and {}.'.format(nodes[i], culdesacs[i % len(culdesacs)]))
                 continue
 
             position = nav.get_position_of_node(nodes[i])
@@ -220,12 +221,18 @@ def init_random_node_start_location(n):
             cars_data.append(car)
 
     cars = pd.DataFrame(cars_data)
+
+    # determine binning and assign bins to cars
+    xbins, ybins = np.arange(axis[0], axis[1], 200), np.arange(axis[2], axis[3], 200)
+    x_indices, y_indices = np.digitize(cars['x'], xbins), np.digitize(cars['y'], ybins)
+    cars['xbin'], cars['ybin'] = pd.Series(x_indices), pd.Series(y_indices)
+
     print('Number of cars: {}'.format(len(cars)))
 
     return cars
 
 
-def init_culdesac_start_location(n):
+def init_culdesac_start_location(n, axis):
     """
     initializes N cars into N culdesacs
 
@@ -278,11 +285,16 @@ def init_culdesac_start_location(n):
 
     cars = pd.DataFrame(cars_data)
 
+    # determine binning and assign bins to cars
+    xbins, ybins = np.arange(axis[0], axis[1], 200), np.arange(axis[2], axis[3], 200)
+    x_indices, y_indices = np.digitize(cars['x'], xbins), np.digitize(cars['y'], ybins)
+    cars['xbin'], cars['ybin'] = pd.Series(x_indices), pd.Series(y_indices)
+
     print('Number of cars: {}'.format(len(cars)))
     return cars
 
 
-def init_traffic_lights():
+def init_traffic_lights(axis, prescale=10):
     """
     traffic lights are initialized here
 
@@ -290,7 +302,7 @@ def init_traffic_lights():
     """
     epsilon = 0.2  # a factor which forces the positions of the light faces to be close to the intersection
 
-    light_nodes = nav.find_traffic_lights()
+    light_nodes = nav.find_traffic_lights(prescale)
 
     lights_data = []
 
@@ -326,6 +338,11 @@ def init_traffic_lights():
         lights_data.append(light)
 
     lights = pd.DataFrame(lights_data)
+
+    # determine binning and assign bins to lights
+    xbins, ybins = np.arange(axis[0], axis[1], 200), np.arange(axis[2], axis[3], 200)
+    x_indices, y_indices = np.digitize(lights['x'], xbins), np.digitize(lights['y'], ybins)
+    lights['xbin'], lights['ybin'] = pd.Series(x_indices), pd.Series(y_indices)
 
     print('Number of traffic lights: {}'.format(len(lights)))
     return lights

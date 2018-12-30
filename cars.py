@@ -8,13 +8,14 @@ Cars slow down for obstacles exponentially as obstacles get closer, and stop at 
 import simulation as sim
 import navigation as nav
 import numpy as np
+import pandas as pd
 
 # TODO: using machine learning will require logging a bunch of data
 # TODO: start thinking about what data is important to log for your training set
 
 
 class Cars:
-    def __init__(self, init_state):
+    def __init__(self, init_state, axis):
         """
         car objects are used for accessing and updating each car's parameters
 
@@ -26,8 +27,10 @@ class Cars:
         self.state = self.init_state.copy()
         self.time_elapsed = 0
         self.lights = 0
+        self.xbins = np.arange(axis[0], axis[1], 200)
+        self.ybins = np.arange(axis[2], axis[3], 200)
 
-    def update(self, dt, lights, xy_range):
+    def update(self, dt, lights):
         """
         update the position of the car by a dt time step
 
@@ -35,7 +38,6 @@ class Cars:
         __________
         :param       dt:  double
         :param   lights:  dataframe
-        :param xy_range:  tuple:    the geographical dimensions of the figure, and thus also the graph
 
         Returns
         _______
@@ -44,6 +46,11 @@ class Cars:
         self.lights = lights
         self.time_elapsed += dt
         print(self.time_elapsed)
+
+        # determine binning and assign bins to cars
+        # TODO: don't re-sort every time-step. Only place cars in a new bin if their bin is about to change
+        x_indices, y_indices = np.digitize(self.state['x'], self.xbins), np.digitize(self.state['y'], self.ybins)
+        self.state['xbin'], self.state['ybin'] = pd.Series(x_indices), pd.Series(y_indices)
 
         node_distances, car_distances, light_distances = self.find_obstacles()
 
@@ -69,7 +76,7 @@ class Cars:
 
 
 class TrafficLights:
-    def __init__(self, light_state):
+    def __init__(self, light_state, axis):
         """
         traffic light objects are used for finding, updating, and timing traffic light nodes
 
@@ -78,6 +85,8 @@ class TrafficLights:
         self.init_state = light_state
         self.state = self.init_state.copy()
         self.time_elapsed = 0
+        self.xbins = np.arange(axis[0], axis[1], 200)
+        self.ybins = np.arange(axis[2], axis[3], 200)
 
     def update(self, dt):
         """

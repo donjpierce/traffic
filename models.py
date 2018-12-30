@@ -1,25 +1,6 @@
 import math
 import numpy as np
-import pandas as pd
 import random
-
-
-def radixsort(n_nodes, df):
-    """
-    uses the dataframe and information about the graph to sort the cars and traffic lights by position
-
-    Parameters
-    __________
-    :param   n_nodes: number of nodes in the graph
-    :param        df: pandas dataframe
-
-    Returns
-    _______
-    :return dataframe: sorted pandas dataframe
-    """
-
-
-    return 0
 
 
 def initial_light_colors(n):
@@ -130,17 +111,17 @@ def upcoming_linspace(frontview):
     :param     frontview: object: FrontView object
     :return        space:  tuple: of np.arrays
     """
+    # TODO: don't make linspace so large. nx and ny should not be so large. it's unnecessary
     if frontview.view:
-        next_node = frontview.view[0]
+        next_node = frontview.upcoming_node_position()
 
         x_distance_between = abs(next_node[0] - frontview.car['x'])
         y_distance_between = abs(next_node[1] - frontview.car['y'])
 
-        nx, ny = (x_distance_between, y_distance_between)
+        nx, ny = int(x_distance_between), int(y_distance_between)
         x = np.linspace(frontview.car['x'], next_node[0], nx)
         y = np.linspace(frontview.car['y'], next_node[1], ny)
-        space = (x, y)
-        return space
+        return x, y
     else:
         return False
 

@@ -4,7 +4,8 @@ import osmnx as ox
 import simulation as sim
 
 dt = 1 / 1000
-N = 100
+N = 33
+
 
 # load figure for animation
 """Lower Manhattan"""
@@ -13,10 +14,13 @@ N = 100
 # fig, ax = ox.plot_graph(G, fig_height=12, node_size=0, edge_linewidth=0.5)
 # ax.set_title('Lower Manhattan, New York City')
 
+
 """San Francisco"""
 # G = ox.load_graphml('sanfrancisco.graphml')
+# G = ox.project_graph(G)
 # fig, ax = ox.plot_graph(G, fig_height=12, fig_width=10, node_size=0, edge_linewidth=0.5)
 # ax.set_title('San Francisco, California')
+
 
 """Piedmont, California"""
 G = ox.load_graphml('piedmont.graphml')
@@ -25,17 +29,14 @@ fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
 ax.set_title('Piedmont, California')
 
 
-# grab / set information about the figure and axes
-axis_range = ax.axis()
-xy_range = (axis_range[1] - axis_range[0], axis_range[3] - axis_range[2])
-# ax.set_xlim(566730, 567270)
-# ax.set_ylim(4185840, 4186260)
+# grab the dimensions of the figure
+axis = ax.axis()
 
 
 # initialize the car and light state objects
-# cars_object = Cars(sim.init_culdesac_start_location(N))
-cars_object = Cars(sim.init_random_node_start_location(N))
-lights_object = TrafficLights(sim.init_traffic_lights())
+cars_object = Cars(sim.init_culdesac_start_location(N, axis), axis)
+# cars_object = Cars(sim.init_random_node_start_location(N, axis), axis)
+lights_object = TrafficLights(sim.init_traffic_lights(axis, prescale=40), axis)
 
 
 # initialize traffic lights
@@ -73,7 +74,7 @@ def animate(i):
     :return:
     """
     lights_object.update(dt)
-    cars_object.update(dt, lights_object.state, xy_range)
+    cars_object.update(dt, lights_object.state)
 
     for car, car_series in zip(cars, cars_object.state.iterrows()):
         x = car_series[1]['x']
@@ -120,10 +121,10 @@ def animate(i):
 
 
 # for creating HTML frame-movies
-# ani = animation.FuncAnimation(fig, animate, init_func=init, frames=1200, interval=30, blit=True)
-# ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
+ani = animation.FuncAnimation(fig, animate, init_func=init, frames=1200, interval=30, blit=True)
+ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
 
 # for creating movies
-ani = animation.FuncAnimation(fig, animate, init_func=init, frames=50000)
-mywriter = animation.FFMpegWriter(fps=300)
-ani.save('movie.mp4', writer=mywriter)
+# ani = animation.FuncAnimation(fig, animate, init_func=init, frames=50000)
+# mywriter = animation.FFMpegWriter(fps=300)
+# ani.save('movie.mp4', writer=mywriter)
