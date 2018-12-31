@@ -127,7 +127,7 @@ def animate(i):
 # ani = animation.FuncAnimation(fig, animate, init_func=init, frames=1200, interval=30, blit=True)
 # ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
 
-# for creating movies
+# for creating mp4 movies
 ani = animation.FuncAnimation(fig, animate, init_func=init, frames=20000)
 mywriter = animation.FFMpegWriter(fps=300)
 ani.save('movie.mp4', writer=mywriter)
