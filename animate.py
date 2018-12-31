@@ -1,3 +1,6 @@
+# python=3.6 requires using Qt4Agg backend for animation saving
+import matplotlib
+matplotlib.use('Qt4Agg')
 from cars import Cars, TrafficLights
 from matplotlib import animation
 import osmnx as ox
