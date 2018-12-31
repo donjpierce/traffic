@@ -264,6 +264,9 @@ def init_culdesac_start_location(n, axis):
 
     for i in range(n):
 
+        """ TEMPORARY SETTING FOR TESTING DECEMBER 30TH 2018  """
+        i = 17
+
         origin = culdesacs[i]
         destination = culdesacs[i + 1]
 

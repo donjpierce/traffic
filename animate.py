@@ -4,7 +4,7 @@ import osmnx as ox
 import simulation as sim
 
 dt = 1 / 1000
-N = 33
+N = 1
 
 
 # load figure for animation
@@ -113,18 +113,18 @@ def animate(i):
     # ax.set_ylim(4186020, 4186300)
 
     # limits for viewing special area for machine learning tests
-    # ax.set_xlim(566960, 567701)
-    # ax.set_ylim(4186510, 4186940)
+    ax.set_xlim(567295, 568600)
+    ax.set_ylim(4186360, 4187450)
 
     fig.canvas.draw()
     return cars + lights + faces
 
 
 # for creating HTML frame-movies
-ani = animation.FuncAnimation(fig, animate, init_func=init, frames=1200, interval=30, blit=True)
-ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
+# ani = animation.FuncAnimation(fig, animate, init_func=init, frames=1200, interval=30, blit=True)
+# ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
 
 # for creating movies
-# ani = animation.FuncAnimation(fig, animate, init_func=init, frames=50000)
-# mywriter = animation.FFMpegWriter(fps=300)
-# ani.save('movie.mp4', writer=mywriter)
+ani = animation.FuncAnimation(fig, animate, init_func=init, frames=15000)
+mywriter = animation.FFMpegWriter(fps=300)
+ani.save('movie.mp4', writer=mywriter)
