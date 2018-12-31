@@ -16,7 +16,7 @@ After customizing desired parameters, run `python animate.py`
 
 Installing 
 
-	`tensorflow 1.9.0 py36_0` (latest 12/29/2018) 
+	tensorflow 1.9.0 py36_0 (latest 12/29/2018) 
 
 conflicts with any python 3.7 (py37) environment because tf uses `python >=3.6,<3.7.0a0`. To handle this, I've created another virtual environment with all the python 3.6 (py36) versions of the required package for this code base. To install this py36 environement, see `requirements_py36.txt` in the requirements folder. 
 
