@@ -47,6 +47,7 @@ def update_cars(cars, dt):
                 new_xpaths.append(car[1]['xpath'])
                 new_ypaths.append(car[1]['ypath'])
 
+            # determine if the car has reached the end of the route
             if frontview.end_of_route(stop_distance):
                 new_route.append(car[1]['route'])
             else:
@@ -65,7 +66,7 @@ def update_cars(cars, dt):
             new_vx.append(velocity[0])
             new_vy.append(velocity[1])
         else:
-            # end of route adds 0 to route timer
+            # end of route returns the final route time
             return None, None, None, 0, 0, car[1]['route-time']
 
     package = pd.Series(new_route), pd.Series(new_xpaths), pd.Series(new_ypaths), pd.Series(new_vx),\

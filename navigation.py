@@ -114,6 +114,7 @@ class FrontView:
         xdest, ydest = get_position_of_node(self.car['destination'])
         car_near_xdest = np.isclose(xdest, self.car['x'], atol=stop_distance)
         car_near_ydest = np.isclose(ydest, self.car['y'], atol=stop_distance)
+
         if car_near_xdest and car_near_ydest:
             return True
         else:
