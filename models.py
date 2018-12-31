@@ -69,7 +69,7 @@ def angle_between(v1, v2):
     return angle
 
 
-def determine_parralel_vectors(v1, v2):
+def determine_parallel_vectors(v1, v2):
     """ Returns True if two vectors are close to parallel """
     v1, v2 = unit_vector(v1), unit_vector(v2)
     angle = np.arccos(np.clip(np.dot(v1, v2), -1.0, 1.0))
@@ -112,18 +112,15 @@ def upcoming_linspace(frontview):
     :return        space:  tuple: of np.arrays
     """
     # TODO: don't make linspace so large. nx and ny should not be so large. it's unnecessary
-    if frontview.view:
-        next_node = frontview.upcoming_node_position()
+    next_node = frontview.upcoming_node_position()
 
-        x_distance_between = abs(next_node[0] - frontview.car['x'])
-        y_distance_between = abs(next_node[1] - frontview.car['y'])
+    x_distance_between = abs(next_node[0] - frontview.car['x'])
+    y_distance_between = abs(next_node[1] - frontview.car['y'])
 
-        nx, ny = int(x_distance_between), int(y_distance_between)
-        x = np.linspace(frontview.car['x'], next_node[0], nx)
-        y = np.linspace(frontview.car['y'], next_node[1], ny)
-        return x, y
-    else:
-        return False
+    nx, ny = int(x_distance_between), int(y_distance_between)
+    x = np.linspace(frontview.car['x'], next_node[0], nx)
+    y = np.linspace(frontview.car['y'], next_node[1], ny)
+    return x, y
 
 
 def upcoming_vectors(view):

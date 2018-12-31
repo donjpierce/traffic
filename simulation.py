@@ -11,7 +11,7 @@ import pandas as pd
 
 # fill the initial state with N cars
 speed_limit = 250
-stop_distance = 10
+stop_distance = 5
 free_distance = 40
 default_acceleration = 5
 
@@ -31,6 +31,7 @@ def update_cars(cars, dt):
     new_vx = []
     new_vy = []
     new_times = []
+
     for car in cars.iterrows():
         if car[1]['xpath'] and car[1]['ypath']:
             # add to route timer
@@ -42,11 +43,14 @@ def update_cars(cars, dt):
             if frontview.crossed_node_event():
                 new_xpaths.append(car[1]['xpath'][1:])
                 new_ypaths.append(car[1]['ypath'][1:])
-                new_route.append(car[1]['route'][1:])
             else:
                 new_xpaths.append(car[1]['xpath'])
                 new_ypaths.append(car[1]['ypath'])
+
+            if frontview.end_of_route(stop_distance):
                 new_route.append(car[1]['route'])
+            else:
+                new_route.append(car[1]['route'][1:])
 
             next_node = np.array(frontview.upcoming_node_position())
             position = np.array(frontview.position)
@@ -62,8 +66,7 @@ def update_cars(cars, dt):
             new_vy.append(velocity[1])
         else:
             # end of route adds 0 to route timer
-            new_times.append(0)
-            return None, None, 0, 0, car[1]['route-time']
+            return None, None, None, 0, 0, car[1]['route-time']
 
     package = pd.Series(new_route), pd.Series(new_xpaths), pd.Series(new_ypaths), pd.Series(new_vx),\
         pd.Series(new_vy), pd.Series(new_times)
@@ -200,16 +203,16 @@ def init_random_node_start_location(n, axis):
     for i in range(n):
         if i < n - 1:
             origin = nodes[i]
-            destination = nodes[i + 1]
+            destination = culdesacs[i % len(culdesacs)]
 
             try:
                 path = nav.get_init_path(origin, destination)
                 route = nav.get_route(origin, destination)
             except NetworkXNoPath:
-                print('No path between {} and {}.'.format(nodes[i], culdesacs[i % len(culdesacs)]))
+                print('No path between {} and {}.'.format(origin, destination))
                 continue
 
-            position = nav.get_position_of_node(nodes[i])
+            position = nav.get_position_of_node(origin)
 
             car = {'object': 'car',
                    'x': position[0],
@@ -217,8 +220,8 @@ def init_random_node_start_location(n, axis):
                    'vx': 0,
                    'vy': 0,
                    'route-time': 0,
-                   'origin': nodes[i],
-                   'destination': culdesacs[i % len(culdesacs)],
+                   'origin': origin,
+                   'destination': destination,
                    'route': route,
                    'xpath': [path[i][0] for i in range(len(path))],
                    'ypath': [path[i][1] for i in range(len(path))],
@@ -246,7 +249,8 @@ def init_culdesac_start_location(n, axis):
 
     Parameters
     __________
-    :param     n:   int
+    :param     n:                      int
+    :param  axis:   list of x and y ranges
 
     Returns
     _______
@@ -263,21 +267,20 @@ def init_culdesac_start_location(n, axis):
     cars_data = []
 
     for i in range(n):
-
+        # origin = culdesacs[i]
+        # destination = culdesacs[i + 1]
         """ TEMPORARY SETTING FOR TESTING DECEMBER 30TH 2018  """
         i = 17
-
         origin = culdesacs[i]
         destination = culdesacs[i + 1]
-
         try:
             path = nav.get_init_path(origin, destination)
             route = nav.get_route(origin, destination)
         except NetworkXNoPath:
-            print('No path between {} and {}.'.format(culdesacs[i], culdesacs[i + 1]))
+            print('No path between {} and {}.'.format(origin, destination))
             continue
 
-        position = nav.get_position_of_node(culdesacs[i])
+        position = nav.get_position_of_node(origin)
 
         car = {'object': 'car',
                'x': position[0],
@@ -285,8 +288,8 @@ def init_culdesac_start_location(n, axis):
                'vx': 0,
                'vy': 0,
                'route-time': 0,
-               'origin': culdesacs[i],
-               'destination': culdesacs[i + 1],
+               'origin': origin,
+               'destination': destination,
                'route': route,
                'xpath': [path[i][0] for i in range(len(path))],
                'ypath': [path[i][1] for i in range(len(path))],

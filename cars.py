@@ -45,8 +45,8 @@ class Cars:
         """
         self.lights = lights
         self.time_elapsed += dt
-        # print(self.time_elapsed)
-        print('Car route clock: {}'.format(self.state.loc[0]['route-time']))
+        print(self.time_elapsed)
+
         # determine binning and assign bins to cars
         # TODO: don't re-sort every time-step. Only place cars in a new bin if their bin is about to change
         x_indices, y_indices = np.digitize(self.state['x'], self.xbins), np.digitize(self.state['y'], self.ybins)
@@ -58,7 +58,7 @@ class Cars:
         self.state['distance-to-car'] = car_distances
         self.state['distance-to-red-light'] = light_distances
 
-        self.state['route'], self.state['xpath'], self.state['ypath'], self.state['vx'],\
+        self.state['route'], self.state['xpath'], self.state['ypath'], self.state['vx'], \
             self.state['vy'], self.state['route-time'] = sim.update_cars(self.state, dt)
 
         self.state['x'] = self.state['x'] + self.state['vx'] * dt

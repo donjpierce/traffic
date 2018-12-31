@@ -104,6 +104,21 @@ class FrontView:
         else:
             return False
 
+    def end_of_route(self, stop_distance):
+        """
+        Determines if the car has reached the end of the route
+
+        :param stop_distance: double or int from simulation.py
+        :return         bool: False if not, True if car is at the end of its root
+        """
+        xdest, ydest = get_position_of_node(self.car['destination'])
+        car_near_xdest = np.isclose(xdest, self.car['x'], atol=stop_distance)
+        car_near_ydest = np.isclose(ydest, self.car['y'], atol=stop_distance)
+        if car_near_xdest and car_near_ydest:
+            return True
+        else:
+            return False
+
 
 def car_obstacles(frontview, cars):
     """
@@ -170,7 +185,7 @@ def light_obstacles(frontview, lights):
                                     for i in range(light[1]['degree'])]
 
                     for value, vector in zip(face_values, face_vectors):
-                        if not value and models.determine_parralel_vectors(car_vector, vector):
+                        if not value and models.determine_parallel_vectors(car_vector, vector):
                             distance = models.magnitude(car_vector)
                             return distance
                         else:
