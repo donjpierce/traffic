@@ -269,6 +269,7 @@ def init_culdesac_start_location(n, axis):
 
     for i in range(n):
         origin = culdesacs[i]
+        """ TEMP DESTINATION FOR ONE-CAR-ONE-ROUTE STUDY """
         # destination = culdesacs[i + 1]
         destination = 53028190
         """ TEMP DESTINATION FOR ONE-CAR-ONE-ROUTE STUDY """
