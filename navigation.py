@@ -206,6 +206,7 @@ def determine_pedigree(node_id):
      :param  node_id:    int
      :return vectors:   list: list of vectors pointing from the intersection to the nearest point on the out roads
      """
+    # TODO: use the native AtlasView object in NetworkX to determine the pedigree
     position = get_position_of_node(node_id)
 
     left_edges = []
@@ -321,6 +322,46 @@ def get_route(origin, destination):
     return nx.shortest_path(G, origin, destination, weight='length')
 
 
+def build_new_route(route, reroute_node, direction):
+    """
+    this function builds a new route for a car based on the original route given that it would like to turn off
+    the original route at the reroute_node
+
+    :param        route: list: the original Dijkstra's shortest path
+    :param reroute_node:  int: the node at which the car would like to depart the original path
+    :param    direction:  int: the next node after reroute_node in the direction of the departure
+
+    :return:  new_route: list: the new route based on the new direction
+    """
+    reroute_index = route.index(reroute_node)
+    new_route = route[:reroute_index + 1]
+    new_route.append(direction)
+    next_node_pos = get_position_of_node(route[reroute_index + 1])
+    returned = False
+    while not returned:
+        out_from_direction = [dot for dot in G[direction].__iter__()]
+        out_from_direction.pop(out_from_direction.index(reroute_node))
+        distances = []
+        for node in out_from_direction:
+            potential_node_pos = get_position_of_node(node)
+            distances.append(np.linalg.norm(next_node_pos - potential_node_pos))
+
+        distances, route = np.array(distances), np.array(route)
+        next_node = out_from_direction[distances.argsort()[0]]
+        new_route.append(next_node)
+        if (next_node == route[reroute_index + 1:]).any():
+            start_at_index = route.tolist().index(next_node)
+            for node in route[start_at_index + 2:]:
+                new_route.append(node)
+            returned = True
+        else:
+            direction = next_node
+            reroute_node = new_route[-2]
+            reroute_index = route.tolist().index(reroute_node)
+
+    return new_route
+
+
 def lines_to_node(origin, destination):
     """
 
@@ -371,8 +412,6 @@ def shortest_path_lines_nx(origin, destination):
         [(double, double), ...]:   each tuple represents the bend-point in a straight road
     """
 
-    # yx_car_position = (car['position'][1], car['position'][0])
-    # origin = ox.utils.get_nearest_node(G, yx_car_position)
     route = nx.shortest_path(G, origin, destination, weight='length')
 
     # find the route lines
