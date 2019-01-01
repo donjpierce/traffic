@@ -268,12 +268,10 @@ def init_culdesac_start_location(n, axis):
     cars_data = []
 
     for i in range(n):
-        # origin = culdesacs[i]
-        # destination = culdesacs[i + 1]
-        """ TEMPORARY SETTING FOR TESTING DECEMBER 30TH 2018  """
-        i = 17
         origin = culdesacs[i]
-        destination = culdesacs[i + 1]
+        # destination = culdesacs[i + 1]
+        destination = 53028190
+        """ TEMP DESTINATION FOR ONE-CAR-ONE-ROUTE STUDY """
         try:
             path = nav.get_init_path(origin, destination)
             route = nav.get_route(origin, destination)

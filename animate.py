@@ -1,3 +1,6 @@
+# python=3.6 requires using Qt4Agg backend for animation saving
+import matplotlib
+matplotlib.use('Qt4Agg')
 from cars import Cars, TrafficLights
 from matplotlib import animation
 import osmnx as ox
@@ -105,16 +108,16 @@ def animate(i):
             face.set_color('red')
 
     # limits for the path view of 1 car with TEMP_dest_node destination
-    # ax.set_xlim(566730, 567270)
-    # ax.set_ylim(4185840, 4186260)
+    ax.set_xlim(566730, 567270)
+    ax.set_ylim(4185840, 4186260)
 
     # limits for viewing 1st traffic light in Piedmont
     # ax.set_xlim(566930, 567404)
     # ax.set_ylim(4186020, 4186300)
 
     # limits for viewing special area for machine learning tests
-    ax.set_xlim(567295, 568600)
-    ax.set_ylim(4186360, 4187450)
+    # ax.set_xlim(567295, 568600)
+    # ax.set_ylim(4186360, 4187450)
 
     fig.canvas.draw()
     return cars + lights + faces
@@ -124,7 +127,7 @@ def animate(i):
 # ani = animation.FuncAnimation(fig, animate, init_func=init, frames=1200, interval=30, blit=True)
 # ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
 
-# for creating movies
+# for creating mp4 movies
 ani = animation.FuncAnimation(fig, animate, init_func=init, frames=20000)
 mywriter = animation.FFMpegWriter(fps=300)
 ani.save('movie.mp4', writer=mywriter)
