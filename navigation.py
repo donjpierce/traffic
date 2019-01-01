@@ -355,8 +355,10 @@ def build_new_route(route, reroute_node, direction):
                 new_route.append(node)
             returned = True
         else:
-            direction = next_node
             reroute_node = new_route[-2]
+            out_from_current_node = [dot for dot in G[next_node].__iter__()]
+            out_from_current_node.pop(out_from_current_node.index(reroute_node))
+
             reroute_index = route.tolist().index(reroute_node)
 
     return new_route
