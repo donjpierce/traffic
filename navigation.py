@@ -333,6 +333,12 @@ def build_new_route(route, reroute_node, direction):
 
     :return:  new_route: list: the new route based on the new direction
     """
+    # TODO: make this function more sophisticated so that it doesn't find divergent routes
+    """
+        IDEA: instead of using the distance to the next node in the original path to select the next new_route node,
+              use the sum of the distances to the next three nodes in the original path.
+              This ensures that the next node is closest to the original route's actual **direction**.     
+    """
     reroute_index = route.index(reroute_node)
     new_route = route[:reroute_index + 1]
     new_route.append(direction)
