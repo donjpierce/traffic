@@ -141,7 +141,7 @@ class StateView:
         """
         if self.route[0] != self.car['destination']:
             route_length = sum([G.get_edge_data(self.route[i], self.route[i + 1])[0]['length']
-                                for i in range(len(route) - 1)])
+                                for i in range(len(self.route) - 1)])
 
             eta_from_distance = route_length / self.speed_limit
 
