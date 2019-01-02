@@ -130,6 +130,8 @@ class StateView:
         self.xbin = self.car['xbin']
         self.ybin = self.car['ybin']
         self.route = self.car['route']
+        self.eta = eta(self.car, self.lights)
+        self.speed_limit = 250
 
     def determine_state(self):
         """
@@ -138,9 +140,18 @@ class StateView:
         :return state: list
         """
         if self.route[0] != self.car['destination']:
-            """
-            determine which of the five states the car is in
-            """
+            route_length = sum([G.get_edge_data(self.route[i], self.route[i + 1])[0]['length']
+                                for i in range(len(route) - 1)])
+
+            eta_from_distance = route_length / self.speed_limit
+
+            light_locs = [(node == self.lights['node']).tolist().index(True) for node in self.route if
+                          (node == self.lights['node']).any()]
+
+            # let the expected wait time for all lights found in the route be half the sum of the times
+            expected_wait = sum([self.lights.loc[index]['switch-time'] for index in light_locs]) / 2
+            path_time = eta_from_distance + expected_wait
+
         else:
             # the car has arrived at the destination and is therefore in state 6
             state = [0, 0, 0, 0, 0, 1]
@@ -358,23 +369,16 @@ def eta(car, lights, speed_limit=250):
     :return:    path_time: double
     """
     route = car['route']
-    road_lengths = []
-    for i in range(len(route)):
-        if i < len(route) - 1:
-            road_lengths.append(G.get_edge_data(route[i], route[i + 1])[0]['length'])
-    distance = sum(road_lengths)
-    eta_from_distance = distance / speed_limit  # does not account for road curvature or hard stops at intersections
 
-    potential_wait_times = []
-    for node in route:
-        if (node == lights['node']).any():
-            light_loc = (node == lights['node']).tolist().index(True)
-            print(light_loc)
-            potential_wait_times.append(lights.loc[light_loc]['switch-time'])
+    route_length = sum([G.get_edge_data(route[i], route[i + 1])[0]['length']
+                        for i in range(len(route) - 1)])
+
+    eta_from_distance = route_length / speed_limit  # does not account for road curvature or hard stops at intersections
+
+    light_locs = [(node == lights['node']).tolist().index(True) for node in route if (node == lights['node']).any()]
 
     # let the expected wait time for all lights found in the route be half the sum of the times
-    expected_wait = sum(potential_wait_times) / 2
-
+    expected_wait = sum([lights.loc[index]['switch-time'] for index in light_locs]) / 2
     path_time = eta_from_distance + expected_wait
     return path_time
 
