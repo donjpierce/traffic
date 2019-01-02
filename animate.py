@@ -76,7 +76,6 @@ def animate(i):
     :param i:
     :return:
     """
-    # TODO: use pandas more properly here. Perhaps cars, lights, faces can be pandas Series instead
     lights_object.update(dt)
     cars_object.update(dt, lights_object.state)
 
