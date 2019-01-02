@@ -403,10 +403,11 @@ def build_new_route(route, reroute_node, direction):
 
 def lines_to_node(origin, destination):
     """
+    return the points of all nodes in the route, including the minor nodes which make up line geometry
 
-    :param origin:
-    :param destination:
-    :return:
+    :param      origin: int
+    :param destination: int
+    :return      lines: list
     """
 
     route = nx.shortest_path(G, origin, destination, weight='length')
