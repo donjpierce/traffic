@@ -96,12 +96,28 @@ def path_decompiler(lines):
     # OpenStreetMap has this issue
     clean_path = []
     for i in range(len(path)):
-        if (i < len(path) - 1) and (path[i] == path[i + 1]):
-            continue
-        else:
+        if (i < len(path) - 1) and (path[i] != path[i + 1]):
             clean_path.append(path[i])
-
+    clean_path.append(path[-1])
     return clean_path
+
+
+def new_route_decompiler(new_path):
+    """
+    Decompiles a new_path from nav.build_new_route
+
+    :param      new_path:
+    :return:  clean_path:
+    """
+    clean_path = []
+    for i in range(len(new_path)):
+        if (i < len(new_path) - 1) and (new_path[i] != new_path[i + 1]):
+            clean_path.append(new_path[i])
+    clean_path.append(new_path[-1])
+    return clean_path
+
+
+
 
 
 def upcoming_linspace(frontview):

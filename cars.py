@@ -58,6 +58,10 @@ class Cars:
         self.state['distance-to-car'] = car_distances
         self.state['distance-to-red-light'] = light_distances
 
+        """
+         *** TEMPORARY reroute testing ***
+        """
+
         self.state['route'], self.state['xpath'], self.state['ypath'], self.state['vx'], \
             self.state['vy'], self.state['route-time'] = sim.update_cars(self.state, dt)
 

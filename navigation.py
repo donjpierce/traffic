@@ -402,7 +402,20 @@ def build_new_route(route, reroute_node, direction):
             reroute_node = direction
             direction = next_node
 
-    return new_route
+    lines = []
+    for i in range(len(new_route)):
+        if i < len(new_route) - 1:
+            lines.append(shortest_path_lines_nx(new_route[i], new_route[i + 1]))
+
+    new_path = []
+    for geometry in lines:
+        for point in geometry[0]:
+            new_path.append(point)
+
+    new_clean_path = models.new_route_decompiler(new_path)
+    new_xpath, new_ypath = [point[0] for point in new_clean_path], [point[1] for point in new_clean_path]
+
+    return new_route, new_xpath, new_ypath
 
 
 def lines_to_node(origin, destination):

@@ -316,7 +316,7 @@ def init_traffic_lights(axis, prescale=10):
 
     :return lights: list
     """
-    epsilon = 0.2  # a factor which forces the positions of the light faces to be close to the intersection
+    epsilon = 0.3  # a factor which forces the positions of the light faces to be close to the intersection
 
     light_nodes = nav.find_traffic_lights(prescale)
 
