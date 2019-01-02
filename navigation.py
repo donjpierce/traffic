@@ -365,38 +365,42 @@ def build_new_route(route, reroute_node, direction):
     :return:  new_route: list: the new route based on the new direction
     """
     # TODO: make this function more sophisticated so that it doesn't find divergent routes
-    """
-        IDEA: instead of using the distance to the next node in the original path to select the next new_route node,
-              use the sum of the distances to the next three nodes in the original path.
-              This ensures that the next node is closest to the original route's actual **direction**.     
-    """
     reroute_index = route.index(reroute_node)
     new_route = route[:reroute_index + 1]
     new_route.append(direction)
-    next_node_pos = get_position_of_node(route[reroute_index + 1])
+
+    # get the coordinate positions of the next three nodes in the original route
+    next_nodes_pos = []
+    for node in route[reroute_index + 1:reroute_index + 4]:
+        x, y = get_position_of_node(node)
+        next_nodes_pos.append((x, y))
+
     returned = False
     while not returned:
         out_from_direction = [dot for dot in G[direction].__iter__()]
         out_from_direction.pop(out_from_direction.index(reroute_node))
-        distances = []
-        for node in out_from_direction:
-            potential_node_pos = get_position_of_node(node)
-            distances.append(np.linalg.norm(next_node_pos - potential_node_pos))
 
-        distances, route = np.array(distances), np.array(route)
-        next_node = out_from_direction[distances.argsort()[0]]
+        # Populate a list of the sums of the distances to the next
+        # three nodes in the original route, for each potential new node
+        sum_three_node_dist = []
+        for node in out_from_direction:
+            distances = []
+            for compare_node in next_nodes_pos:
+                potential_node_pos = get_position_of_node(node)
+                distances.append(np.linalg.norm(compare_node - potential_node_pos))
+            sum_three_node_dist.append(sum(distances))
+
+        sum_three_node_dist, route = np.array(sum_three_node_dist), np.array(route)
+        next_node = out_from_direction[sum_three_node_dist.argsort()[0]]
         new_route.append(next_node)
         if (next_node == route[reroute_index + 1:]).any():
             start_at_index = route.tolist().index(next_node)
-            for node in route[start_at_index + 2:]:
+            for node in route[start_at_index + 1:]:
                 new_route.append(node)
             returned = True
         else:
-            reroute_node = new_route[-2]
-            out_from_current_node = [dot for dot in G[next_node].__iter__()]
-            out_from_current_node.pop(out_from_current_node.index(reroute_node))
-
-            reroute_index = route.tolist().index(reroute_node)
+            reroute_node = direction
+            direction = next_node
 
     return new_route
 
