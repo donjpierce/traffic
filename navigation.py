@@ -329,7 +329,7 @@ def eta(car, lights, speed_limit=250):
     :param            car: Series
     :param         lights: DataFrame
     :param    speed_limit: int
-    :return:          eta: double
+    :return:    path_time: double
     """
     route = car['route']
     road_lengths = []
@@ -343,13 +343,14 @@ def eta(car, lights, speed_limit=250):
     for node in route:
         if (node == lights['node']).any():
             light_loc = (node == lights['node']).tolist().index(True)
+            print(light_loc)
             potential_wait_times.append(lights.loc[light_loc]['switch-time'])
 
-    # let the expected wait time for all lights in the route be half the sum of the times
+    # let the expected wait time for all lights found in the route be half the sum of the times
     expected_wait = sum(potential_wait_times) / 2
 
-    eta = eta_from_distance + expected_wait
-    return eta
+    path_time = eta_from_distance + expected_wait
+    return path_time
 
 
 def build_new_route(route, reroute_node, direction):
