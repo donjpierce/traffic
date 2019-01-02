@@ -135,27 +135,40 @@ class StateView:
 
     def determine_state(self):
         """
-        this method gathers information about the car's route, and determine which state the car is in
+        this method gathers information about the car's route, and determines which state the car is in
 
         :return state: list
         """
         if self.route[0] != self.car['destination']:
+            light_locs = [(node == self.lights['node']).tolist().index(True) for node in self.route
+                          if (node == self.lights['node']).any()]
+
+
+
+            """
             route_length = sum([G.get_edge_data(self.route[i], self.route[i + 1])[0]['length']
                                 for i in range(len(self.route) - 1)])
 
             eta_from_distance = route_length / self.speed_limit
 
-            light_locs = [(node == self.lights['node']).tolist().index(True) for node in self.route if
-                          (node == self.lights['node']).any()]
-
             # let the expected wait time for all lights found in the route be half the sum of the times
             expected_wait = sum([self.lights.loc[index]['switch-time'] for index in light_locs]) / 2
             path_time = eta_from_distance + expected_wait
+            """
+
+
 
         else:
             # the car has arrived at the destination and is therefore in state 6
             state = [0, 0, 0, 0, 0, 1]
             return state
+
+    def get_bins_in_route(self):
+        """
+        this method parses the route and returns a list of xbins and ybins through which the route passes
+
+        :return xbins, ybins:
+        """
 
 
 def car_obstacles(frontview, cars):
@@ -444,7 +457,6 @@ def build_new_route(route, reroute_node, direction):
 
     new_clean_path = models.new_route_decompiler(new_path)
     new_xpath, new_ypath = [point[0] for point in new_clean_path], [point[1] for point in new_clean_path]
-
     return new_route, new_xpath, new_ypath
 
 
