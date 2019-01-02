@@ -364,7 +364,7 @@ def build_new_route(route, reroute_node, direction):
 
     :return:  new_route: list: the new route based on the new direction
     """
-    # TODO: make this function more sophisticated so that it doesn't find divergent routes
+    # TODO: make this function more sophisticated so that it doesn't find bad routes
     reroute_index = route.index(reroute_node)
     new_route = route[:reroute_index + 1]
     new_route.append(direction)
