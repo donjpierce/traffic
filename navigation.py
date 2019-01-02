@@ -121,6 +121,32 @@ class FrontView:
             return False
 
 
+class StateView:
+    def __init__(self, car_index, cars, lights):
+        self.index = car_index
+        self.cars = cars
+        self.lights = lights
+        self.car = cars[self.index]
+        self.xbin = self.car['xbin']
+        self.ybin = self.car['ybin']
+        self.route = self.car['route']
+
+    def determine_state(self):
+        """
+        this method gathers information about the car's route, and determine which state the car is in
+
+        :return state: list
+        """
+        if self.route[0] != self.car['destination']:
+            """
+            determine which of the five states the car is in
+            """
+        else:
+            # the car has arrived at the destination and is therefore in state 6
+            state = [0, 0, 0, 0, 0, 1]
+            return state
+
+
 def car_obstacles(frontview, cars):
     """
     Determines if there are any other_cars within the car's bin and then

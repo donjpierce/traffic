@@ -61,6 +61,11 @@ class Cars:
         self.state['route'], self.state['xpath'], self.state['ypath'], self.state['vx'], \
             self.state['vy'], self.state['route-time'] = sim.update_cars(self.state, dt)
 
+        """
+            Here is where we will grab the new route from nav.build_new_route() if a car (agent)
+            decides to reroute
+        """
+
         self.state['x'] = self.state['x'] + self.state['vx'] * dt
         self.state['y'] = self.state['y'] + self.state['vy'] * dt
 
