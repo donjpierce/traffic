@@ -322,6 +322,36 @@ def get_route(origin, destination):
     return nx.shortest_path(G, origin, destination, weight='length')
 
 
+def eta(car, lights, speed_limit=250):
+    """
+    calculates the ETA by considering traffic lights, car traffic (in future versions), and distances
+
+    :param            car: Series
+    :param         lights: DataFrame
+    :param    speed_limit: int
+    :return:          eta: double
+    """
+    route = car['route']
+    road_lengths = []
+    for i in range(len(route)):
+        if i < len(route) - 1:
+            road_lengths.append(G.get_edge_data(route[i], route[i + 1])[0]['length'])
+    distance = sum(road_lengths)
+    eta_from_distance = distance / speed_limit  # does not account for road curvature or hard stops at intersections
+
+    potential_wait_times = []
+    for node in route:
+        if (node == lights['node']).any():
+            light_loc = (node == lights['node']).tolist().index(True)
+            potential_wait_times.append(lights.loc[light_loc]['switch-time'])
+
+    # let the expected wait time for all lights in the route be half the sum of the times
+    expected_wait = sum(potential_wait_times) / 2
+
+    eta = eta_from_distance + expected_wait
+    return eta
+
+
 def build_new_route(route, reroute_node, direction):
     """
     this function builds a new route for a car based on the original route given that it would like to turn off

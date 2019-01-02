@@ -338,6 +338,7 @@ def init_traffic_lights(axis, prescale=10):
         go = go[:degree]
 
         light = {'object': 'light',
+                 'node': node_id,
                  'degree': degree,
                  'x': position[0],
                  'y': position[1],
