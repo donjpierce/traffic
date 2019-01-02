@@ -1,6 +1,22 @@
 import math
 import numpy as np
+import pandas as pd
 import random
+
+
+def determine_bins(axis, df):
+    """
+    For a given dataframe of objects on the map with an axis, return a Series of xbins and ybins for those objects
+
+    :param axis:
+    :param  df:
+
+    :return xbins, ybins:
+    """
+    xbins, ybins = np.arange(axis[0], axis[1], 200), np.arange(axis[2], axis[3], 200)
+    x_indices, y_indices = np.digitize(df['x'], xbins), np.digitize(df['y'], ybins)
+    xbins, ybins = pd.Series(x_indices), pd.Series(y_indices)
+    return xbins, ybins
 
 
 def initial_light_colors(n):

@@ -302,9 +302,7 @@ def init_culdesac_start_location(n, axis):
     cars = pd.DataFrame(cars_data)
 
     # determine binning and assign bins to cars
-    xbins, ybins = np.arange(axis[0], axis[1], 200), np.arange(axis[2], axis[3], 200)
-    x_indices, y_indices = np.digitize(cars['x'], xbins), np.digitize(cars['y'], ybins)
-    cars['xbin'], cars['ybin'] = pd.Series(x_indices), pd.Series(y_indices)
+    cars['xbin'], cars['ybin'] = models.determine_bins(axis, cars)
 
     print('Number of cars: {}'.format(len(cars)))
     return cars
@@ -357,9 +355,7 @@ def init_traffic_lights(axis, prescale=10):
     lights = pd.DataFrame(lights_data)
 
     # determine binning and assign bins to lights
-    xbins, ybins = np.arange(axis[0], axis[1], 200), np.arange(axis[2], axis[3], 200)
-    x_indices, y_indices = np.digitize(lights['x'], xbins), np.digitize(lights['y'], ybins)
-    lights['xbin'], lights['ybin'] = pd.Series(x_indices), pd.Series(y_indices)
+    lights['xbin'], lights['ybin'] = models.determine_bins(axis, lights)
 
     print('Number of traffic lights: {}'.format(len(lights)))
     return lights

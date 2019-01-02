@@ -6,6 +6,7 @@ Cars slow down exponentially as radius of road curvature gets smaller
 Cars slow down for obstacles exponentially as obstacles get closer, and stop at stop_distance
 """
 import simulation as sim
+import models
 import navigation as nav
 import numpy as np
 import pandas as pd
@@ -27,8 +28,7 @@ class Cars:
         self.state = self.init_state.copy()
         self.time_elapsed = 0
         self.lights = 0
-        self.xbins = np.arange(axis[0], axis[1], 200)
-        self.ybins = np.arange(axis[2], axis[3], 200)
+        self.axis = axis
 
     def update(self, dt, lights):
         """
@@ -49,8 +49,7 @@ class Cars:
 
         # determine binning and assign bins to cars
         # TODO: don't re-sort every time-step. Only place cars in a new bin if their bin is about to change
-        x_indices, y_indices = np.digitize(self.state['x'], self.xbins), np.digitize(self.state['y'], self.ybins)
-        self.state['xbin'], self.state['ybin'] = pd.Series(x_indices), pd.Series(y_indices)
+        self.state['xbin'], self.state['ybin'] = models.determine_bins(self.axis, self.state)
 
         node_distances, car_distances, light_distances = self.find_obstacles()
 
