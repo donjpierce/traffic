@@ -133,9 +133,6 @@ def new_route_decompiler(new_path):
     return clean_path
 
 
-
-
-
 def upcoming_linspace(frontview):
     """
     this function returns a 2D linspace between the next two nodes in the view
@@ -184,8 +181,6 @@ def get_angles(view):
         for i in range(len(vectors)):
             if i < len(vectors) - 1:
                 angles.append(angle_between(vectors[i], vectors[i + 1]))
-
         return angles
     else:
         return False
-

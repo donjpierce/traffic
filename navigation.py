@@ -122,13 +122,12 @@ class FrontView:
 
 
 class StateView:
-    def __init__(self, car_index, cars, lights):
-        self.index = car_index
+    def __init__(self, axis, car_index, cars, lights):
+        self.axis = axis
         self.cars = cars
         self.lights = lights
+        self.index = car_index
         self.car = cars[self.index]
-        self.xbin = self.car['xbin']
-        self.ybin = self.car['ybin']
         self.route = self.car['route']
         self.eta = eta(self.car, self.lights)
         self.speed_limit = 250
@@ -140,8 +139,17 @@ class StateView:
         :return state: list
         """
         if self.route[0] != self.car['destination']:
+            # get lights IDs in the route
             light_locs = [(node == self.lights['node']).tolist().index(True) for node in self.route
                           if (node == self.lights['node']).any()]
+
+            # get car IDs in the route
+            # TODO: this just gets cars in the route bins. Later: get only the cars on the actual road using linspace.
+            car_locs = []
+            for xbin, ybin in zip(self.get_bins_in_route()):
+                for i, (cars_xbin, cars_ybin) in enumerate(zip(self.cars['xbin'], self.cars['ybin'])):
+                    if (xbin, ybin) == (cars_xbin, cars_ybin):
+                        car_locs.append(i)
 
 
 
@@ -167,8 +175,31 @@ class StateView:
         """
         this method parses the route and returns a list of xbins and ybins through which the route passes
 
-        :return xbins, ybins:
+        :return xbins, ybins
         """
+        xbins, ybins = np.arange(self.axis[0], self.axis[1], 200), np.arange(self.axis[2], self.axis[3], 200)
+        x_inds, y_inds = [], []
+        for node in self.route:
+            x, y = get_position_of_node(node)
+            x_inds.append(np.digitize(x, xbins))
+            y_inds.append(np.digitize(y, ybins))
+
+        x_inds, y_inds = np.array(x_inds), np.array(y_inds)
+
+        # remove double-counted bins from result
+        xbins, ybins = [], []
+        for i in range(len(x_inds)):
+            if i < len(x_inds) - 1:
+                if (x_inds[i] == x_inds[i + 1]) and (y_inds[i] == y_inds[i + 1]):
+                    continue
+                else:
+                    xbins.append(x_inds[i])
+                    ybins.append(y_inds[i])
+
+        xbins.append(x_inds[-1])
+        ybins.append(y_inds[-1])
+
+        return xbins, ybins
 
 
 def car_obstacles(frontview, cars):
@@ -367,7 +398,7 @@ def get_route(origin, destination):
 
     :param      origin: node ID
     :param destination: node ID
-    :return:     route
+    :return:     route: list of intersection nodes
     """
     return nx.shortest_path(G, origin, destination, weight='length')
 
