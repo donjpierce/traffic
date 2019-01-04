@@ -146,13 +146,21 @@ class StateView:
             # get congested bins
             traffic_bins = self.get_traffic_bins()
 
-            # if light_locs or traffic_bins:
-            #     if light_locs:
-            #         # re-route around light with longest switch-time (last light in array due to sorting)
-            #
-                # else:
+            if light_locs or traffic_bins:
+                if light_locs:
+                    # re-route around light with longest switch-time (last light in array due to sorting)
+                    light_node = self.lights.loc[light_locs[-1]]['node']
+                    reroute_node = self.route[:self.route.index(light_node)][-1]
+
+
+
+
+
+
+
+            else:
                 # there are no obstacles along the current route (STATE 4)
-                # return [0, 0, 0, 1, 0, 0]
+                return [0, 0, 0, 1, 0, 0]
         else:
             # the car has arrived at the destination (STATE 6)
             state = [0, 0, 0, 0, 0, 1]
@@ -471,7 +479,6 @@ def build_new_route(route, reroute_node, direction):
     i = 0
     while not returned:
         i += 1
-        print(i)
         out_from_direction = [dot for dot in G[direction].__iter__()]
         out_from_direction.pop(out_from_direction.index(reroute_node))
 
@@ -480,10 +487,11 @@ def build_new_route(route, reroute_node, direction):
         sum_three_node_dist = []
         for node in out_from_direction:
             twice_out = [dot for dot in G[node].__iter__()]
-            twice_out.pop(twice_out.index(node))
+            np_twice = np.array(twice_out)
+            if (direction == np_twice).any():
+                twice_out.pop(twice_out.index(direction))
             if not twice_out:
-                # don't pick culdesacs
-                continue
+                sum_three_node_dist.append('disqualified')
 
             distances = []
             for compare_node in next_nodes_pos:
@@ -493,6 +501,7 @@ def build_new_route(route, reroute_node, direction):
 
         sum_three_node_dist, route = np.array(sum_three_node_dist), np.array(route)
         next_node = out_from_direction[sum_three_node_dist.argsort()[0]]
+        print(i, next_node)
         new_route.append(next_node)
         if (next_node == route[reroute_index + 1:]).any():
             start_at_index = route.tolist().index(next_node)
