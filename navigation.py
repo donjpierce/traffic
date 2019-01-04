@@ -130,6 +130,7 @@ class StateView:
         self.car = cars[self.index]
         self.route = self.car['route']
         self.eta = eta(self.car, self.lights)
+        self.max_cars = 10  # the number of cars in a bin for the bin to be considered 'congested'
         self.speed_limit = 250
 
     def determine_state(self):
@@ -139,37 +140,54 @@ class StateView:
         :return state: list
         """
         if self.route[0] != self.car['destination']:
-            # get lights IDs in the route
-            light_locs = [(node == self.lights['node']).tolist().index(True) for node in self.route
-                          if (node == self.lights['node']).any()]
+            # get light IDs in the route
+            light_locs = self.get_lights_in_route()
 
-            # get car IDs in the route
-            # TODO: this just gets cars in the route bins. Later: get only the cars on the actual road using linspace.
-            car_locs = []
-            for xbin, ybin in zip(self.get_bins_in_route()):
-                for i, (cars_xbin, cars_ybin) in enumerate(zip(self.cars['xbin'], self.cars['ybin'])):
-                    if (xbin, ybin) == (cars_xbin, cars_ybin):
-                        car_locs.append(i)
+            # get congested bins
+            traffic_bins = self.get_traffic_bins()
 
-
-
-            """
-            route_length = sum([G.get_edge_data(self.route[i], self.route[i + 1])[0]['length']
-                                for i in range(len(self.route) - 1)])
-
-            eta_from_distance = route_length / self.speed_limit
-
-            # let the expected wait time for all lights found in the route be half the sum of the times
-            expected_wait = sum([self.lights.loc[index]['switch-time'] for index in light_locs]) / 2
-            path_time = eta_from_distance + expected_wait
-            """
-
-
-
+            # if light_locs or traffic_bins:
+            #     if light_locs:
+            #         # re-route around light with longest switch-time (last light in array due to sorting)
+            #
+                # else:
+                # there are no obstacles along the current route (STATE 4)
+                # return [0, 0, 0, 1, 0, 0]
         else:
-            # the car has arrived at the destination and is therefore in state 6
+            # the car has arrived at the destination (STATE 6)
             state = [0, 0, 0, 0, 0, 1]
             return state
+
+    def get_lights_in_route(self):
+        """
+        this method returns the IDs of the traffic lights anywhere along the route
+
+        :return light_locs: a list of light IDs
+        """
+        light_locs = np.array([(node == self.lights['node']).tolist().index(True) for node in self.route
+                      if (node == self.lights['node']).any()])
+
+        # sort lights by switch-time
+        light_locs = [id for id in self.lights['switch-time'].argsort() if (id == light_locs).any()]
+
+        return light_locs
+
+    def get_traffic_bins(self):
+        """
+        this method returns the (xbin, ybin) pair of a bins which are considered to be congested with traffic
+
+        :return traffic_bins: list: list of tuples
+        """
+        traffic_bins = []
+        for xbin, ybin in zip(self.get_bins_in_route()):
+            population_of_bin = 0
+            for i, (cars_xbin, cars_ybin) in enumerate(zip(self.cars['xbin'], self.cars['ybin'])):
+                if (xbin, ybin) == (cars_xbin, cars_ybin):
+                    population_of_bin += 1
+
+            if population_of_bin > self.max_cars:
+                traffic_bins.append((xbin, ybin))
+        return traffic_bins
 
     def get_bins_in_route(self):
         """
@@ -450,7 +468,10 @@ def build_new_route(route, reroute_node, direction):
         next_nodes_pos.append((x, y))
 
     returned = False
+    i = 0
     while not returned:
+        i += 1
+        print(i)
         out_from_direction = [dot for dot in G[direction].__iter__()]
         out_from_direction.pop(out_from_direction.index(reroute_node))
 
@@ -458,6 +479,12 @@ def build_new_route(route, reroute_node, direction):
         # three nodes in the original route, for each potential new node
         sum_three_node_dist = []
         for node in out_from_direction:
+            twice_out = [dot for dot in G[node].__iter__()]
+            twice_out.pop(twice_out.index(node))
+            if not twice_out:
+                # don't pick culdesacs
+                continue
+
             distances = []
             for compare_node in next_nodes_pos:
                 potential_node_pos = get_position_of_node(node)
