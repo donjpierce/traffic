@@ -127,7 +127,7 @@ class StateView:
         self.cars = cars
         self.lights = lights
         self.index = car_index
-        self.car = cars[self.index]
+        self.car = cars.loc[self.index]
         self.route = self.car['route']
         self.eta = eta(self.car, self.lights)
         self.max_cars = 10  # the number of cars in a bin for the bin to be considered 'congested'
@@ -151,13 +151,7 @@ class StateView:
                     # re-route around light with longest switch-time (last light in array due to sorting)
                     light_node = self.lights.loc[light_locs[-1]]['node']
                     reroute_node = self.route[:self.route.index(light_node)][-1]
-
-
-
-
-
-
-
+                    return 'not finished'
             else:
                 # there are no obstacles along the current route (STATE 4)
                 return [0, 0, 0, 1, 0, 0]
@@ -187,7 +181,8 @@ class StateView:
         :return traffic_bins: list: list of tuples
         """
         traffic_bins = []
-        for xbin, ybin in zip(self.get_bins_in_route()):
+        xbins, ybins = self.get_bins_in_route()
+        for xbin, ybin in zip(xbins, ybins):
             population_of_bin = 0
             for i, (cars_xbin, cars_ybin) in enumerate(zip(self.cars['xbin'], self.cars['ybin'])):
                 if (xbin, ybin) == (cars_xbin, cars_ybin):
