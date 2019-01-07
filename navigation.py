@@ -128,7 +128,7 @@ class StateView:
         self.lights = lights
         self.index = car_index
         self.car = cars.loc[self.index]
-        self.route = self.car['route']
+        self.route = np.array(self.car['route'])
         self.eta = eta(self.car, self.lights)
         self.max_cars = 10  # the number of cars in a bin for the bin to be considered 'congested'
         self.speed_limit = 250
@@ -142,7 +142,6 @@ class StateView:
         if self.route[0] != self.car['destination']:
             # get light IDs in the route
             light_locs = self.get_lights_in_route()
-
             # get congested bins
             traffic_bins = self.get_traffic_bins()
 
@@ -150,7 +149,19 @@ class StateView:
                 if light_locs:
                     # re-route around light with longest switch-time (last light in array due to sorting)
                     light_node = self.lights.loc[light_locs[-1]]['node']
-                    reroute_node = self.route[:self.route.index(light_node)][-1]
+
+                    """
+                    Determine the reroute_node as the node in the route directly before the light obstacle
+                    """
+                    # TODO: this node is not ideal when it is not an intersection. Handle this case
+                    reroute_node = self.route[np.where(self.route == light_node)[0][0] - 1]
+
+                    # determine in which direction to reroute
+                    possible_directions = np.array([dot for dot in G[reroute_node].__iter__()])
+                    indices = [np.where(node == self.route) for node in possible_directions]
+                    directions = np.delete(possible_directions, indices)
+
+
                     return 'not finished'
             else:
                 # there are no obstacles along the current route (STATE 4)
