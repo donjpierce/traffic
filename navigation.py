@@ -145,19 +145,23 @@ class StateView:
             # get congested bins
             traffic_nodes = self.get_traffic_nodes()
 
-            if light_locs or traffic_bins:
+            if light_locs or traffic_nodes:
                 if light_locs and not traffic_nodes:
                     # re-route around light with longest switch-time (last light in array due to sorting)
-                    avoid_node = self.lights.loc[light_locs[-1]]['node']
-                    new_route, new_xpath, new_ypath = self.find_alternate_route(avoid_node)
+                    traffic, avoid_node = 0, self.lights.loc[light_locs[-1]]['node']
+                    new_route, new_xpath, new_ypath = self.find_alternate_route(avoid_node, traffic)
+                    route_length = self.get_route_length(self.route)
+                    new_route_length = self.get_route_length(new_route)
+                    if new_route_length <= 2 * route_length:
+                        state = []
+
 
                 if traffic_nodes and not light_locs:
                     # re-route around the upcoming traffic
+                    traffic, avoid_node = len(traffic_nodes), traffic_nodes[0]
 
-                    avoid_nodes = traffic_nodes[0]
-                    traffic, avoid_node = len(avoid_nodes), avoid_nodes[0]
-
-
+                if traffic_nodes and light_locs:
+                    # re-route around both
 
 
 
@@ -169,6 +173,12 @@ class StateView:
             # the car has arrived at the destination (STATE 6)
             state = [0, 0, 0, 0, 0, 1]
             return state
+
+
+    def get_route_length(self, route):
+        route_length = sum([G.get_edge_data(route[i], route[i + 1])[0]['length'] for i in range(len(route) - 1)])
+        return route_length
+
 
     def find_alternate_route(self, avoid, traffic=0):
         """
@@ -516,8 +526,7 @@ def eta(car, lights, speed_limit=250):
     """
     route = car['route']
 
-    route_length = sum([G.get_edge_data(route[i], route[i + 1])[0]['length']
-                        for i in range(len(route) - 1)])
+    route_length = sum([G.get_edge_data(route[i], route[i + 1])[0]['length'] for i in range(len(route) - 1)])
 
     eta_from_distance = route_length / speed_limit  # does not account for road curvature or hard stops at intersections
 
