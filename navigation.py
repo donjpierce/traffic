@@ -161,7 +161,9 @@ class StateView:
 
                         # Determine in which direction to reroute
                         dv_table = self.dv_table(reroute_node)
+                        print(dv_table)
                         direction = dv_table['potential-nodes'].loc[dv_table.index[dv_table['sum-distances'].idxmin()]]
+                        print(direction)
 
                         # get new route around obstacle
                         new_route = build_new_route(self.route, reroute_node, direction)
@@ -257,17 +259,16 @@ class StateView:
         directions = []
         for direction in possible_directions:
             twice_out = np.array([dot for dot in G[direction].__iter__()])
-            if (direction == twice_out).any():
-                twice_out = np.delete(twice_out, np.where(twice_out == direction)[0][0])
             if twice_out.size == 0 or (direction == self.route).any():
                 # avoid culdesacs and nodes already in the route
                 continue
 
             directions.append(direction)
             distances = []
-            for compare_node in self.route[reroute_node_index + 1:reroute_node_index + 4]:
+            for compare_node in self.route[reroute_node_index + 2:reroute_node_index + 5]:
+                compare_node_pos = get_position_of_node(compare_node)
                 potential_node_pos = get_position_of_node(direction)
-                distances.append(np.linalg.norm(compare_node - potential_node_pos))
+                distances.append(np.linalg.norm(compare_node_pos - potential_node_pos))
             sum_three_node_dist.append(sum(distances))
 
         dv_table = models.make_table({'potential-nodes': directions, 'sum-distances': sum_three_node_dist})
@@ -536,7 +537,7 @@ def build_new_route(route, reroute_node, direction, traffic=0):
                 twice_out = np.delete(twice_out, np.where(twice_out == direction)[0][0])
 
             if twice_out.size == 0 or (node == route[avoid_index + 1: avoid_index + 2 + traffic]).any():
-                # avoid culdesacs and the node(s) we are trying to avoid
+                # avoid culdesacs and the node(s) around which we are rerouting
                 continue
 
             distances = []

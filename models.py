@@ -186,11 +186,11 @@ def get_angles(view):
         return False
 
 
-def make_table(dict):
+def make_table(dictionary):
     """
     Simply creates a Pandas table
 
-    :param   dict: dictionary
-    :return    df: DataFrame
+    :param   dictionary: dictionary
+    :return          df: DataFrame
     """
-    return pd.DataFrame(dict)
+    return pd.DataFrame(dictionary)
