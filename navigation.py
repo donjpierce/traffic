@@ -153,14 +153,14 @@ class StateView:
                     """
                     Determine the reroute_node as the node in the route directly before the light obstacle
                     """
-                    # TODO: this node is not ideal when it is not an intersection. Handle this case
+
                     reroute_node = self.route[np.where(self.route == light_node)[0][0] - 1]
 
-                    """
-                    Determine in which direction to reroute
-                    """
+                    # Determine in which direction to reroute
                     dv_table = self.dv_table(reroute_node)
                     direction = dv_table['potential-nodes'].loc[dv_table.index[dv_table['sum-distances'].idxmin()]]
+
+                    # get new route around obstacle
                     new_route = build_new_route(self.route, reroute_node, direction)
 
 
@@ -496,19 +496,19 @@ def eta(car, lights, speed_limit=250):
     return path_time
 
 
-def build_new_route(route, reroute_node, direction):
+def build_new_route(route, reroute_node, direction, traffic=0):
     """
     this function builds a new route for a car based on the original route given that it would like to turn off
     the original route at the reroute_node
 
-    :param        route: list: the original Dijkstra's shortest path
-    :param reroute_node:  int: the node at which the car would like to depart the original path
-    :param    direction:  int: the next node after reroute_node in the direction of the departure
+    :param        route: array: the original Dijkstra's shortest path
+    :param reroute_node:   int: the node at which the car would like to depart the original path
+    :param    direction:   int: the next node after reroute_node in the direction of the departure
+    :param      traffic:   int: 0 or 1 (0 if new route avoids a traffic light, 1 if new route avoids traffic)
 
-    :return:  new_route, x_path, y_path: list: the new route based on the new direction, along with its x and y lines
+    :return:  new_route, x_path, y_path: lists: the new route based on the new direction, along with its x and y lines
     """
-    # TODO: make this function more sophisticated so that it doesn't find bad routes
-    reroute_index = route.index(reroute_node)
+    reroute_index = np.where(route == reroute_node)[0][0]
     new_route = route[:reroute_index + 1]
     new_route.append(direction)
 
@@ -534,8 +534,8 @@ def build_new_route(route, reroute_node, direction):
                 twice_out = np.delete(twice_out, np.where(twice_out == direction)[0][0])
 
             avoid_index = np.where(route == reroute_node)[0][0]
-            if twice_out.size == 0 or (node == route[avoid_index + 1: avoid_index + 2]):
-                # avoid culdesacs and the node we were trying to avoid
+            if twice_out.size == 0 or (node == route[avoid_index + 1: avoid_index + 2 + traffic]).any():
+                # avoid culdesacs and the node(s) we are trying to avoid
                 continue
 
             distances = []
@@ -548,7 +548,7 @@ def build_new_route(route, reroute_node, direction):
         next_node = out_from_direction[sum_three_node_dist.argsort()[0]]
         new_route.append(next_node)
         if (next_node == route[reroute_index + 1:]).any():
-            start_at_index = route.tolist().index(next_node)
+            start_at_index = np.where(route == next_node)[0][0]
             for node in route[start_at_index + 1:]:
                 new_route.append(node)
             returned = True
