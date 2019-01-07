@@ -95,6 +95,22 @@ def determine_parallel_vectors(v1, v2):
         return False
 
 
+def clean_list(alist):
+    """
+    Simply removes duplicates from a list
+
+    :param   alist: list
+    :return clean: list
+    """
+    clean = []
+    for i in range(len(alist)):
+        if (i < len(alist) - 1) and (alist[i] != alist[i + 1]):
+            clean.append(alist[i])
+
+    clean.append(alist[-1])
+    return clean
+
+
 def path_decompiler(lines):
     """
     Decompiles a path from its geometry configuration into a pure list of tuples

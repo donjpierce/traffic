@@ -143,40 +143,58 @@ class StateView:
             # get light IDs in the route
             light_locs = self.get_lights_in_route()
             # get congested bins
-            traffic_bins = self.get_traffic_bins()
+            traffic_nodes = self.get_traffic_nodes()
 
             if light_locs or traffic_bins:
-                if light_locs:
+                if light_locs and not traffic_nodes:
                     # re-route around light with longest switch-time (last light in array due to sorting)
-                    light_node = self.lights.loc[light_locs[-1]]['node']
+                    avoid_node = self.lights.loc[light_locs[-1]]['node']
+                    new_route, new_xpath, new_ypath = self.find_alternate_route(avoid_node)
 
-                    """
-                    Determine the reroute_node as the node in the route directly before the light obstacle
-                    """
-                    found_route = False
-                    i = 0
-                    while not found_route:
-                        i += 1
-                        reroute_node = self.route[np.where(self.route == light_node)[0][0] - i]
+                if traffic_nodes and not light_locs:
+                    # re-route around the upcoming traffic
 
-                        # Determine in which direction to reroute
-                        dv_table = self.dv_table(reroute_node)
-                        print(dv_table)
-                        direction = dv_table['potential-nodes'].loc[dv_table.index[dv_table['sum-distances'].idxmin()]]
-                        print(direction)
+                    avoid_nodes = traffic_nodes[0]
+                    traffic, avoid_node = len(avoid_nodes), avoid_nodes[0]
 
-                        # get new route around obstacle
-                        new_route = build_new_route(self.route, reroute_node, direction)
-                        if new_route:
-                            found_route = True
-                    return 'not finished'
+
+
+
+
             else:
                 # there are no obstacles along the current route (STATE 4)
-                return [0, 0, 0, 1, 0, 0]
+                state = [0, 0, 0, 1, 0, 0]
+                return state
         else:
             # the car has arrived at the destination (STATE 6)
             state = [0, 0, 0, 0, 0, 1]
             return state
+
+    def find_alternate_route(self, avoid, traffic=0):
+        """
+        Uses build_new_route to find alternate routes
+
+        :param   avoid: first node to avoid
+        :param traffic: number of proceeding nodes to avoid (default 0 if avoid node is a traffic light)
+        :return new_route, new_xpath, new_ypath:
+        """
+        new_route, new_xpath, new_ypath = 0, 0, 0
+        found_route = False
+        i = 0
+        while not found_route:
+            i += 1
+            reroute_node = self.route[np.where(self.route == avoid)[0][0] - i]
+
+            # Determine in which direction to reroute
+            dv_table = self.dv_table(reroute_node)
+            direction = dv_table['potential-nodes'].loc[dv_table.index[dv_table['sum-distances'].idxmin()]]
+
+            # get new route around obstacle
+            new_route, new_xpath, new_ypath = build_new_route(self.route, reroute_node, direction, traffic)
+            if new_route:
+                found_route = True
+
+        return new_route, new_xpath, new_ypath
 
     def get_lights_in_route(self):
         """
@@ -192,23 +210,34 @@ class StateView:
 
         return light_locs
 
-    def get_traffic_bins(self):
+    def get_traffic_nodes(self):
         """
         this method returns the (xbin, ybin) pair of a bins which are considered to be congested with traffic
 
         :return traffic_bins: list: list of tuples
         """
-        traffic_bins = []
+        traffic_nodes = []
         xbins, ybins = self.get_bins_in_route()
+        xbin_points, ybin_points = np.arange(self.axis[0], self.axis[1], 200), np.arange(self.axis[2], self.axis[3], 200)
         for xbin, ybin in zip(xbins, ybins):
-            population_of_bin = 0
             for i, (cars_xbin, cars_ybin) in enumerate(zip(self.cars['xbin'], self.cars['ybin'])):
                 if (xbin, ybin) == (cars_xbin, cars_ybin):
-                    population_of_bin += 1
+                    in_xy_bin = (np.digitize(self.car['xpath'], xbin_points) == xbin) & \
+                                (np.digitize(self.car['ypath'], ybin_points) == ybin)
 
-            if population_of_bin > self.max_cars:
-                traffic_bins.append((xbin, ybin))
-        return traffic_bins
+                    x_stretch = (self.car['xpath'] * in_xy_bin)[np.nonzero(self.car['xpath'] * in_xy_bin)]
+                    y_stretch = (self.car['ypath'] * in_xy_bin)[np.nonzero(self.car['ypath'] * in_xy_bin)]
+
+                    in_xpath = np.isclose(self.cars.loc[i]['x'], x_stretch, rtol=1e-6).any()
+                    in_ypath = np.isclose(self.cars.loc[i]['y'], y_stretch, rtol=1e-6).any()
+                    if in_xpath and in_ypath:
+                        traffic_nodes.append(self.cars.loc[i]['route'][0])
+
+        if len(traffic_nodes) > self.max_cars:
+            traffic_nodes = models.clean_list(traffic_nodes)
+            return traffic_nodes
+        else:
+            return None
 
     def get_bins_in_route(self):
         """
@@ -500,7 +529,7 @@ def eta(car, lights, speed_limit=250):
     return path_time
 
 
-def build_new_route(route, reroute_node, direction, traffic=0):
+def build_new_route(route, reroute_node, direction, traffic):
     """
     this function builds a new route for a car based on the original route given that it would like to turn off
     the original route at the reroute_node
