@@ -182,11 +182,11 @@ class StateView:
 
         :return light_locs: a list of light IDs
         """
-        light_locs = np.array([(node == self.lights['node']).tolist().index(True) for node in self.route
+        light_locs = np.array([np.where(self.lights['node'] == node)[0][0] for node in self.route
                                if (node == self.lights['node']).any()])
 
         # sort lights by switch-time
-        light_locs = [time for time in self.lights['switch-time'].argsort() if (id == light_locs).any()]
+        light_locs = [time for time in self.lights['switch-time'].argsort() if (time == light_locs).any()]
 
         return light_locs
 
@@ -512,7 +512,7 @@ def build_new_route(route, reroute_node, direction, traffic=0):
     :return:  new_route, x_path, y_path: lists: the new route based on the new direction, along with its x and y lines
     """
     reroute_index = np.where(route == reroute_node)[0][0]
-    new_route = route[:reroute_index + 1]
+    new_route = route[:reroute_index + 1].tolist()
     new_route.append(direction)
 
     # get the coordinate positions of the next three nodes in the original route
@@ -521,6 +521,7 @@ def build_new_route(route, reroute_node, direction, traffic=0):
         x, y = get_position_of_node(node)
         next_nodes_pos.append((x, y))
 
+    avoid_index = np.where(route == reroute_node)[0][0]
     returned = False
     while not returned:
         out_from_direction = [dot for dot in G[direction].__iter__()]
@@ -534,7 +535,6 @@ def build_new_route(route, reroute_node, direction, traffic=0):
             if (direction == twice_out).any():
                 twice_out = np.delete(twice_out, np.where(twice_out == direction)[0][0])
 
-            avoid_index = np.where(route == reroute_node)[0][0]
             if twice_out.size == 0 or (node == route[avoid_index + 1: avoid_index + 2 + traffic]).any():
                 # avoid culdesacs and the node(s) we are trying to avoid
                 continue
