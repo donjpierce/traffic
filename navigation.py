@@ -263,7 +263,26 @@ class StateView:
                                   if np.where(route_node == possible_directions)[0].size > 0]
         possible_directions = np.delete(possible_directions, nodes_already_in_route)
 
+        reroute_node_index = np.where(node == self.route)[0][0]
+        sum_three_node_dist = []
+        directions = []
+        for direction in possible_directions:
+            twice_out = np.array([dot for dot in G[direction].__iter__()])
+            if (direction == twice_out).any():
+                twice_out = np.delete(twice_out, np.where(twice_out == direction)[0][0])
+            if twice_out.size == 0:
+                # avoid culdesacs
+                continue
 
+            directions.append(direction)
+            distances = []
+            for compare_node in self.route[reroute_node_index + 1:reroute_node_index + 4]:
+                potential_node_pos = get_position_of_node(direction)
+                distances.append(np.linalg.norm(compare_node - potential_node_pos))
+            sum_three_node_dist.append(sum(distances))
+
+        dv_table = models.make_table({'potential-nodes': directions, 'sum-distances': sum_three_node_dist})
+        return dv_table
 
 
 def car_obstacles(frontview, cars):
@@ -500,7 +519,7 @@ def build_new_route(route, reroute_node, direction):
     :param reroute_node:  int: the node at which the car would like to depart the original path
     :param    direction:  int: the next node after reroute_node in the direction of the departure
 
-    :return:  new_route: list: the new route based on the new direction
+    :return:  new_route, x_path, y_path: list: the new route based on the new direction, along with its x and y lines
     """
     # TODO: make this function more sophisticated so that it doesn't find bad routes
     reroute_index = route.index(reroute_node)
@@ -524,12 +543,12 @@ def build_new_route(route, reroute_node, direction):
         # three nodes in the original route, for each potential new node
         sum_three_node_dist = []
         for node in out_from_direction:
-            twice_out = [dot for dot in G[node].__iter__()]
-            np_twice = np.array(twice_out)
-            if (direction == np_twice).any():
-                twice_out.pop(twice_out.index(direction))
-            if not twice_out:
-                sum_three_node_dist.append('disqualified')
+            twice_out = np.array([dot for dot in G[node].__iter__()])
+            if (direction == twice_out).any():
+                twice_out = np.delete(twice_out, np.where(twice_out == direction)[0][0])
+            if twice_out.size == 0:
+                # avoid culdesacs
+                continue
 
             distances = []
             for compare_node in next_nodes_pos:
@@ -539,7 +558,6 @@ def build_new_route(route, reroute_node, direction):
 
         sum_three_node_dist, route = np.array(sum_three_node_dist), np.array(route)
         next_node = out_from_direction[sum_three_node_dist.argsort()[0]]
-        print(i, next_node)
         new_route.append(next_node)
         if (next_node == route[reroute_index + 1:]).any():
             start_at_index = route.tolist().index(next_node)

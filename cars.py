@@ -9,7 +9,6 @@ import simulation as sim
 import models
 import navigation as nav
 import numpy as np
-import pandas as pd
 
 # TODO: using machine learning will require logging a bunch of data
 # TODO: start thinking about what data is important to log for your training set
