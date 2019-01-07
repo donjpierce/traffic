@@ -153,17 +153,20 @@ class StateView:
                     """
                     Determine the reroute_node as the node in the route directly before the light obstacle
                     """
+                    found_route = False
+                    i = 0
+                    while not found_route:
+                        i += 1
+                        reroute_node = self.route[np.where(self.route == light_node)[0][0] - i]
 
-                    reroute_node = self.route[np.where(self.route == light_node)[0][0] - 1]
+                        # Determine in which direction to reroute
+                        dv_table = self.dv_table(reroute_node)
+                        direction = dv_table['potential-nodes'].loc[dv_table.index[dv_table['sum-distances'].idxmin()]]
 
-                    # Determine in which direction to reroute
-                    dv_table = self.dv_table(reroute_node)
-                    direction = dv_table['potential-nodes'].loc[dv_table.index[dv_table['sum-distances'].idxmin()]]
-
-                    # get new route around obstacle
-                    new_route = build_new_route(self.route, reroute_node, direction)
-
-
+                        # get new route around obstacle
+                        new_route = build_new_route(self.route, reroute_node, direction)
+                        if new_route:
+                            found_route = True
                     return 'not finished'
             else:
                 # there are no obstacles along the current route (STATE 4)
@@ -519,9 +522,7 @@ def build_new_route(route, reroute_node, direction, traffic=0):
         next_nodes_pos.append((x, y))
 
     returned = False
-    i = 0
     while not returned:
-        i += 1
         out_from_direction = [dot for dot in G[direction].__iter__()]
         out_from_direction.pop(out_from_direction.index(reroute_node))
 
@@ -544,10 +545,15 @@ def build_new_route(route, reroute_node, direction, traffic=0):
                 distances.append(np.linalg.norm(compare_node - potential_node_pos))
             sum_three_node_dist.append(sum(distances))
 
-        sum_three_node_dist, route = np.array(sum_three_node_dist), np.array(route)
+        sum_three_node_dist = np.array(sum_three_node_dist)
+
+        if sum_three_node_dist.size == 0:
+            # unable to continue rerouting, try rerouting from an earlier node in the route
+            return False
+
         next_node = out_from_direction[sum_three_node_dist.argsort()[0]]
         new_route.append(next_node)
-        if (next_node == route[reroute_index + 1:]).any():
+        if (next_node == route[reroute_index + 1 + traffic:]).any():
             start_at_index = np.where(route == next_node)[0][0]
             for node in route[start_at_index + 1:]:
                 new_route.append(node)
