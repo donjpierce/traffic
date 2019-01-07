@@ -149,11 +149,21 @@ class StateView:
                 if light_locs and not traffic_nodes:
                     # re-route around light with longest switch-time (last light in array due to sorting)
                     traffic, avoid_node = 0, self.lights.loc[light_locs[-1]]['node']
-                    new_route, new_xpath, new_ypath = self.find_alternate_route(avoid_node, traffic)
-                    route_length = self.get_route_length(self.route)
-                    new_route_length = self.get_route_length(new_route)
-                    if new_route_length <= 2 * route_length:
-                        state = []
+                    new_route, new_xpath, new_ypath, detour = self.find_alternate_route(avoid_node, traffic)
+
+                    # get the nodes along each route which differ from one another
+                    detour_length = sum([G.get_edge_data(detour[i], detour[i + 1])[0]['length']
+                                         for i in range(len(detour) - 1)])
+                    departure_ind = np.where(self.route == detour[0])[0][0]
+                    return_ind = np.where(self.route == detour[-1])[0][0]
+                    span = return_ind - departure_ind
+                    original_length = sum([G.get_edge_data(self.route[departure_ind],
+                                                           self.route[departure_ind + i])['length']
+                                           for i in range(span + 1)])
+                    if detour_length <= 2 * original_length:
+                        # detour is short
+                        if
+
 
 
                 if traffic_nodes and not light_locs:
@@ -173,12 +183,6 @@ class StateView:
             # the car has arrived at the destination (STATE 6)
             state = [0, 0, 0, 0, 0, 1]
             return state
-
-
-    def get_route_length(self, route):
-        route_length = sum([G.get_edge_data(route[i], route[i + 1])[0]['length'] for i in range(len(route) - 1)])
-        return route_length
-
 
     def find_alternate_route(self, avoid, traffic=0):
         """
@@ -200,11 +204,11 @@ class StateView:
             direction = dv_table['potential-nodes'].loc[dv_table.index[dv_table['sum-distances'].idxmin()]]
 
             # get new route around obstacle
-            new_route, new_xpath, new_ypath = build_new_route(self.route, reroute_node, direction, traffic)
+            new_route, new_xpath, new_ypath, detour = build_new_route(self.route, reroute_node, direction, traffic)
             if new_route:
                 found_route = True
 
-        return new_route, new_xpath, new_ypath
+        return new_route, new_xpath, new_ypath, detour
 
     def get_lights_in_route(self):
         """
@@ -548,11 +552,12 @@ def build_new_route(route, reroute_node, direction, traffic):
     :param    direction:   int: the next node after reroute_node in the direction of the departure
     :param      traffic:   int: 0 or 1 (0 if new route avoids a traffic light, 1 if new route avoids traffic)
 
-    :return:  new_route, x_path, y_path: lists: the new route based on the new direction, along with its x and y lines
+    :return:  new_route, x_path, y_path, detour: lists: the new route, along with its x and y lines, and the detour path
     """
     reroute_index = np.where(route == reroute_node)[0][0]
     new_route = route[:reroute_index + 1].tolist()
     new_route.append(direction)
+    detour = []
 
     # get the coordinate positions of the next three nodes in the original route
     next_nodes_pos = []
@@ -592,6 +597,7 @@ def build_new_route(route, reroute_node, direction, traffic):
 
         next_node = out_from_direction[sum_three_node_dist.argsort()[0]]
         new_route.append(next_node)
+        detour.append(next_node)
         if (next_node == route[reroute_index + 1 + traffic:]).any():
             start_at_index = np.where(route == next_node)[0][0]
             for node in route[start_at_index + 1:]:
@@ -613,7 +619,7 @@ def build_new_route(route, reroute_node, direction, traffic):
 
     new_clean_path = models.new_route_decompiler(new_path)
     new_xpath, new_ypath = [point[0] for point in new_clean_path], [point[1] for point in new_clean_path]
-    return new_route, new_xpath, new_ypath
+    return new_route, new_xpath, new_ypath, detour
 
 
 def lines_to_node(origin, destination):
