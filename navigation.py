@@ -160,6 +160,9 @@ class StateView:
                     Determine in which direction to reroute
                     """
                     dv_table = self.dv_table(reroute_node)
+                    direction = dv_table['potential-nodes'].loc[dv_table.index[dv_table['sum-distances'].idxmin()]]
+                    new_route = build_new_route(self.route, reroute_node, direction)
+
 
                     return 'not finished'
             else:
@@ -177,10 +180,10 @@ class StateView:
         :return light_locs: a list of light IDs
         """
         light_locs = np.array([(node == self.lights['node']).tolist().index(True) for node in self.route
-                      if (node == self.lights['node']).any()])
+                               if (node == self.lights['node']).any()])
 
         # sort lights by switch-time
-        light_locs = [id for id in self.lights['switch-time'].argsort() if (id == light_locs).any()]
+        light_locs = [time for time in self.lights['switch-time'].argsort() if (id == light_locs).any()]
 
         return light_locs
 
@@ -529,8 +532,10 @@ def build_new_route(route, reroute_node, direction):
             twice_out = np.array([dot for dot in G[node].__iter__()])
             if (direction == twice_out).any():
                 twice_out = np.delete(twice_out, np.where(twice_out == direction)[0][0])
-            if twice_out.size == 0:
-                # avoid culdesacs
+
+            avoid_index = np.where(route == reroute_node)[0][0]
+            if twice_out.size == 0 or (node == route[avoid_index + 1: avoid_index + 2]):
+                # avoid culdesacs and the node we were trying to avoid
                 continue
 
             distances = []
