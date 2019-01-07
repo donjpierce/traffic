@@ -161,23 +161,6 @@ class StateView:
                     """
                     dv_table = self.dv_table(reroute_node)
 
-                    """
-                    possible_directions = np.array([dot for dot in G[reroute_node].__iter__()])
-                    nodes_already_in_route = [np.where(node == possible_directions)[0][0] for node in self.route
-                                              if np.where(node == possible_directions)[0].size > 0]
-                    possible_directions = np.delete(possible_directions, nodes_already_in_route)
-
-                    if possible_directions.size > 1:
-                        # choose in which direction to reroute by considering DV tables with conditions
-                        chosen = False
-                        while not chosen:
-                            for node in possible_directions:
-                                table = self.dv_table(node)
-                    """
-
-
-
-
                     return 'not finished'
             else:
                 # there are no obstacles along the current route (STATE 4)
@@ -270,8 +253,8 @@ class StateView:
             twice_out = np.array([dot for dot in G[direction].__iter__()])
             if (direction == twice_out).any():
                 twice_out = np.delete(twice_out, np.where(twice_out == direction)[0][0])
-            if twice_out.size == 0:
-                # avoid culdesacs
+            if twice_out.size == 0 or (direction == self.route).any():
+                # avoid culdesacs and nodes already in the route
                 continue
 
             directions.append(direction)
