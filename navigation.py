@@ -156,10 +156,26 @@ class StateView:
                     # TODO: this node is not ideal when it is not an intersection. Handle this case
                     reroute_node = self.route[np.where(self.route == light_node)[0][0] - 1]
 
-                    # determine in which direction to reroute
+                    """
+                    Determine in which direction to reroute
+                    """
+                    dv_table = self.dv_table(reroute_node)
+
+                    """
                     possible_directions = np.array([dot for dot in G[reroute_node].__iter__()])
-                    indices = [np.where(node == self.route) for node in possible_directions]
-                    directions = np.delete(possible_directions, indices)
+                    nodes_already_in_route = [np.where(node == possible_directions)[0][0] for node in self.route
+                                              if np.where(node == possible_directions)[0].size > 0]
+                    possible_directions = np.delete(possible_directions, nodes_already_in_route)
+
+                    if possible_directions.size > 1:
+                        # choose in which direction to reroute by considering DV tables with conditions
+                        chosen = False
+                        while not chosen:
+                            for node in possible_directions:
+                                table = self.dv_table(node)
+                    """
+
+
 
 
                     return 'not finished'
@@ -232,6 +248,22 @@ class StateView:
         ybins.append(y_inds[-1])
 
         return xbins, ybins
+
+    def dv_table(self, node):
+        """
+        This protocol prepares a distance-vector routing table for any node on the map.
+        The DV protocol here assigns weights to map edges by calculating the sum of the distances a node is
+        from the next three nodes in the original route.
+
+        :param      node:
+        :return dv_table:
+        """
+        possible_directions = np.array([dot for dot in G[node].__iter__()])
+        nodes_already_in_route = [np.where(route_node == possible_directions)[0][0] for route_node in self.route
+                                  if np.where(route_node == possible_directions)[0].size > 0]
+        possible_directions = np.delete(possible_directions, nodes_already_in_route)
+
+
 
 
 def car_obstacles(frontview, cars):
