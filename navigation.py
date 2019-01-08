@@ -157,10 +157,10 @@ class StateView:
                     departure_ind = np.where(self.route == detour[0])[0][0]
                     return_ind = np.where(self.route == detour[-1])[0][0]
                     span = return_ind - departure_ind
-                    original_length = sum([G.get_edge_data(self.route[departure_ind],
-                                                           self.route[departure_ind + i])['length']
+                    original_length = sum([G.get_edge_data(self.route[departure_ind + i],
+                                                           self.route[departure_ind + i + 1])[0]['length']
                                            for i in range(span + 1)])
-                    if detour_length <= 2 * original_length:
+                    if detour_length <= 1.5 * original_length:
                         # detour is short
                         state = [0, 0, 0, 0, 1, 0]
                         return state
@@ -201,7 +201,7 @@ class StateView:
             direction = dv_table['potential-nodes'].loc[dv_table.index[dv_table['sum-distances'].idxmin()]]
 
             # get new route around obstacle
-            data = build_new_route(self.route, reroute_node, direction, traffic)
+            data = build_new_route(self.route, reroute_node, direction, traffic, avoid)
             if data:
                 new_route, new_xpath, new_ypath, detour = data
                 found_route = True
@@ -540,7 +540,7 @@ def eta(car, lights, speed_limit=250):
     return path_time
 
 
-def build_new_route(route, reroute_node, direction, traffic):
+def build_new_route(route, reroute_node, direction, traffic, avoid):
     """
     this function builds a new route for a car based on the original route given that it would like to turn off
     the original route at the reroute_node
@@ -549,13 +549,14 @@ def build_new_route(route, reroute_node, direction, traffic):
     :param reroute_node:   int: the node at which the car would like to depart the original path
     :param    direction:   int: the next node after reroute_node in the direction of the departure
     :param      traffic:   int: 0 or 1 (0 if new route avoids a traffic light, 1 if new route avoids traffic)
+    :param        avoid:   int: the node on which avoidance is based
 
     :return:  new_route, x_path, y_path, detour: lists: the new route, along with its x and y lines, and the detour path
     """
     reroute_index = np.where(route == reroute_node)[0][0]
     new_route = route[:reroute_index + 1].tolist()
     new_route.append(direction)
-    detour = [direction]
+    detour = [reroute_node, direction]
 
     # get the coordinate positions of the next three nodes in the original route
     next_nodes_pos = []
@@ -563,13 +564,12 @@ def build_new_route(route, reroute_node, direction, traffic):
         x, y = get_position_of_node(node)
         next_nodes_pos.append((x, y))
 
-    avoid_index = np.where(route == reroute_node)[0][0]
+    avoid_index = np.where(route == avoid)[0][0]
     returned = False
     while not returned:
-        out_from_direction = [dot for dot in G[direction].__iter__()]
-        out_from_direction.pop(out_from_direction.index(reroute_node))
+        out_from_direction = [dot for dot in G[direction].__iter__() if dot != reroute_node]
         for node in out_from_direction:
-            if (node == route[:reroute_index]).any():
+            if (node == route[:avoid_index + 1]).any():
                 out_from_direction.pop(out_from_direction.index(node))
 
         # Populate a list of the sums of the distances to the next
@@ -580,7 +580,7 @@ def build_new_route(route, reroute_node, direction, traffic):
             if (direction == twice_out).any():
                 twice_out = np.delete(twice_out, np.where(twice_out == direction)[0][0])
 
-            if twice_out.size == 0 or (node == route[avoid_index + 1: avoid_index + 2 + traffic]).any():
+            if twice_out.size == 0 or (node == route[avoid_index: avoid_index + 1 + traffic]).any():
                 # avoid culdesacs and the node(s) around which we are rerouting
                 continue
 
