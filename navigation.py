@@ -123,6 +123,14 @@ class FrontView:
 
 class StateView:
     def __init__(self, axis, car_index, cars, lights):
+        """
+        the reinforcement learning agent object
+
+        :param      axis:
+        :param car_index:
+        :param      cars:
+        :param    lights:
+        """
         self.axis = axis
         self.cars = cars
         self.lights = lights
@@ -145,7 +153,21 @@ class StateView:
             # get congested bins
             traffic_nodes = self.get_traffic_nodes()
 
+
             if light_locs or traffic_nodes:
+                if light_locs and traffic_nodes:
+                    """ If there are both types of obstacles, decide to reroute around the closest one """
+                    long_light_ind = np.where(self.route == self.lights.loc[light_locs[-1]]['node'])[0][0]
+                    first_traffic_node_ind = np.where(self.route == traffic_nodes[0])[0][0]
+                    if long_light_ind <= first_traffic_node_ind:
+                        # light comes first in route
+                        light = True
+                        car = False
+                    else:
+                        # car comes first in route
+                        light = False
+                        car = True
+
                 if light_locs and not traffic_nodes:
                     # re-route around light with longest switch-time (last light in array due to sorting)
                     traffic, avoid_node = 0, self.lights.loc[light_locs[-1]]['node']
@@ -163,25 +185,44 @@ class StateView:
                     if detour_length <= 2 * original_length:
                         # detour is short
 
-                        obstacles_in_detour = self.get_lights_in_route(route=detour), self.get_traffic_nodes(route=detour)
-                        state = [0, 0, 0, 0, 1, 0]
-                        return state
-                """
+                        obstacles_in_detour = np.array([self.get_lights_in_route(route=detour),
+                                                        self.get_traffic_nodes(route=detour)]).any()
+                        if not obstacles_in_detour:
+                            # there are no obstacles in the detour STATE 2      <---------
+                            state = [0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+                            return state, new_route, new_xpath, new_ypath
+                        else:
+                            # there are obstacles in the detour STATE 4     <---------
+                            state = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+                            return state, new_route, new_xpath, new_ypath
+                    else:
+                        # detour is long
+                        obstacles_in_detour = np.array([self.get_lights_in_route(route=detour),
+                                                        self.get_traffic_nodes(route=detour)]).any()
+                        if not obstacles_in_detour:
+                            # there are no obstacles in the detour STATE 6      <---------
+                            state = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+                            return state, new_route, new_xpath, new_ypath
+                        else:
+                            # there are obstacles in the detour STATE 9     <---------
+                            state = [0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+                            return state, new_route, new_xpath, new_ypath
+
                 if traffic_nodes and not light_locs:
                     # re-route around the upcoming traffic
                     traffic, avoid_node = len(traffic_nodes), traffic_nodes[0]
 
                 if traffic_nodes and light_locs:
                     # re-route around both
-                """
+
             else:
-                # there are no obstacles along the current route (STATE 4)
-                state = [0, 0, 0, 1, 0, 0]
-                return state
+                # there are no obstacles along the current route STATE 7      <---------
+                state = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+                return state, self.route, self.car['xpath'], self.car['ypath']
         else:
-            # the car has arrived at the destination (STATE 6)
-            state = [0, 0, 0, 0, 0, 1]
-            return state
+            # the car has arrived at the destination STATE 10        <---------
+            state = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+            return state, self.route, self.car['xpath'], self.car['ypath']
 
     def find_alternate_route(self, avoid, traffic=0):
         """
@@ -234,8 +275,8 @@ class StateView:
         """
         this method returns the (xbin, ybin) pair of a bins which are considered to be congested with traffic
 
-        :param         route: optionally, provide a route other than the original route in which to check for traffic
-        :return traffic_bins: list: list of tuples
+        :param          route: optionally, provide a route other than the original route in which to check for traffic
+        :return traffic_nodes: list: list of nodes
         """
         traffic_nodes = []
         xbins, ybins = self.get_bins_in_route(route)
