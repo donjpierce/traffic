@@ -162,19 +162,16 @@ class StateView:
                                            for i in range(span + 1)])
                     if detour_length <= 2 * original_length:
                         # detour is short
-                        if
-
-
-
+                        state = [0, 0, 0, 0, 1, 0]
+                        return state
+                """
                 if traffic_nodes and not light_locs:
                     # re-route around the upcoming traffic
                     traffic, avoid_node = len(traffic_nodes), traffic_nodes[0]
 
                 if traffic_nodes and light_locs:
                     # re-route around both
-
-
-
+                """
             else:
                 # there are no obstacles along the current route (STATE 4)
                 state = [0, 0, 0, 1, 0, 0]
@@ -192,7 +189,7 @@ class StateView:
         :param traffic: number of proceeding nodes to avoid (default 0 if avoid node is a traffic light)
         :return new_route, new_xpath, new_ypath:
         """
-        new_route, new_xpath, new_ypath = 0, 0, 0
+        new_route, new_xpath, new_ypath, detour = [], [], [], []
         found_route = False
         i = 0
         while not found_route:
@@ -204,8 +201,9 @@ class StateView:
             direction = dv_table['potential-nodes'].loc[dv_table.index[dv_table['sum-distances'].idxmin()]]
 
             # get new route around obstacle
-            new_route, new_xpath, new_ypath, detour = build_new_route(self.route, reroute_node, direction, traffic)
-            if new_route:
+            data = build_new_route(self.route, reroute_node, direction, traffic)
+            if data:
+                new_route, new_xpath, new_ypath, detour = data
                 found_route = True
 
         return new_route, new_xpath, new_ypath, detour
@@ -557,7 +555,7 @@ def build_new_route(route, reroute_node, direction, traffic):
     reroute_index = np.where(route == reroute_node)[0][0]
     new_route = route[:reroute_index + 1].tolist()
     new_route.append(direction)
-    detour = []
+    detour = [direction]
 
     # get the coordinate positions of the next three nodes in the original route
     next_nodes_pos = []
@@ -570,6 +568,9 @@ def build_new_route(route, reroute_node, direction, traffic):
     while not returned:
         out_from_direction = [dot for dot in G[direction].__iter__()]
         out_from_direction.pop(out_from_direction.index(reroute_node))
+        for node in out_from_direction:
+            if (node == route[:reroute_index]).any():
+                out_from_direction.pop(out_from_direction.index(node))
 
         # Populate a list of the sums of the distances to the next
         # three nodes in the original route, for each potential new node
@@ -596,6 +597,11 @@ def build_new_route(route, reroute_node, direction, traffic):
             return False
 
         next_node = out_from_direction[sum_three_node_dist.argsort()[0]]
+
+        if (next_node == route[:reroute_index]).any():
+            # going in circles, try rerouting from an earlier node in the route
+            return False
+
         new_route.append(next_node)
         detour.append(next_node)
         if (next_node == route[reroute_index + 1 + traffic:]).any():
