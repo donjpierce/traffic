@@ -160,8 +160,10 @@ class StateView:
                     original_length = sum([G.get_edge_data(self.route[departure_ind + i],
                                                            self.route[departure_ind + i + 1])[0]['length']
                                            for i in range(span + 1)])
-                    if detour_length <= 1.5 * original_length:
+                    if detour_length <= 2 * original_length:
                         # detour is short
+
+                        obstacles_in_detour = self.get_lights_in_route(route=detour), self.get_traffic_nodes(route=detour)
                         state = [0, 0, 0, 0, 1, 0]
                         return state
                 """
@@ -208,28 +210,35 @@ class StateView:
 
         return new_route, new_xpath, new_ypath, detour
 
-    def get_lights_in_route(self):
+    def get_lights_in_route(self, route=None):
         """
         this method returns the IDs of the traffic lights anywhere along the route
 
+        :param       route: optionally, provide a route other than the original route in which to check for lights
         :return light_locs: a list of light IDs
         """
-        light_locs = np.array([np.where(self.lights['node'] == node)[0][0] for node in self.route
+        if not route:
+            route = self.route
+        light_locs = np.array([np.where(self.lights['node'] == node)[0][0] for node in route
                                if (node == self.lights['node']).any()])
 
         # sort lights by switch-time
         light_locs = [time for time in self.lights['switch-time'].argsort() if (time == light_locs).any()]
 
-        return light_locs
+        if not light_locs:
+            return None
+        else:
+            return light_locs
 
-    def get_traffic_nodes(self):
+    def get_traffic_nodes(self, route=None):
         """
         this method returns the (xbin, ybin) pair of a bins which are considered to be congested with traffic
 
+        :param         route: optionally, provide a route other than the original route in which to check for traffic
         :return traffic_bins: list: list of tuples
         """
         traffic_nodes = []
-        xbins, ybins = self.get_bins_in_route()
+        xbins, ybins = self.get_bins_in_route(route)
         xbin_points, ybin_points = np.arange(self.axis[0], self.axis[1], 200), np.arange(self.axis[2], self.axis[3], 200)
         for xbin, ybin in zip(xbins, ybins):
             for i, (cars_xbin, cars_ybin) in enumerate(zip(self.cars['xbin'], self.cars['ybin'])):
@@ -251,15 +260,18 @@ class StateView:
         else:
             return None
 
-    def get_bins_in_route(self):
+    def get_bins_in_route(self, route=None):
         """
         this method parses the route and returns a list of xbins and ybins through which the route passes
 
+        :param         route: list: optionally, provide a route other than the original
         :return xbins, ybins
         """
+        if not route:
+            route = self.route
         xbins, ybins = np.arange(self.axis[0], self.axis[1], 200), np.arange(self.axis[2], self.axis[3], 200)
         x_inds, y_inds = [], []
-        for node in self.route:
+        for node in route:
             x, y = get_position_of_node(node)
             x_inds.append(np.digitize(x, xbins))
             y_inds.append(np.digitize(y, ybins))
