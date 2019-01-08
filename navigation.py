@@ -568,20 +568,22 @@ def build_new_route(route, reroute_node, direction, traffic, avoid):
     returned = False
     while not returned:
         out_from_direction = [dot for dot in G[direction].__iter__() if dot != reroute_node]
-        for node in out_from_direction:
-            if (node == route[:avoid_index + 1]).any():
-                out_from_direction.pop(out_from_direction.index(node))
 
         # Populate a list of the sums of the distances to the next
         # three nodes in the original route, for each potential new node
         sum_three_node_dist = []
+        refined_out_from_direction = []
         for node in out_from_direction:
+            if (node == route[:avoid_index + 1 + traffic]).any():
+                # avoid all the nodes in the route including the ones around which we are rerouting
+                continue
+
             twice_out = np.array([dot for dot in G[node].__iter__()])
             if (direction == twice_out).any():
                 twice_out = np.delete(twice_out, np.where(twice_out == direction)[0][0])
 
-            if twice_out.size == 0 or (node == route[avoid_index: avoid_index + 1 + traffic]).any():
-                # avoid culdesacs and the node(s) around which we are rerouting
+            if twice_out.size == 0:
+                # avoid culdesacs
                 continue
 
             distances = []
@@ -589,14 +591,16 @@ def build_new_route(route, reroute_node, direction, traffic, avoid):
                 potential_node_pos = get_position_of_node(node)
                 distances.append(np.linalg.norm(compare_node - potential_node_pos))
             sum_three_node_dist.append(sum(distances))
+            refined_out_from_direction.append(node)
 
         sum_three_node_dist = np.array(sum_three_node_dist)
+        refined_out_from_direction = np.array(refined_out_from_direction)
 
-        if sum_three_node_dist.size == 0:
+        if refined_out_from_direction.size == 0:
             # unable to continue rerouting, try rerouting from an earlier node in the route
             return False
 
-        next_node = out_from_direction[sum_three_node_dist.argsort()[0]]
+        next_node = refined_out_from_direction[sum_three_node_dist.argsort()[0]]
 
         if (next_node == route[:reroute_index]).any():
             # going in circles, try rerouting from an earlier node in the route
