@@ -7,7 +7,7 @@ import osmnx as ox
 import simulation as sim
 
 dt = 1 / 1000
-N = 1
+N = 33
 
 
 # load figure for animation
@@ -108,8 +108,8 @@ def animate(i):
             face.set_color('red')
 
     # limits for the path view of 1 car with TEMP_dest_node destination
-    ax.set_xlim(566730, 567270)
-    ax.set_ylim(4185840, 4186260)
+    # ax.set_xlim(566730, 567270)
+    # ax.set_ylim(4185840, 4186260)
 
     # limits for viewing 1st traffic light in Piedmont
     # ax.set_xlim(566930, 567404)
