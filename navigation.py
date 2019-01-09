@@ -145,7 +145,7 @@ class StateView:
         """
         this method gathers information about the car's route, and determines which state the car is in
 
-        :return state: list
+        :return state, new_route, new_xpath, new_ypath
         """
         if self.route[0] != self.car['destination']:
             # get light IDs in the route
