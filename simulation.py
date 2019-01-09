@@ -268,7 +268,7 @@ def init_culdesac_start_location(n, axis):
     cars_data = []
 
     for i in range(n):
-        i = 17  # TEMP SETTING
+        # i = 17  # TEMP SETTING
         origin = culdesacs[i]
         destination = culdesacs[i + 1]
         """ TEMP SETTINGS FOR ONE-CAR-ONE-ROUTE STUDY """

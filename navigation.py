@@ -160,13 +160,16 @@ class StateView:
                     first_traffic_node_ind = np.where(self.route == traffic_nodes[0])[0][0]
                     if long_light_ind <= first_traffic_node_ind:
                         # light comes first in route
-                        light = True
-                        car = False
-
+                        return self.bulk(light_locs)
                     else:
                         # car comes first in route
-                        light = False
-                        car = True
+                        return self.bulk(traffic_nodes)
+                elif light_locs and not traffic_nodes:
+                    # there are only lights are in route
+                    return self.bulk(light_locs)
+                elif traffic_nodes and not light_locs:
+                    # there is only traffic in the route
+                    return self.bulk(traffic_nodes)
 
             else:
                 # there are no obstacles along the current route STATE 7      <---------
@@ -180,9 +183,9 @@ class StateView:
     def bulk(self, light_locs=None, traffic_nodes=None):
         """
         this method determines whether the agent is in any one of states 1-6, 8, or 9
-        :param    light_locs:
-        :param traffic_nodes:
-        :return:
+        :param    light_locs: None or list
+        :param traffic_nodes: None or list
+        :return state, new_route, new_xpath, new_ypath:
         """
         if light_locs:
             # re-route around light with longest switch-time (last light in array due to sorting)
@@ -206,7 +209,6 @@ class StateView:
                                for i in range(span + 1)])
         if detour_length <= 2 * original_length:
             # detour is short
-
             obstacles_in_detour = np.array([self.get_lights_in_route(route=detour),
                                             self.get_traffic_nodes(route=detour)]).any()
             if not obstacles_in_detour:
