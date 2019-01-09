@@ -1,39 +1,23 @@
 from cars import Cars, TrafficLights
-from matplotlib import animation
-import osmnx as ox
+import navigation as nav
 import simulation as sim
 
-dt = 1 / 1000
-N = 33
 
-"""Lower Manhattan"""
-# G = ox.load_graphml('lowermanhattan.graphml')
-# G = ox.project_graph(G)
-# fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
-
-"""San Francisco"""
-# G = ox.load_graphml('sanfrancisco.graphml')
-# G = ox.project_graph(G)
-# fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
-
-"""Piedmont, California"""
-G = ox.load_graphml('piedmont.graphml')
-G = ox.project_graph(G)
-fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
-
-# grab the dimensions of the figure
-axis = ax.axis()
-
-
-class env:
-    def __init__(self, n, axis):
+class Env:
+    def __init__(self, n, fig_axis, agent):
         """
+        initializes an environment for a car in the system
 
-        :param    n: number of cars to simulate
-        :param axis: dimensions of the figure
+        :param         n:       int: number of cars to simulate
+        :param  fig_axis: quadruple: dimensions of the figure
+        :param     agent:       int: the ID of the car (agent)
         """
         self.N = n
-        self.axis = axis
+        self.axis = fig_axis
+        self.agent = agent
+        self.cars_object = None
+        self.lights_object = None
+        self.dt = 1 / 1000
 
     def reset(self):
         """
@@ -41,5 +25,27 @@ class env:
         :return s: state
         """
         # initialize the car and light state objects
-        cars_object = Cars(sim.init_culdesac_start_location(N, axis), axis)
-        lights_object = TrafficLights(sim.init_traffic_lights(axis, prescale=40), axis)
+        self.cars_object = Cars(sim.init_culdesac_start_location(self.N, self.axis), self.axis)
+        self.lights_object = TrafficLights(sim.init_traffic_lights(self.axis, prescale=40), self.axis)
+        s = 0
+        return s
+
+    def step(self, action):
+        """
+        This function runs a full simulation of a car from origin to destination
+        (if action, then use the alternate route)
+
+        :param action: int: 0 or 1
+        :return:
+        """
+
+        if action:
+            stateview = nav.StateView(axis=self.axis, car_index=self.agent,
+                                      cars=self.cars_object.state, lights=self.lights_object.state)
+            state, new_route, new_xpath, new_ypath =
+            self.cars_object.state.loc[self.agent]['route'] =
+
+        arrived = False
+        while not arrived:
+            self.lights_object.update(self.dt)
+            self.cars_object.update(self.dt, self.lights_object.state)
