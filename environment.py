@@ -20,6 +20,7 @@ class Env:
         self.cars_object = None
         self.lights_object = None
         self.dt = 1 / 1000
+        self.init_method = sim.init_culdesac_start_location
 
     def refresh_stateview(self):
         """
@@ -38,7 +39,24 @@ class Env:
         :return s: state
         """
         # initialize the car and light state objects
-        self.cars_object = Cars(sim.init_culdesac_start_location(self.N, self.axis), self.axis)
+        init_state = self.init_method(self.N, self.axis)
+        self.cars_object = Cars(init_state=init_state, axis=self.axis)
+        self.lights_object = TrafficLights(sim.init_traffic_lights(self.axis, prescale=40), self.axis)
+        stateview = self.refresh_stateview()
+        state = stateview.determine_state()[0]
+        state = state.index(True)
+        return state
+
+    def initialize_custom_reset(self, alternate_route):
+        """
+        resets the environment with a custom route for the agent
+
+        :param alternate_route:   list: list of alternate route nodes for car agent
+        :return          state:   list: initial state of agent
+        """
+        # initialize the car and light state objects
+        init_state = self.init_method(self.N, self.axis, car_id=self.agent, alternate_route=alternate_route)
+        self.cars_object = Cars(init_state=init_state, axis=self.axis)
         self.lights_object = TrafficLights(sim.init_traffic_lights(self.axis, prescale=40), self.axis)
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
@@ -54,13 +72,13 @@ class Env:
         :param                         num:  int: the iteration number
         :return new_state, reward, done, _: list: the end of the return is free to contain debugging info
         """
+        stateview = self.refresh_stateview()
+        state, new_route, new_xpath, new_ypath = stateview.determine_state()
 
         if action:
-            stateview = self.refresh_stateview()
-            state, new_route, new_xpath, new_ypath = stateview.determine_state()
-            self.cars_object.state.loc[self.agent]['route'] = new_route
-            self.cars_object.state.loc[self.agent]['xpath'] = new_xpath
-            self.cars_object.state.loc[self.agent]['ypath'] = new_ypath
+            new_state = self.initialize_custom_reset(alternate_route=(new_route, new_xpath, new_ypath))
+        else:
+            new_state = state
 
         arrived = False
         while not arrived:
@@ -73,8 +91,6 @@ class Env:
             self.lights_object.update(self.dt)
             self.cars_object.update(self.dt, self.lights_object.state)
 
-        stateview = self.refresh_stateview()
-        new_state, route, xpath, ypath = stateview.determine_state()
         route_time = self.cars_object.state.loc[self.agent]['route-time']
         self.route_times.append(route_time)
         latest_two_times = [self.route_times[-i] for i in range(2)]
@@ -97,4 +113,6 @@ class Env:
         else:
             reward = self.route_times[num - 1] - self.route_times[num] + shortest_route_found_reward
 
-        return
+        debug_report = 'Debug info: none'
+
+        return new_state, reward, done, debug_report
