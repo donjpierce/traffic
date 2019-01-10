@@ -1,5 +1,6 @@
 from environment import Env
 from keras import Sequential, layers
+import matplotlib.pyplot as plt
 import numpy as np
 import osmnx as ox
 
@@ -61,4 +62,11 @@ for i in range(num_episodes):
         state = new_s
         r_sum += r
     r_avg_list.append(r_sum / num_episodes)
+
+
+plt.plot(np.arange(num_episodes), r_avg_list)
+plt.xlabel('Game number')
+plt.ylabel('Average reward per game')
+plt.show()
+
 
