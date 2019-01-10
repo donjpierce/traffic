@@ -44,7 +44,7 @@ num_episodes = 10
 
 for i in range(num_episodes):
     print("Episode {} of {}".format(i + 1, num_episodes))
-    s = env.reset()
+    state = env.reset()
     eps *= decay_factor
     done = False
     r_sum = 0
@@ -52,13 +52,13 @@ for i in range(num_episodes):
         if np.random.random() < eps:
             action = np.random.randint(0, 2)
         else:
-            action = np.argmax(model.predict(np.identity(10)[s:s + 1]))
+            action = np.argmax(model.predict(np.identity(10)[state:state + 1]))
         new_s, r, done, _ = env.step(action=action, num=i)
         target = r + y * np.max(model.predict(np.identity(10)[new_s:new_s + 1]))
-        target_vec = model.predict(np.identity(10)[s:s + 1])[0]
+        target_vec = model.predict(np.identity(10)[state:state + 1])[0]
         target_vec[action] = target
-        model.fit(np.identity(10)[s:s + 1], target_vec.reshape(-1, 2), epochs=1, verbose=0)
-        s = new_s
+        model.fit(np.identity(10)[state:state + 1], target_vec.reshape(-1, 2), epochs=1, verbose=0)
+        state = new_s
         r_sum += r
-    r_avg_list.append(r_sum / 1000)
+    r_avg_list.append(r_sum / num_episodes)
 
