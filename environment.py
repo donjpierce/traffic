@@ -22,21 +22,11 @@ class Env:
         self.dt = 1 / 1000
         self.init_method = sim.init_culdesac_start_location
 
-    def refresh_stateview(self):
-        """
-        this function prepares a fresh depiction of what state the car is in
-
-        :return stateview: object
-        """
-        stateview = nav.StateView(axis=self.axis, car_index=self.agent,
-                                  cars=self.cars_object.state, lights=self.lights_object.state)
-        return stateview
-
     def reset(self):
         """
         resets the environment
 
-        :return s: state
+        :return state: int
         """
         # initialize the car and light state objects
         init_state = self.init_method(self.N, self.axis)
@@ -46,6 +36,16 @@ class Env:
         state = stateview.determine_state()[0]
         state = state.index(True)
         return state
+
+    def refresh_stateview(self):
+        """
+        this function prepares a fresh depiction of what state the car is in
+
+        :return stateview: object
+        """
+        stateview = nav.StateView(axis=self.axis, car_index=self.agent,
+                                  cars=self.cars_object.state, lights=self.lights_object.state)
+        return stateview
 
     def initialize_custom_reset(self, alternate_route):
         """

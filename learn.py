@@ -26,7 +26,7 @@ axis = ax.axis()
 
 """ which car to be the learning agent is chosen here ---> agent=1 """
 # initialize the environment for the learning agent
-env = Env(n=N, fig_axis=axis, agent=1)
+env = Env(n=N, fig_axis=axis, agent=6)
 
 # initialize the Keras training model
 model = Sequential()

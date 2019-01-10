@@ -147,7 +147,7 @@ class StateView:
 
         :return state, new_route, new_xpath, new_ypath
         """
-        if self.route[0] != self.car['destination']:
+        if self.route.size > 0:
             # get light IDs in the route
             light_locs = self.get_lights_in_route()
             # get congested bins

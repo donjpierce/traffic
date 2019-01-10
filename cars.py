@@ -44,7 +44,6 @@ class Cars:
         """
         self.lights = lights
         self.time_elapsed += dt
-
         # determine binning and assign bins to cars
         # TODO: don't re-sort every time-step. Only place cars in a new bin if their bin is about to change
         self.state['xbin'], self.state['ybin'] = models.determine_bins(self.axis, self.state)
