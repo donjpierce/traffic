@@ -83,7 +83,6 @@ class Env:
         arrived = False
         while not arrived:
             time = self.cars_object.time_elapsed
-            print('Running simulation. t = {}'.format(time))
             remaining_path = self.cars_object.state.loc[self.agent]['xpath']
             if remaining_path:
                 self.lights_object.update(self.dt)

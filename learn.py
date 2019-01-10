@@ -42,7 +42,7 @@ y = 0.95
 eps = 0.5
 decay_factor = 0.999
 r_avg_list = []
-num_episodes = 10
+num_episodes = 50
 
 for i in range(num_episodes):
     print("Episode {} of {}".format(i + 1, num_episodes))

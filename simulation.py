@@ -304,7 +304,7 @@ def init_culdesac_start_location(n, axis, car_id=None, alternate_route=None):
     # determine binning and assign bins to cars
     cars['xbin'], cars['ybin'] = models.determine_bins(axis, cars)
 
-    print('Number of cars: {}'.format(len(cars)))
+    # print('Number of cars: {}'.format(len(cars)))
     return cars
 
 
@@ -357,5 +357,5 @@ def init_traffic_lights(axis, prescale=10):
     # determine binning and assign bins to lights
     lights['xbin'], lights['ybin'] = models.determine_bins(axis, lights)
 
-    print('Number of traffic lights: {}'.format(len(lights)))
+    # print('Number of traffic lights: {}'.format(len(lights)))
     return lights
