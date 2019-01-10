@@ -6,7 +6,7 @@ This car will learn its pre-configured route to shortest-time by trying an alter
 
 Usage:
 
-After customizing desired parameters, run `python animate.py` to render .mp4 movies of a traffic simulations.
+After customizing desired parameters, run `python animate.py` to render .mp4 movies of a traffic simulation.
 Or after selecting a learning agent from the available cars, run `python learn.py` to optimize that car's route to shortest-time.
 
 
