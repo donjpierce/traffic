@@ -1,6 +1,6 @@
 # traffic
-An abstract and minimilist traffic simulation, using OpenStreetMaps and OSMnx, can simulate traffic on any road network in the world. 
-By using a Keras three-layer linear learning architecture, with TensorFlow backend, an optimization algorithm can be implemented for one car in the system.
+An abstract and minimilist traffic simulation, using OpenStreetMaps and OSMnx, can simulate traffic on any roadnetwork from OSM 
+By using a Keras three-layer, linear learning architecture, with TensorFlow backend, an optimization algorithm can be implemented for one car in the system.
 This car will learn its pre-configured route to shortest-time by trying an alternate route which avoids apparent obstacles (such as traffic lights or heavy traffic).
 The learning algorithm uses Q-learning with epsilon-greedy techniques, and a dynamic reward table based on a route's time-to-complete.
 
