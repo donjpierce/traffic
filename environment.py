@@ -83,8 +83,6 @@ class Env:
         arrived = False
         while not arrived:
             time = self.cars_object.time_elapsed
-            if time % 1.000 == 0:
-                print('ONE SECOND')
             print('Running simulation. t = {}'.format(time))
             remaining_path = self.cars_object.state.loc[self.agent]['xpath']
             if remaining_path:
