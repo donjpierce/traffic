@@ -15,6 +15,7 @@ Or after selecting a learning agent from the available cars, run `python learn.p
 
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/piedmont33cars.gif)
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/lowerManhattan.gif)
+![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/avg_rewards.png)
 
 **A note on the requirements for this code base**
 
