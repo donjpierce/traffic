@@ -1,10 +1,13 @@
 # traffic
-minimilist traffic simulations using OpenStreetMaps and OSMnx
+An abstract and minimilist traffic simulation, using OpenStreetMaps and OSMnx, can simulate traffic on any road network in the world. 
+By using a Keras three-layer linear learning architecture, with TensorFlow backend, an optimization algorithm can be implemented for one car in the system.
+This car will learn its pre-configured route to shortest-time by trying an alternate route which avoids apparent obstacles (such as traffic lights or heavy traffic).
 
 
 Usage:
 
-After customizing desired parameters, run `python animate.py`
+After customizing desired parameters, run `python animate.py` to render .mp4 movies of a traffic simulations.
+Or after selecting a learning agent from the available cars, run `python learn.py` to optimize that car's route to shortest-time.
 
 
 
