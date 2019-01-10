@@ -10,7 +10,7 @@ After customizing desired parameters, run `python animate.py`
 
 
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/piedmont33cars.gif)
-
+![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/lowerManhattan.gif)
 
 **A note on the requirements for this code base**
 
