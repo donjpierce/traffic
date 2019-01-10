@@ -1,5 +1,6 @@
 from cars import Cars, TrafficLights
 import navigation as nav
+import numpy as np
 import simulation as sim
 
 
@@ -15,7 +16,7 @@ class Env:
         self.N = n
         self.axis = fig_axis
         self.agent = agent
-        self.route_time = 0
+        self.route_times = []
         self.cars_object = None
         self.lights_object = None
         self.dt = 1 / 1000
@@ -25,6 +26,7 @@ class Env:
     def reset(self):
         """
         resets the environment
+
         :return s: state
         """
         # initialize the car and light state objects
@@ -39,8 +41,8 @@ class Env:
         This function runs a full simulation of a car from origin to destination
         (if action, then use the alternate route)
 
-        :param action: int: 0 or 1
-        :return:
+        :param                      action:  int: 0 or 1
+        :return new_state, reward, done, _: list: the end of the return is free to contain debugging info
         """
 
         if action:
@@ -58,5 +60,19 @@ class Env:
             self.cars_object.update(self.dt, self.lights_object.state)
 
         route_time = self.cars_object.state.loc[self.agent]['route-time']
+        self.route_times.append(route_time)
+        latest_two_times = [self.route_times[-i] for i in range(2)]
+        if len(self.route_times) < 3:
+            done = False
+        elif np.isclose(latest_two_times, np.min(self.route_times), atol=1).all():
+            """
+            The latest two route times are within 1 second of the minimum time achieved.
+            Define this environment condition as having found the shortest route. 
+            """
+            done = True
+        else:
+            done = False
+
+        new_state =
 
         return
