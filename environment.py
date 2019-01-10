@@ -78,7 +78,7 @@ class Env:
         if action:
             new_state = self.initialize_custom_reset(alternate_route=(new_route, new_xpath, new_ypath))
         else:
-            new_state = state
+            new_state = state.index(True)
 
         arrived = False
         while not arrived:
