@@ -183,6 +183,7 @@ class StateView:
     def bulk(self, light_locs=None, traffic_nodes=None):
         """
         this method determines whether the agent is in any one of states 1-6, 8, or 9
+
         :param    light_locs: None or list
         :param traffic_nodes: None or list
         :return state, new_route, new_xpath, new_ypath:
