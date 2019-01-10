@@ -25,9 +25,10 @@ fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
 # grab the dimensions of the figure
 axis = ax.axis()
 
-""" which car to be the learning agent is chosen here ---> agent=1 """
+""" which car to be the learning agent is chosen here ---> agent = 17 """
 # initialize the environment for the learning agent
-env = Env(n=N, fig_axis=axis, agent=6)
+agent = 17
+env = Env(n=N, fig_axis=axis, agent=agent)
 
 # initialize the Keras training model
 model = Sequential()
@@ -68,7 +69,7 @@ for i in range(num_episodes):
 plt.plot(np.arange(num_episodes), r_avg_list)
 plt.xlabel('Game number')
 plt.ylabel('Averages reward per game')
-plt.suptitle('Average reward per game for car no. 6')
+plt.suptitle('Average reward per game for car no. {}'.format(agent))
 plt.show()
 
 

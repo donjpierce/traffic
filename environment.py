@@ -85,8 +85,8 @@ class Env:
             time = self.cars_object.time_elapsed
             if time % 5.000 == 0:
                 print('Running simulation. t = {}'.format(time))
-            remaining_nodes_in_route = self.cars_object.state.loc[self.agent]['route']
-            if len(remaining_nodes_in_route) == 0:
+            remaining_path = self.cars_object.state.loc[self.agent]['xpath']
+            if len(remaining_path) == 0:
                 arrived = True
             self.lights_object.update(self.dt)
             self.cars_object.update(self.dt, self.lights_object.state)

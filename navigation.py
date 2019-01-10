@@ -128,8 +128,8 @@ class StateView:
 
         :param      axis:
         :param car_index:
-        :param      cars:
-        :param    lights:
+        :param      cars: DataFrame
+        :param    lights: DataFrame
         """
         self.axis = axis
         self.cars = cars

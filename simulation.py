@@ -47,12 +47,6 @@ def update_cars(cars, dt):
                 new_xpaths.append(car[1]['xpath'])
                 new_ypaths.append(car[1]['ypath'])
 
-            # determine if the car has reached the end of the route
-            if frontview.end_of_route(stop_distance):
-                new_route.append(car[1]['route'])
-            else:
-                new_route.append(car[1]['route'][1:])
-
             next_node = np.array(frontview.upcoming_node_position())
             position = np.array(frontview.position)
 
