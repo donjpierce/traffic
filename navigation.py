@@ -608,17 +608,20 @@ def eta(car, lights, speed_limit=250):
     :param    speed_limit: int
     :return:    path_time: double
     """
-    route = car['route']
+    route = np.array(car['route'])
 
-    route_length = sum([G.get_edge_data(route[i], route[i + 1])[0]['length'] for i in range(len(route) - 1)])
+    if route.size > 0:
+        route_length = sum([G.get_edge_data(route[i], route[i + 1])[0]['length'] for i in range(len(route) - 1)])
 
-    eta_from_distance = route_length / speed_limit  # does not account for road curvature or hard stops at intersections
+        eta_from_distance = route_length / speed_limit
 
-    light_locs = [(node == lights['node']).tolist().index(True) for node in route if (node == lights['node']).any()]
+        light_locs = [(node == lights['node']).tolist().index(True) for node in route if (node == lights['node']).any()]
 
-    # let the expected wait time for all lights found in the route be half the sum of the times
-    expected_wait = sum([lights.loc[index]['switch-time'] for index in light_locs]) / 2
-    path_time = eta_from_distance + expected_wait
+        # let the expected wait time for all lights found in the route be half the sum of the times
+        expected_wait = sum([lights.loc[index]['switch-time'] for index in light_locs]) / 2
+        path_time = eta_from_distance + expected_wait
+    else:
+        path_time = 0
     return path_time
 
 

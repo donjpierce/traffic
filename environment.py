@@ -83,13 +83,15 @@ class Env:
         arrived = False
         while not arrived:
             time = self.cars_object.time_elapsed
-            if time % 5.000 == 0:
-                print('Running simulation. t = {}'.format(time))
+            if time % 1.000 == 0:
+                print('ONE SECOND')
+            print('Running simulation. t = {}'.format(time))
             remaining_path = self.cars_object.state.loc[self.agent]['xpath']
-            if len(remaining_path) == 0:
+            if remaining_path:
+                self.lights_object.update(self.dt)
+                self.cars_object.update(self.dt, self.lights_object.state)
+            else:
                 arrived = True
-            self.lights_object.update(self.dt)
-            self.cars_object.update(self.dt, self.lights_object.state)
 
         route_time = self.cars_object.state.loc[self.agent]['route-time']
         self.route_times.append(route_time)
