@@ -66,7 +66,8 @@ for i in range(num_episodes):
 
 plt.plot(np.arange(num_episodes), r_avg_list)
 plt.xlabel('Game number')
-plt.ylabel('Average reward per game')
+plt.ylabel('Averages reward per game')
+plt.suptitle('Average reward per game for car no. 6')
 plt.show()
 
 
