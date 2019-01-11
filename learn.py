@@ -29,7 +29,6 @@ fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
 # grab the dimensions of the figure
 axis = ax.axis()
 
-""" which car to be the learning agent is chosen here ---> agent = 17 """
 # initialize the environment for the learning agent
 env = Env(n=N, fig_axis=axis, agent=agent, dt=dt)
 
