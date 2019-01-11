@@ -88,12 +88,16 @@ class Env:
         else:
             new_state = state.index(True)
 
+        animator = Animator(cars_object=self.cars_object, lights_object=self.lights_object)
         arrived = False
+        i = 0
         while not arrived:
+            i += 1
             remaining_path = self.cars_object.state.loc[self.agent]['xpath']
             if remaining_path:
-                self.lights_object.update(self.dt)
-                self.cars_object.update(self.dt, self.lights_object.state)
+                # self.lights_object.update(self.dt)
+                # self.cars_object.update(self.dt, self.lights_object.state)
+                animator.animate(i)
             else:
                 arrived = True
 
