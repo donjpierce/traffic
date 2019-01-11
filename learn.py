@@ -27,7 +27,7 @@ G = ox.project_graph(G)
 fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
 
 # initialize the environment for the learning agent
-env = Env(n=N, fig=fig, ax=ax, agent=agent, dt=dt, animate=True)
+env = Env(n=N, fig=fig, ax=ax, agent=agent, dt=dt, animate=False)
 
 # initialize the Keras training model
 model = Sequential()

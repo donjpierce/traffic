@@ -44,9 +44,9 @@ lights = TrafficLights(cl.init_custom_lights(fig_axis=axis, prescale=None), axis
 
 
 # initialize the Animator
-animator = Animator(fig=fig, ax=ax, cars_object=cars, lights_object=lights)
-animate = animator.animate
+animator = Animator(fig=fig, ax=ax, cars_object=cars, lights_object=lights, num=(1, 10))
 init = animator.reset
+animate = animator.animate
 
 # for creating HTML frame-movies
 # ani = animation.FuncAnimation(fig, animate, init_func=init, frames=1200, interval=30, blit=True)

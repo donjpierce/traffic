@@ -96,7 +96,7 @@ class Env:
 
         if self.animate:
             self.animator = Animator(fig=self.fig, ax=self.ax,
-                                     cars_object=self.cars_object, lights_object=self.lights_object)
+                                     cars_object=self.cars_object, lights_object=self.lights_object, num=num)
 
         arrived = False
         i = 0
