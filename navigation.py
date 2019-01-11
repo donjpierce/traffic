@@ -629,6 +629,7 @@ def eta(car, lights, speed_limit=250):
     return path_time
 
 
+# TODO: bundle this method into StateView, and use dv_table; by first making StateView.dv_table method more abstract
 def build_new_route(route, reroute_node, direction, traffic, avoid):
     """
     this function builds a new route for a car based on the original route given that it would like to turn off
@@ -643,17 +644,18 @@ def build_new_route(route, reroute_node, direction, traffic, avoid):
     :return:  new_route, x_path, y_path, detour: lists: the new route, along with its x and y lines, and the detour path
     """
     reroute_index = np.where(route == reroute_node)[0][0]
+    avoid_index = np.where(route == avoid)[0][0]
     new_route = route[:reroute_index + 1].tolist()
     new_route.append(direction)
     detour = [reroute_node, direction]
 
     # get the coordinate positions of the next three nodes in the original route
+    # TODO: this will not work if we are building a new route near the very end of a route, where there are not 3 nodes
     next_nodes_pos = []
     for node in route[reroute_index + 1:reroute_index + 4]:
         x, y = get_position_of_node(node)
         next_nodes_pos.append((x, y))
 
-    avoid_index = np.where(route == avoid)[0][0]
     returned = False
     i = 0
     while not returned:
@@ -668,8 +670,7 @@ def build_new_route(route, reroute_node, direction, traffic, avoid):
 
         # Populate a list of the sums of the distances to the next
         # three nodes in the original route, for each potential new node
-        sum_three_node_dist = []
-        refined_out_from_direction = []
+        sum_three_node_dist, refined_out_from_direction = [], []
         for node in out_from_direction:
             if (node == route[:avoid_index + 1 + traffic]).any():
                 # avoid all the nodes in the route including the ones around which we are rerouting

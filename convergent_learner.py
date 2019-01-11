@@ -3,6 +3,8 @@ import matplotlib
 matplotlib.use('Qt4Agg')
 import models
 import navigation as nav
+from networkx import NetworkXNoPath
+import numpy as np
 import osmnx as ox
 import pandas as pd
 
@@ -25,7 +27,7 @@ def init_custom_agent(fig_axis, car_id=None, alternate_route=None):
     :return     cars_frame:    DataFrame
     """
 
-    origin = 53073689
+    origin = 53085387
     dest = 53082621
 
     path = nav.get_init_path(origin, dest)
@@ -60,3 +62,50 @@ def init_custom_agent(fig_axis, car_id=None, alternate_route=None):
 
     return cars_frame
 
+
+def init_custom_lights(fig_axis):
+    """
+    traffic lights are initialized here
+
+    :return lights: list
+    """
+    epsilon = 0.3  # a factor which forces the positions of the light faces to be close to the intersection
+
+    lights_data = []
+
+    node_id = 53119168
+
+    try:
+        out_vectors = np.array(nav.determine_pedigree(node_id))
+    except NetworkXNoPath or ValueError:
+        raise('Could not determine pedigree for light at node {}'.format(node_id))
+
+    degree = len(out_vectors)
+    x, y = nav.get_position_of_node(node_id)
+    go = [False, True] * degree * 2
+    go = go[:degree]
+
+    light = {'object': 'light',
+             'node': node_id,
+             'degree': degree,
+             'x': x,
+             'y': y,
+             'switch-counter': 0,
+             'switch-time': models.determine_traffic_light_timer()
+             }
+
+    light['out-xpositions'] = [x + epsilon * out_vectors[j][0] for j in range(light['degree'])]
+    light['out-ypositions'] = [y + epsilon * out_vectors[j][1] for j in range(light['degree'])]
+    light['out-xvectors'] = [out_vectors[j][0] for j in range(light['degree'])]
+    light['out-yvectors'] = [out_vectors[j][1] for j in range(light['degree'])]
+    light['go-values'] = np.array([go[j] for j in range(light['degree'])])
+
+    lights_data.append(light)
+
+    lights = pd.DataFrame(lights_data)
+
+    # determine binning and assign bins to lights
+    lights['xbin'], lights['ybin'] = models.determine_bins(fig_axis, lights)
+
+    # print('Number of traffic lights: {}'.format(len(lights)))
+    return lights
