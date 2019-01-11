@@ -1,3 +1,6 @@
+# python=3.6 requires using Qt4Agg backend for animation saving
+import matplotlib
+matplotlib.use('Qt4Agg')
 from environment import Env
 from keras import Sequential, layers
 import matplotlib.pyplot as plt
@@ -28,7 +31,7 @@ axis = ax.axis()
 
 """ which car to be the learning agent is chosen here ---> agent = 17 """
 # initialize the environment for the learning agent
-env = Env(n=N, fig_axis=axis, agent=agent)
+env = Env(n=N, fig_axis=axis, agent=agent, dt=dt)
 
 # initialize the Keras training model
 model = Sequential()
@@ -42,7 +45,7 @@ y = 0.95
 eps = 0.5
 decay_factor = 0.999
 r_avg_list = []
-num_episodes = 50
+num_episodes = 3
 
 for i in range(num_episodes):
     print("Episode {} of {}".format(i + 1, num_episodes))
