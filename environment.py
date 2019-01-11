@@ -3,6 +3,9 @@ import navigation as nav
 import numpy as np
 import simulation as sim
 
+# additional testing module
+import convergent_learner
+
 
 class Env:
     def __init__(self, n, fig_axis, agent):
@@ -20,7 +23,8 @@ class Env:
         self.cars_object = None
         self.lights_object = None
         self.dt = 1 / 1000
-        self.init_method = sim.init_culdesac_start_location
+        # self.init_method = sim.init_culdesac_start_location
+        self.init_method = convergent_learner.init_custom_agent
 
     def reset(self):
         """

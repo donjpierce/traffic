@@ -5,7 +5,8 @@ import numpy as np
 import osmnx as ox
 
 dt = 1 / 1000
-N = 33
+N = 1
+agent = 0
 
 """Lower Manhattan"""
 # G = ox.load_graphml('lowermanhattan.graphml')
@@ -27,7 +28,6 @@ axis = ax.axis()
 
 """ which car to be the learning agent is chosen here ---> agent = 17 """
 # initialize the environment for the learning agent
-agent = 17
 env = Env(n=N, fig_axis=axis, agent=agent)
 
 # initialize the Keras training model

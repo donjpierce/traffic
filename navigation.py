@@ -266,6 +266,10 @@ class StateView:
         i = 0
         while not found_route:
             i += 1
+            if i == 10:
+                print('Could not find alternate route for car {}'.format(self.index))
+                break
+
             reroute_node = self.route[np.where(self.route == avoid)[0][0] - i]
 
             # Determine in which direction to reroute
@@ -651,7 +655,14 @@ def build_new_route(route, reroute_node, direction, traffic, avoid):
 
     avoid_index = np.where(route == avoid)[0][0]
     returned = False
+    i = 0
     while not returned:
+        i += 1
+        print(i)
+        if i == 10:
+            print('Could not build new route for route {} with avoid_node={}. 10th walk was at node {}'.format(
+                route, avoid, direction
+            ))
         out_from_direction = [dot for dot in G[direction].__iter__() if dot != reroute_node]
 
         # Populate a list of the sums of the distances to the next

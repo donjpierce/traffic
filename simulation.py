@@ -296,7 +296,7 @@ def init_culdesac_start_location(n, axis, car_id=None, alternate_route=None):
 
         cars_data.append(car)
 
-    if car_id or car_id == 0:
+    if alternate_route:
         cars_data[car_id]['route'], cars_data[car_id]['xpath'], cars_data[car_id]['ypath'] = alternate_route
 
     cars = pd.DataFrame(cars_data)

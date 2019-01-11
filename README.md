@@ -24,7 +24,7 @@ Or after selecting a learning agent from the available cars, run `python learn.p
 
 **Rewards**
 As can be seen in the above plot, the reward system for this learning algorithm does not always converge on a route with shortest-time. In the case of car no. 17,
-this is because both the original and alternate routes contained traffic lights (i.e. there is little difference between the original route and a calculated detour for car no. 17).
+this is because the arrival times of the original route and the alternate route were both very similar.
 
 **A note on the requirements for this code base**
 
