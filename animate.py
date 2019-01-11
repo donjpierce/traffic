@@ -79,7 +79,7 @@ class Animator:
         # ax.set_xlim(567295, 568600)
         # ax.set_ylim(4186360, 4187450)
 
-        # limits for convergent learner
+        # limits for convergent_learner.py
         self.ax.set_xlim(567012, 567809)
         self.ax.set_ylim(4186330, 4187070)
 

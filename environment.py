@@ -9,16 +9,19 @@ import convergent_learner
 
 
 class Env:
-    def __init__(self, n, fig_axis, agent, dt):
+    def __init__(self, n, fig, ax, agent, dt):
         """
         initializes an environment for a car in the system
 
         :param         n:       int: number of cars to simulate
-        :param  fig_axis: quadruple: dimensions of the figure
+        :param       fig:    figure: from matplotlib
+        :param        ax:      axis: from matplotlib
         :param     agent:       int: the ID of the car (agent)
         """
         self.N = n
-        self.axis = fig_axis
+        self.fig = fig
+        self.ax = ax
+        self.axis = self.ax.axis()
         self.agent = agent
         self.route_times = []
         self.cars_object = None
@@ -88,15 +91,15 @@ class Env:
         else:
             new_state = state.index(True)
 
-        animator = Animator(cars_object=self.cars_object, lights_object=self.lights_object)
+        animator = Animator(fig=self.fig, ax=self.ax, cars_object=self.cars_object, lights_object=self.lights_object)
         arrived = False
         i = 0
         while not arrived:
             i += 1
             remaining_path = self.cars_object.state.loc[self.agent]['xpath']
             if remaining_path:
-                # self.lights_object.update(self.dt)
-                # self.cars_object.update(self.dt, self.lights_object.state)
+                self.lights_object.update(self.dt)
+                self.cars_object.update(self.dt, self.lights_object.state)
                 animator.animate(i)
             else:
                 arrived = True
