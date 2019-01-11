@@ -197,8 +197,8 @@ class StateView:
             new_route, new_xpath, new_ypath, detour = self.find_alternate_route(avoid_node, traffic)
 
         """
-        Calculate the length of the detour and the length of the 
-        original route stretch which was avoided by the detour:
+        Calculate the length of the detour and the length of  
+        the stretch of the original route which was avoided by the detour:
         """
         detour_length = sum([G.get_edge_data(detour[i], detour[i + 1])[0]['length']
                              for i in range(len(detour) - 1)])
@@ -637,7 +637,7 @@ def build_new_route(route, reroute_node, direction, traffic, avoid):
     :param        route: array: the original Dijkstra's shortest path
     :param reroute_node:   int: the node at which the car would like to depart the original path
     :param    direction:   int: the next node after reroute_node in the direction of the departure
-    :param      traffic:   int: 0 or 1 (0 if new route avoids a traffic light, 1 if new route avoids traffic)
+    :param      traffic:   int: 0 or n (0 if new route avoids a traffic light, n if new route avoids n-node traffic)
     :param        avoid:   int: the node on which avoidance is based
 
     :return:  new_route, x_path, y_path, detour: lists: the new route, along with its x and y lines, and the detour path
