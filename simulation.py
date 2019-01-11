@@ -11,7 +11,7 @@ import pandas as pd
 
 # fill the initial state with N cars
 speed_limit = 250
-stop_distance = 5
+stop_distance = 10
 free_distance = 40
 default_acceleration = 5
 
@@ -332,7 +332,7 @@ def init_traffic_lights(axis, prescale=10):
 
         degree = len(out_vectors)
         position = nav.get_position_of_node(node_id)
-        go = [False, True] * degree * 2
+        go = [False, True] * degree
         go = go[:degree]
 
         light = {'object': 'light',

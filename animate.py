@@ -9,9 +9,9 @@ import simulation as sim
 
 
 class Animator:
-    def __init__(self, cars_object, lights_object, dt=1 / 1000, N=1):
+    def __init__(self, cars_object, lights_object, dt=1 / 1000, n=1):
         self.dt = dt
-        self.N = N
+        self.N = n
         self.cars_object = cars_object
         self.lights_object = lights_object
         self.number_of_lights = len(self.lights_object.state)
@@ -86,6 +86,10 @@ class Animator:
         # limits for viewing special area for machine learning tests
         # ax.set_xlim(567295, 568600)
         # ax.set_ylim(4186360, 4187450)
+
+        # limits for convergent learner
+        ax.set_xlim(567012, 567809)
+        ax.set_ylim(4186330, 4187070)
 
         fig.canvas.draw()
         return self.cars + self.lights + self.faces

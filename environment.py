@@ -1,3 +1,4 @@
+from animate import Animator
 from cars import Cars, TrafficLights
 import navigation as nav
 import numpy as np

@@ -72,7 +72,7 @@ def init_custom_lights(fig_axis, prescale=None):
     :param   prescale:   int
     :return    lights:  list
     """
-    epsilon = 0.3  # a factor which forces the positions of the light faces to be close to the intersection
+    epsilon = 0.1  # a factor which forces the positions of the light faces to be close to the intersection
 
     lights_data = []
 
@@ -85,7 +85,7 @@ def init_custom_lights(fig_axis, prescale=None):
 
     degree = len(out_vectors)
     x, y = nav.get_position_of_node(node_id)
-    go = [False, True] * degree * 2
+    go = [False, True] * degree
     go = go[:degree]
 
     light = {'object': 'light',
