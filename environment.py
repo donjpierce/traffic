@@ -9,7 +9,7 @@ import convergent_learner
 
 
 class Env:
-    def __init__(self, n, fig, ax, agent, dt):
+    def __init__(self, n, fig, ax, agent, dt, animate=False):
         """
         initializes an environment for a car in the system
 
@@ -17,16 +17,19 @@ class Env:
         :param       fig:    figure: from matplotlib
         :param        ax:      axis: from matplotlib
         :param     agent:       int: the ID of the car (agent)
+        :param   animate:      bool: if the environment is to be animated while learning
         """
         self.N = n
         self.fig = fig
         self.ax = ax
-        self.axis = self.ax.axis()
         self.agent = agent
+        self.dt = dt
+        self.animate = animate
+        self.animator = None
+        self.axis = self.ax.axis()
         self.route_times = []
         self.cars_object = None
         self.lights_object = None
-        self.dt = dt
         # self.car_init_method = sim.init_culdesac_start_location
         # self.light_init_method = sim.init_traffic_lights
         self.car_init_method = convergent_learner.init_custom_agent
@@ -79,9 +82,9 @@ class Env:
         This function runs a full simulation of a car from origin to destination
         (if action, then use the alternate route)
 
-        :param                      action:  int: 0 or 1
-        :param                         num:  int: the iteration number
-        :return new_state, reward, done, _: list: the end of the return is free to contain debugging info
+        :param                      action:   int: 0 or 1
+        :param                         num: tuple: the simulation number out of the total number of simulations
+        :return new_state, reward, done, _:  list: the end of the return is free to contain debugging info
         """
         stateview = self.refresh_stateview()
         state, new_route, new_xpath, new_ypath = stateview.determine_state()
@@ -91,18 +94,15 @@ class Env:
         else:
             new_state = state.index(True)
 
-        animator = Animator(fig=self.fig, ax=self.ax, cars_object=self.cars_object, lights_object=self.lights_object)
+        if self.animate:
+            self.animator = Animator(fig=self.fig, ax=self.ax,
+                                     cars_object=self.cars_object, lights_object=self.lights_object)
+
         arrived = False
         i = 0
         while not arrived:
             i += 1
-            remaining_path = self.cars_object.state.loc[self.agent]['xpath']
-            if remaining_path:
-                self.lights_object.update(self.dt)
-                self.cars_object.update(self.dt, self.lights_object.state)
-                animator.animate(i)
-            else:
-                arrived = True
+            arrived = self.simulation_step(i, self.animator, num)
 
         route_time = self.cars_object.state.loc[self.agent]['route-time']
         self.route_times.append(route_time)
@@ -129,3 +129,27 @@ class Env:
         debug_report = 'Debug info: none'
 
         return new_state, reward, done, debug_report
+
+    def simulation_step(self, i, animator, num):
+        """
+        make one step in the simulation
+
+        :param         i: simulation step
+        :param  animator: None or Animator object
+        :param       num: tuple: the simulation number out of the total number of simulations
+        :return  arrived: bool
+        """
+        remaining_path = self.cars_object.state.loc[self.agent]['xpath']
+        if remaining_path:
+            if self.animate:
+                animator.animate(i, num)
+            else:
+                self.lights_object.update(self.dt)
+                self.cars_object.update(self.dt, self.lights_object.state)
+            arrived = False
+        else:
+            arrived = True
+
+        return arrived
+
+

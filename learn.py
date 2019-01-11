@@ -26,11 +26,8 @@ G = ox.load_graphml('piedmont.graphml')
 G = ox.project_graph(G)
 fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
 
-# grab the dimensions of the figure
-axis = ax.axis()
-
 # initialize the environment for the learning agent
-env = Env(n=N, fig_axis=axis, agent=agent, dt=dt)
+env = Env(n=N, fig=fig, ax=ax, agent=agent, dt=dt, animate=True)
 
 # initialize the Keras training model
 model = Sequential()
@@ -57,7 +54,7 @@ for i in range(num_episodes):
         action = np.random.randint(0, 2)
     else:
         action = np.argmax(model.predict(np.identity(10)[state:state + 1]))
-    new_s, r, done, _ = env.step(action=action, num=i)
+    new_s, r, done, _ = env.step(action=action, num=(i + 1, num_episodes))
     target = r + y * np.max(model.predict(np.identity(10)[new_s:new_s + 1]))
     target_vec = model.predict(np.identity(10)[state:state + 1])[0]
     target_vec[action] = target

@@ -29,11 +29,12 @@ class Animator:
 
         return self.cars + self.lights + self.faces
 
-    def animate(self, i):
+    def animate(self, i, num):
         """
         perform one animation step
 
-        :param i: animation step
+        :param   i:   int: animation step
+        :param num: tuple: the simulation number out of the total number of simulations
         :return:
         """
         self.lights_object.update(self.dt)
@@ -83,5 +84,12 @@ class Animator:
         self.ax.set_xlim(567012, 567809)
         self.ax.set_ylim(4186330, 4187070)
 
+        axis = self.ax.axis()
+        self.ax.annotate('Episode {} of {}'.format(num[0], num[1]), xy=(axis[0] + 10, axis[2] + 10))
         self.fig.canvas.draw()
+        try:
+            self.fig.savefig('frames/frame{}'.format(i))
+        except FileNotFoundError:
+            raise Exception('Please make a folder called "frames" in this project directory')
+
         return self.cars + self.lights + self.faces
