@@ -38,7 +38,8 @@ class FrontView:
 
         :return view: list or bool: list of nodes immediately ahead of the car or False if end of route
         """
-        if self.car['xpath'] and self.car['ypath']:
+        xpath, ypath = np.array(self.car['xpath']), np.array(self.car['ypath'])
+        if xpath.any() and ypath.any():
             x, y = self.car['xpath'][:self.look_ahead_nodes], self.car['ypath'][:self.look_ahead_nodes]
             return [(x[i], y[i]) for i in range(len(x))]
         else:

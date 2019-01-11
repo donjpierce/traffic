@@ -45,8 +45,8 @@ def init_custom_agent(n=1, fig_axis=axis, car_id=None, alternate_route=None):
            'origin': origin,
            'destination': dest,
            'route': route,
-           'xpath': [path[i][0] for i in range(len(path))],
-           'ypath': [path[i][1] for i in range(len(path))],
+           'xpath': np.array([path[i][0] for i in range(len(path))]),
+           'ypath': np.array([path[i][1] for i in range(len(path))]),
            'distance-to-car': 0,
            'distance-to-node': 0,
            'distance-to-red-light': 0}

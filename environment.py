@@ -140,8 +140,8 @@ class Env:
         :param  animator: None or Animator object
         :return  arrived: bool
         """
-        remaining_path = self.cars_object.state.loc[self.agent]['xpath']
-        if remaining_path:
+        remaining_path = np.array(self.cars_object.state.loc[self.agent]['xpath'])
+        if remaining_path.size > 0:
             if self.animate:
                 animator.animate(i)
             else:

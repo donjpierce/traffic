@@ -33,7 +33,8 @@ def update_cars(cars, dt):
     new_times = []
 
     for car in cars.iterrows():
-        if car[1]['xpath'] and car[1]['ypath']:
+        xpath, ypath = np.array(car[1]['xpath']), np.array(car[1]['ypath'])
+        if xpath.any() and ypath.any():
             # add to route timer
             new_times.append(car[1]['route-time'] + dt)
 
@@ -44,8 +45,12 @@ def update_cars(cars, dt):
                 new_xpaths.append(car[1]['xpath'][1:])
                 new_ypaths.append(car[1]['ypath'][1:])
             else:
-                new_xpaths.append(car[1]['xpath'])
-                new_ypaths.append(car[1]['ypath'])
+                if frontview.end_of_route():
+                    new_xpaths.append(None)
+                    new_ypaths.append(None)
+                else:
+                    new_xpaths.append(car[1]['xpath'])
+                    new_ypaths.append(car[1]['ypath'])
 
             next_node = np.array(frontview.upcoming_node_position())
             position = np.array(frontview.position)
@@ -140,8 +145,7 @@ def road_curvature_factor(car, angles, d):
     _______
     :return speed_factor: double:  factor by which to diminish speed
     """
-
-    if not car['xpath'] or len(car['xpath']) < 2:
+    if car['xpath'].size < 2:
         # if it's the end of the path, treat the last node like a hard-stop intersection
         theta = math.pi / 2
     else:
