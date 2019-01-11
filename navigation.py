@@ -17,13 +17,15 @@ G = ox.project_graph(G)
 
 
 class FrontView:
-    def __init__(self, car, look_ahead_nodes=3):
+    def __init__(self, car, stop_distance, look_ahead_nodes=3):
         """
         take a car Series and determines the obstacles it faces in its frontal view
 
         :param              car: Series row of the main dataframe
+        :param    stop_distance: int
         :param look_ahead_nodes: int
         """
+        self.stop_distance = stop_distance
         self.look_ahead_nodes = look_ahead_nodes
         self.car = car
         self.position = car['x'], car['y']
@@ -104,16 +106,15 @@ class FrontView:
         else:
             return False
 
-    def end_of_route(self, stop_distance):
+    def end_of_route(self):
         """
         Determines if the car has reached the end of the route
 
-        :param stop_distance: double or int from simulation.py
         :return         bool: False if not, True if car is at the end of its root
         """
         xdest, ydest = get_position_of_node(self.car['destination'])
-        car_near_xdest = np.isclose(xdest, self.car['x'], atol=stop_distance)
-        car_near_ydest = np.isclose(ydest, self.car['y'], atol=stop_distance)
+        car_near_xdest = np.isclose(xdest, self.car['x'], atol=self.stop_distance)
+        car_near_ydest = np.isclose(ydest, self.car['y'], atol=self.stop_distance)
 
         if car_near_xdest and car_near_ydest:
             return True

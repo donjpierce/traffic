@@ -25,6 +25,7 @@ class Cars:
         self.time_elapsed = 0
         self.lights = 0
         self.axis = axis
+        self.stop_distance = 5
 
     def update(self, dt, lights):
         """
@@ -62,7 +63,7 @@ class Cars:
     def find_obstacles(self):
         node_distances, car_distances, light_distances = [], [], []
         for car in self.state.iterrows():
-            frontview = nav.FrontView(car[1])
+            frontview = nav.FrontView(car[1], stop_distance=self.stop_distance)
             node_distances.append(frontview.distance_to_node())
             car_distances.append(frontview.distance_to_car(self.state))
             light_distances.append(frontview.distance_to_light(self.lights))

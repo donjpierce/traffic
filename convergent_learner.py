@@ -85,7 +85,7 @@ def init_custom_lights(fig_axis, prescale=None):
 
     degree = len(out_vectors)
     x, y = nav.get_position_of_node(node_id)
-    go = [False, True] * degree
+    go = [False, True] * degree * 2
     go = go[:degree]
 
     light = {'object': 'light',

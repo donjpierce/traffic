@@ -37,7 +37,7 @@ def update_cars(cars, dt):
             # add to route timer
             new_times.append(car[1]['route-time'] + dt)
 
-            frontview = nav.FrontView(car[1])
+            frontview = nav.FrontView(car[1], stop_distance)
 
             # determine if the car has just crossed a node
             if frontview.crossed_node_event():
@@ -95,12 +95,13 @@ def update_speed_factor(car):
     :param            car: Series
     :return: final_factor: double
     """
-    frontview = nav.FrontView(car)
+    frontview = nav.FrontView(car, stop_distance)
     angles = frontview.angles
     distance_to_node = car['distance-to-node']
     distance_to_car = car['distance-to-car']
     distance_to_red_light = car['distance-to-red-light']
-    curvature_factor = road_curvature_factor(angles, distance_to_node)
+    # print(distance_to_red_light)
+    curvature_factor = road_curvature_factor(car, angles, distance_to_node)
 
     if distance_to_car and distance_to_red_light:
         if distance_to_car <= distance_to_red_light:
@@ -122,17 +123,16 @@ def update_speed_factor(car):
             else:
                 final_factor = curvature_factor
 
-    # print('Distance: {}, Final Factor: {}'.format(distance_to_red_light, final_factor))
-
     return abs(final_factor)
 
 
-def road_curvature_factor(angles, d):
+def road_curvature_factor(car, angles, d):
     """
     calculates the speed factor (between 0 and 1) for road curvature
 
     Parameters
     __________
+    :param           car: Series
     :param        angles: double:  angles of road curvature ahead
     :param             d: double:  distance from car to next node
 
@@ -140,11 +140,15 @@ def road_curvature_factor(angles, d):
     _______
     :return speed_factor: double:  factor by which to diminish speed
     """
-    if not angles or len(angles) < 1:
-        # if it's the end of the route, treat the last node like a hard-stop intersection
-        theta = math.pi/2
+
+    if not car['xpath'] or len(car['xpath']) < 2:
+        # if it's the end of the path, treat the last node like a hard-stop intersection
+        theta = math.pi / 2
     else:
-        theta = angles[0]
+        if angles:
+            theta = angles[0]
+        else:
+            theta = 1
 
     if theta == 0:
         curvature_factor = 1
@@ -332,7 +336,7 @@ def init_traffic_lights(axis, prescale=10):
 
         degree = len(out_vectors)
         position = nav.get_position_of_node(node_id)
-        go = [False, True] * degree
+        go = [False, True] * degree * 2
         go = go[:degree]
 
         light = {'object': 'light',
