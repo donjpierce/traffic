@@ -663,6 +663,7 @@ def build_new_route(route, reroute_node, direction, traffic, avoid):
             print('Could not build new route for route {} with avoid_node={}. 10th walk was at node {}'.format(
                 route, avoid, direction
             ))
+            break
         out_from_direction = [dot for dot in G[direction].__iter__() if dot != reroute_node]
 
         # Populate a list of the sums of the distances to the next
