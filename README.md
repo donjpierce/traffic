@@ -18,7 +18,7 @@ Or after selecting a learning agent from the available cars, run `python learn.p
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/avg_rewards.png)
 
 **Rewards**
-As can be seen in the above plot, the reward system for this learning algorithm does not always encourage convergence on a route with shortest-time. In the case of car no. 17,
+As can be seen in the above plot, the reward system for this learning algorithm does not always converge on a route with shortest-time. In the case of car no. 17,
 this is because both the original and alternate routes contained traffic lights (i.e. there is little difference between the original route and a calculated detour for car no. 17).
 
 **A note on the requirements for this code base**
