@@ -17,10 +17,11 @@ fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
 axis = ax.axis()
 
 
-def init_custom_agent(fig_axis, car_id=None, alternate_route=None):
+def init_custom_agent(n=1, fig_axis=axis, car_id=None, alternate_route=None):
     """
     This function initializes a singular car with custom origin and destination
 
+    :param               n:          int
     :param        fig_axis:         list
     :param          car_id:  None or int
     :param alternate_route: None or list
@@ -63,11 +64,13 @@ def init_custom_agent(fig_axis, car_id=None, alternate_route=None):
     return cars_frame
 
 
-def init_custom_lights(fig_axis):
+def init_custom_lights(fig_axis, prescale=None):
     """
     traffic lights are initialized here
 
-    :return lights: list
+    :param   fig_axis:  list
+    :param   prescale:   int
+    :return    lights:  list
     """
     epsilon = 0.3  # a factor which forces the positions of the light faces to be close to the intersection
 

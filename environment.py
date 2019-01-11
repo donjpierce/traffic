@@ -24,7 +24,8 @@ class Env:
         self.lights_object = None
         self.dt = 1 / 1000
         # self.init_method = sim.init_culdesac_start_location
-        self.init_method = convergent_learner.init_custom_agent
+        self.car_init_method = convergent_learner.init_custom_agent
+        self.light_init_method = convergent_learner.init_custom_lights
 
     def reset(self):
         """
@@ -33,9 +34,10 @@ class Env:
         :return state: int
         """
         # initialize the car and light state objects
-        init_state = self.init_method(self.N, self.axis)
-        self.cars_object = Cars(init_state=init_state, axis=self.axis)
-        self.lights_object = TrafficLights(sim.init_traffic_lights(self.axis, prescale=40), self.axis)
+        init_cars = self.car_init_method(self.N, self.axis)
+        self.cars_object = Cars(init_state=init_cars, axis=self.axis)
+        init_lights = self.light_init_method
+        self.lights_object = TrafficLights(init_lights(self.axis, prescale=40), self.axis)
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
         state = state.index(True)
@@ -59,7 +61,7 @@ class Env:
         :return          state:   list: initial state of agent
         """
         # initialize the car and light state objects
-        init_state = self.init_method(self.N, self.axis, car_id=self.agent, alternate_route=alternate_route)
+        init_state = self.car_init_method(self.N, self.axis, car_id=self.agent, alternate_route=alternate_route)
         self.cars_object = Cars(init_state=init_state, axis=self.axis)
         self.lights_object = TrafficLights(sim.init_traffic_lights(self.axis, prescale=40), self.axis)
         stateview = self.refresh_stateview()
@@ -86,7 +88,6 @@ class Env:
 
         arrived = False
         while not arrived:
-            time = self.cars_object.time_elapsed
             remaining_path = self.cars_object.state.loc[self.agent]['xpath']
             if remaining_path:
                 self.lights_object.update(self.dt)

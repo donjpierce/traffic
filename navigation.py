@@ -660,7 +660,6 @@ def build_new_route(route, reroute_node, direction, traffic, avoid):
     i = 0
     while not returned:
         i += 1
-        print(i)
         if i == 10:
             print('Could not build new route for route {} with avoid_node={}. 10th walk was at node {}'.format(
                 route, avoid, direction
