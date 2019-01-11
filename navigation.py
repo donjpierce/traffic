@@ -114,8 +114,8 @@ class FrontView:
         :return         bool: False if not, True if car is at the end of its root
         """
         xdest, ydest = get_position_of_node(self.car['destination'])
-        car_near_xdest = np.isclose(xdest, self.car['x'], atol=self.stop_distance)
-        car_near_ydest = np.isclose(ydest, self.car['y'], atol=self.stop_distance)
+        car_near_xdest = np.isclose(xdest, self.car['x'], atol=self.stop_distance + 2)
+        car_near_ydest = np.isclose(ydest, self.car['y'], atol=self.stop_distance + 2)
 
         if car_near_xdest and car_near_ydest:
             return True
