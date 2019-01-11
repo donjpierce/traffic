@@ -23,7 +23,8 @@ class Env:
         self.cars_object = None
         self.lights_object = None
         self.dt = 1 / 1000
-        # self.init_method = sim.init_culdesac_start_location
+        # self.car_init_method = sim.init_culdesac_start_location
+        # self.light_init_method = sim.init_traffic_lights
         self.car_init_method = convergent_learner.init_custom_agent
         self.light_init_method = convergent_learner.init_custom_lights
 
