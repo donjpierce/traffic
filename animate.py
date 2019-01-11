@@ -1,8 +1,9 @@
 class Animator:
-    def __init__(self, fig, ax, cars_object, lights_object, num, dt=1 / 1000, n=1):
+    def __init__(self, fig, ax, cars_object, lights_object, num, frame_rate=200, dt=1 / 1000, n=1):
         self.fig = fig
         self.ax = ax
         self.num = num
+        self.frame_rate = frame_rate
         self.dt = dt
         self.N = n
         self.cars_object = cars_object
@@ -87,20 +88,20 @@ class Animator:
             else:
                 face.set_color('red')
 
-        if i % 200 == 0:
-            self.save_figure()
+        if i % self.frame_rate == 0:
+            self.save_figure(i)
 
         self.fig.canvas.draw()
         return self.cars + self.lights + self.faces
 
-    def save_figure(self):
+    def save_figure(self, i):
         """
         saves figure as png
 
         :return None:
         """
         try:
-            self.fig.savefig('frames/frame{}'.format(i))
+            self.fig.savefig('frames/episode{}_of{}_frame{}'.format(self.num[0], self.num[1], i))
         except FileNotFoundError:
             raise Exception('Please make a folder called "frames" in this project directory')
 

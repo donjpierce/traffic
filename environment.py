@@ -98,12 +98,13 @@ class Env:
         if self.animate:
             self.animator = Animator(fig=self.fig, ax=self.ax,
                                      cars_object=self.cars_object, lights_object=self.lights_object, num=num)
+            self.animator.reset()
 
         arrived = False
         i = 0
         while not arrived:
             i += 1
-            arrived = self.simulation_step(i, self.animator, num)
+            arrived = self.simulation_step(i, self.animator)
 
         route_time = self.cars_object.state.loc[self.agent]['route-time']
         self.route_times.append(route_time)
@@ -131,19 +132,18 @@ class Env:
 
         return new_state, reward, done, debug_report
 
-    def simulation_step(self, i, animator, num):
+    def simulation_step(self, i, animator):
         """
         make one step in the simulation
 
         :param         i: simulation step
         :param  animator: None or Animator object
-        :param       num: tuple: the simulation number out of the total number of simulations
         :return  arrived: bool
         """
         remaining_path = self.cars_object.state.loc[self.agent]['xpath']
         if remaining_path:
             if self.animate:
-                animator.animate(i, num)
+                animator.animate(i)
             else:
                 self.lights_object.update(self.dt)
                 self.cars_object.update(self.dt, self.lights_object.state)
