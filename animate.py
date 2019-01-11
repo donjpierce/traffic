@@ -87,10 +87,21 @@ class Animator:
             else:
                 face.set_color('red')
 
+        if i % 200 == 0:
+            self.save_figure()
+
         self.fig.canvas.draw()
+        return self.cars + self.lights + self.faces
+
+    def save_figure(self):
+        """
+        saves figure as png
+
+        :return None:
+        """
         try:
             self.fig.savefig('frames/frame{}'.format(i))
         except FileNotFoundError:
             raise Exception('Please make a folder called "frames" in this project directory')
 
-        return self.cars + self.lights + self.faces
+        return None

@@ -44,8 +44,8 @@ class Env:
         # initialize the car and light state objects
         init_cars = self.car_init_method(self.N, self.axis)
         self.cars_object = Cars(init_state=init_cars, axis=self.axis)
-        init_lights = self.light_init_method
-        self.lights_object = TrafficLights(init_lights(self.axis, prescale=40), self.axis)
+        init_light_state = self.light_init_method
+        self.lights_object = TrafficLights(init_light_state(self.axis, prescale=40), self.axis)
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
         state = state.index(True)
@@ -69,9 +69,10 @@ class Env:
         :return          state:   list: initial state of agent
         """
         # initialize the car and light state objects
-        init_state = self.car_init_method(self.N, self.axis, car_id=self.agent, alternate_route=alternate_route)
-        self.cars_object = Cars(init_state=init_state, axis=self.axis)
-        self.lights_object = TrafficLights(sim.init_traffic_lights(self.axis, prescale=40), self.axis)
+        init_car_state = self.car_init_method(self.N, self.axis, car_id=self.agent, alternate_route=alternate_route)
+        self.cars_object = Cars(init_state=init_car_state, axis=self.axis)
+        init_light_state = self.light_init_method(fig_axis=self.axis)
+        self.lights_object = TrafficLights(light_state=init_light_state, axis=self.axis)
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
         state = state.index(True)
