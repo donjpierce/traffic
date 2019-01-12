@@ -141,14 +141,11 @@ def road_curvature_factor(car, angle, d):
     :return speed_factor: double:  factor by which to diminish speed
     """
     xpath = np.array(car['xpath'])
-    if xpath.size == 1:
+    if xpath.size == 1 or not angle:
         # if it's the end of the path, treat the last node like a hard-stop intersection
         theta = math.pi / 2
     else:
-        if angle:
-            theta = angle
-        else:
-            theta = math.pi / 2
+        theta = angle
 
     if np.isclose(theta, 0, atol=1):
         curvature_factor = 1
