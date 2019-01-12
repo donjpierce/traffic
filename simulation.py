@@ -68,7 +68,7 @@ def update_cars(cars, dt):
             # end of route returns the final route time
             return None, None, None, 0, 0, car[1]['route-time']
 
-    package = pd.Series(new_route), pd.Series(new_xpaths), pd.Series(new_ypaths), pd.Series(new_vx),\
+    package = pd.Series(new_route), pd.Series(new_xpaths), pd.Series(new_ypaths), pd.Series(new_vx), \
         pd.Series(new_vy), pd.Series(new_times)
 
     return package
@@ -210,11 +210,11 @@ def init_random_node_start_location(n, axis):
                 print('No path between {} and {}.'.format(origin, destination))
                 continue
 
-            position = nav.get_position_of_node(origin)
+            x, y = nav.get_position_of_node(origin)
 
             car = {'object': 'car',
-                   'x': position[0],
-                   'y': position[1],
+                   'x': x,
+                   'y': y,
                    'vx': 0,
                    'vy': 0,
                    'route-time': 0,
