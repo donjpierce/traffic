@@ -102,6 +102,9 @@ class FrontView:
         car_near_xnode = np.isclose(self.view[0][0], self.car['x'], rtol=1.0e-6)
         car_near_ynode = np.isclose(self.view[0][1], self.car['y'], rtol=1.0e-6)
 
+        # car_near_xnode = np.isclose(self.view[0][0], self.car['x'], rtol=1.0e-1)
+        # car_near_ynode = np.isclose(self.view[0][1], self.car['y'], rtol=1.0e-1)
+
         if car_near_xnode and car_near_ynode:
             return True
         else:

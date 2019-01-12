@@ -82,13 +82,10 @@ def accelerate(car):
     :return bool:
     """
     if not car['distance-to-red-light']:
-        if not car['distance-to-car']:
+        if not car['distance-to-car'] or car['distance-to-car'] > stop_distance:
             return True
         else:
-            if car['distance-to-car'] > stop_distance:
-                return True
-            else:
-                return False
+            return False
     else:
         return False
 
@@ -129,14 +126,14 @@ def update_speed_factor(car):
     return abs(final_factor)
 
 
-def road_curvature_factor(car, angles, d):
+def road_curvature_factor(car, angle, d):
     """
     calculates the speed factor (between 0 and 1) for road curvature
 
     Parameters
     __________
     :param           car: Series
-    :param        angles: double:  angles of road curvature ahead
+    :param         angle: double:  angles of road curvature ahead
     :param             d: double:  distance from car to next node
 
     Returns
@@ -144,16 +141,16 @@ def road_curvature_factor(car, angles, d):
     :return speed_factor: double:  factor by which to diminish speed
     """
     xpath = np.array(car['xpath'])
-    if xpath.size < 2:
+    if xpath.size == 1:
         # if it's the end of the path, treat the last node like a hard-stop intersection
         theta = math.pi / 2
     else:
-        if angles:
-            theta = angles[0]
+        if angle:
+            theta = angle
         else:
-            theta = 1
+            theta = math.pi / 2
 
-    if theta == 0:
+    if np.isclose(theta, 0, rtol=1.0e-1):
         curvature_factor = 1
     else:
         if (stop_distance < d) and (d <= free_distance):

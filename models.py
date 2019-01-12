@@ -188,8 +188,8 @@ def get_angles(view):
     """
     determines the angles between the upcoming vectors
 
-    :param   view: list: list of coordinate points of next five nodes in path
-    :return  angles: list: list of the next angles of road curvature
+    :param        view:   list: list of coordinate points of next five nodes in path
+    :return  angles[0]: double: the next angle of the road curvature
     """
     if view and len(view) >= 2:
         vectors = upcoming_vectors(view)
@@ -197,7 +197,10 @@ def get_angles(view):
         for i in range(len(vectors)):
             if i < len(vectors) - 1:
                 angles.append(angle_between(vectors[i], vectors[i + 1]))
-        return angles
+        if angles:
+            return angles[0]
+        else:
+            return False
     else:
         return False
 

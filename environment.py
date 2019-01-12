@@ -123,10 +123,10 @@ class Env:
             done = False
             shortest_route_found_reward = 0
 
-        if num < 2:
+        if num[0] < 2:
             reward = 0
         else:
-            reward = self.route_times[num - 1] - self.route_times[num] + shortest_route_found_reward
+            reward = self.route_times[num[0] - 1] - self.route_times[num[0]] + shortest_route_found_reward
 
         debug_report = 'Debug info: none'
 
