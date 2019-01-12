@@ -105,7 +105,6 @@ def update_speed_factor(car):
     distance_to_node = car['distance-to-node']
     distance_to_car = car['distance-to-car']
     distance_to_red_light = car['distance-to-red-light']
-    # print(distance_to_red_light)
     curvature_factor = road_curvature_factor(car, angles, distance_to_node)
 
     if distance_to_car and distance_to_red_light:
@@ -127,7 +126,6 @@ def update_speed_factor(car):
                 final_factor = obstacle_factor(distance_to_red_light)
             else:
                 final_factor = curvature_factor
-
     return abs(final_factor)
 
 
@@ -163,7 +161,6 @@ def road_curvature_factor(car, angles, d):
                                math.log(free_distance / (stop_distance * 2 * theta / math.pi))
         else:
             curvature_factor = 1
-
     return curvature_factor
 
 
@@ -179,10 +176,10 @@ def obstacle_factor(d):
     _______
     :return obstacle_factor: double:  factor by which to diminish speed
     """
-    if (stop_distance <= d) and (d <= free_distance):
+    if (stop_distance < d) and (d <= free_distance):
         factor = math.log(d / stop_distance) / math.log(free_distance / stop_distance)
     else:
-        if d < stop_distance:
+        if d <= stop_distance:
             factor = 0
         else:
             factor = 1

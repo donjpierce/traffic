@@ -114,8 +114,8 @@ class FrontView:
         :return         bool: False if not, True if car is at the end of its root
         """
         xdest, ydest = get_position_of_node(self.car['destination'])
-        car_near_xdest = np.isclose(xdest, self.car['x'], atol=self.stop_distance + 2)
-        car_near_ydest = np.isclose(ydest, self.car['y'], atol=self.stop_distance + 2)
+        car_near_xdest = np.isclose(xdest, self.car['x'], atol=self.stop_distance)
+        car_near_ydest = np.isclose(ydest, self.car['y'], atol=self.stop_distance)
 
         if car_near_xdest and car_near_ydest:
             return True
@@ -315,7 +315,8 @@ class StateView:
         """
         traffic_nodes = []
         xbins, ybins = self.get_bins_in_route(route)
-        xbin_points, ybin_points = np.arange(self.axis[0], self.axis[1], 200), np.arange(self.axis[2], self.axis[3], 200)
+        xbin_points = np.arange(self.axis[0], self.axis[1], 200)
+        ybin_points = np.arange(self.axis[2], self.axis[3], 200)
         for xbin, ybin in zip(xbins, ybins):
             for i, (cars_xbin, cars_ybin) in enumerate(zip(self.cars['xbin'], self.cars['ybin'])):
                 if (xbin, ybin) == (cars_xbin, cars_ybin):
@@ -469,7 +470,8 @@ def light_obstacles(frontview, lights):
                                     for i in range(light[1]['degree'])]
 
                     for value, vector in zip(face_values, face_vectors):
-                        if not value and models.determine_parallel_vectors(car_vector, vector):
+                        if not value and models.determine_anti_parallel_vectors(car_vector, vector):
+                            print('car_vec: {}, face_vec: {}'.format(car_vector, vector))
                             distance = models.magnitude(car_vector)
                             return distance
                         else:
@@ -489,38 +491,17 @@ def determine_pedigree(node_id):
      :param  node_id:    int
      :return vectors:   list: list of vectors pointing from the intersection to the nearest point on the out roads
      """
-    # TODO: use the native AtlasView object in NetworkX to determine the pedigree
-    position = get_position_of_node(node_id)
+    x, y = get_position_of_node(node_id)
 
-    left_edges = []
-    right_edges = []
-    for edge in G.edges():
-        if edge[0] == node_id:
-            left_edges.append(edge)
-        if edge[1] == node_id:
-            right_edges.append(edge)
-
-    for left in left_edges:
-        for i, right in enumerate(right_edges):
-            if (left[1] == right[0]) and (right[1] == left[0]):
-                right_edges.pop(i)
-
-    intersection_edges = left_edges + right_edges
-
-    out_nodes = []
-    for edge in intersection_edges:
-        if edge[0] == node_id:
-            out_nodes.append(edge[1])
-        else:
-            out_nodes.append(edge[0])
+    out_nodes = [dot for dot in G[node_id].__iter__()]
 
     vectors = []
     for node in out_nodes:
         try:
-            point = lines_to_node(node_id, node)[0][1]
+            out_x, out_y = lines_to_node(node_id, node)[0][1]
         except IndexError:
             continue
-        vectors.append((point[0] - position[0], point[1] - position[1]))
+        vectors.append((out_x - x, out_y - y))
 
     return vectors
 

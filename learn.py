@@ -70,5 +70,3 @@ plt.xlabel('Game number')
 plt.ylabel('Averages reward per game')
 plt.suptitle('Average reward per game for car no. {}'.format(agent))
 plt.show()
-
-
