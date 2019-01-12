@@ -150,7 +150,7 @@ def road_curvature_factor(car, angle, d):
         else:
             theta = math.pi / 2
 
-    if np.isclose(theta, 0, rtol=1.0e-1):
+    if np.isclose(theta, 0, atol=1):
         curvature_factor = 1
     else:
         if (stop_distance < d) and (d <= free_distance):
