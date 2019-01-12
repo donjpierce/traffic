@@ -89,7 +89,6 @@ def determine_anti_parallel_vectors(v1, v2):
     """ Returns True if two vectors are close to parallel """
     v1, v2 = unit_vector(v1), unit_vector(v2)
     angle = np.arccos(np.clip(np.dot(v1, v2), -1.0, 1.0))
-    print(angle)
     if np.isclose(math.pi, angle, atol=0.1):
         return True
     else:
