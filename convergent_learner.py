@@ -94,7 +94,7 @@ def init_custom_lights(fig_axis, prescale=None):
              'x': x,
              'y': y,
              'switch-counter': 0,
-             'switch-time': 10  # models.determine_traffic_light_timer()
+             'switch-time': models.determine_traffic_light_timer()
              }
 
     light['out-xpositions'] = [x + epsilon * out_vectors[j][0] for j in range(light['degree'])]
