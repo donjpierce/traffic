@@ -460,8 +460,8 @@ def light_obstacles(frontview, lights):
         if obstacles.any():
             nearby_lights = lights[obstacles]
             for light in nearby_lights.iterrows():
-                light_within_xlinspace = np.isclose(x_space, light[1]['x'], rtol=1.0e-6).any()
-                light_within_ylinspace = np.isclose(y_space, light[1]['y'], rtol=1.0e-6).any()
+                light_within_xlinspace = np.isclose(x_space[1:], light[1]['x'], rtol=1.0e-6).any()
+                light_within_ylinspace = np.isclose(y_space[1:], light[1]['y'], rtol=1.0e-6).any()
 
                 if light_within_xlinspace and light_within_ylinspace:
                     car_vector = [light[1]['x'] - frontview.car['x'], light[1]['y'] - frontview.car['y']]
@@ -471,7 +471,6 @@ def light_obstacles(frontview, lights):
 
                     for value, vector in zip(face_values, face_vectors):
                         if not value and models.determine_anti_parallel_vectors(car_vector, vector):
-                            print('car_vec: {}, face_vec: {}'.format(car_vector, vector))
                             distance = models.magnitude(car_vector)
                             return distance
                         else:
