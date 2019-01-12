@@ -12,7 +12,7 @@ import pandas as pd
 # fill the initial state with N cars
 speed_limit = 250
 stop_distance = 5
-free_distance = 40
+free_distance = 20
 default_acceleration = 5
 
 
