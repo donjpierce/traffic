@@ -7,7 +7,7 @@ The learning algorithm uses Q-learning with epsilon-greedy techniques, and a dyn
 
 Usage:
 
-After customizing desired parameters, run `python animate.py` to render .mp4 movies of a traffic simulation.
+After customizing desired parameters, run the `artist` scratch file with `python artist.py` to render .mp4 movies of a traffic simulation.
 Or after selecting a learning agent from the available cars, run `python learn.py` to optimize that car's route to shortest-time.
 
 
