@@ -141,7 +141,11 @@ class Env:
         if num[0] < 1:
             reward = 0
         else:
-            reward = self.route_times[num[0] - 1] - self.route_times[num[0]] + shortest_route_found_reward
+            time_delta = self.route_times[num[0] - 1] - self.route_times[num[0]]
+            if time_delta > 0:
+                reward = 10
+            else:
+                reward = 0
 
         return new_state, reward, done, debug_report
 
