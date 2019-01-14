@@ -17,7 +17,7 @@ G = ox.project_graph(G)
 
 
 class FrontView:
-    def __init__(self, car, stop_distance, look_ahead_nodes=3):
+    def __init__(self, car, stop_distance=5, look_ahead_nodes=3):
         """
         take a car Series and determines the obstacles it faces in its frontal view
 

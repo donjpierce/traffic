@@ -14,10 +14,11 @@ class Animator:
         self.lights = sum([ax.plot([], [], color='red', marker='+', ms=2) for l in range(self.number_of_lights)], [])
         self.faces = sum([ax.plot([], [], color='red', marker='^', ms=2) for f in range(self.number_of_faces)], [])
 
-    def reset(self):
+    def reset(self, num):
         """
         Set initial blank data
 
+        :num    tuple: int, int
         :return cars + lights + faces:
         """
         for car in self.cars:
@@ -46,7 +47,9 @@ class Animator:
         self.ax.set_ylim(4186330, 4187070)
 
         axis = self.ax.axis()
-        self.ax.annotate('Episode {} of {}'.format(self.num[0], self.num[1]), xy=(axis[0] + 10, axis[2] + 10))
+
+        self.num = num
+        self.ax.annotate('Episode {} of {}'.format(self.num[0] + 1, self.num[1]), xy=(axis[0] + 10, axis[2] + 10))
 
         return self.cars + self.lights + self.faces
 

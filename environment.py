@@ -35,11 +35,12 @@ class Env:
         self.car_init_method = convergent_learner.init_custom_agent
         self.light_init_method = convergent_learner.init_custom_lights
 
-    def reset(self):
+    def reset(self, num):
         """
         resets the environment
 
-        :return state: int
+        :param    num: tuple: int, int
+        :return state:   int
         """
         # initialize the car and light state objects
         init_cars = self.car_init_method(self.N, self.axis)
@@ -49,6 +50,8 @@ class Env:
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
         state = state.index(True)
+        self.animator = self.animator = Animator(fig=self.fig, ax=self.ax, cars_object=self.cars_object,
+                                                 lights_object=self.lights_object, num=num)
         return state
 
     def refresh_stateview(self):
@@ -96,9 +99,7 @@ class Env:
             new_state = state.index(True)
 
         if self.animate:
-            self.animator = Animator(fig=self.fig, ax=self.ax,
-                                     cars_object=self.cars_object, lights_object=self.lights_object, num=num)
-            self.animator.reset()
+            self.animator.reset(num)
 
         arrived = False
         i = 0
@@ -140,8 +141,8 @@ class Env:
         :param  animator: None or Animator object
         :return  arrived: bool
         """
-        remaining_path = np.array(self.cars_object.state.loc[self.agent]['xpath'])
-        if remaining_path.size > 0:
+        frontview = nav.FrontView(self.cars_object.state.loc[self.agent])
+        if not frontview.end_of_route():
             if self.animate:
                 animator.animate(i)
             else:
