@@ -43,17 +43,23 @@ class Env:
         :param    num: tuple: int, int
         :return state:   int
         """
-        # initialize the car and light state objects
+        # init cars
         init_cars = self.car_init_method(self.N, self.axis)
         self.cars_object = Cars(init_state=init_cars, axis=self.axis)
+        # init lights
         init_light_state = self.light_init_method
         self.lights_object = TrafficLights(init_light_state(self.axis, prescale=40), self.axis)
+        # init stateview
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
         state = state.index(True)
-        self.num = num
-        self.animator = Animator(fig=self.fig, ax=self.ax, cars_object=self.cars_object,
-                                 lights_object=self.lights_object, num=self.num)
+
+        if self.animate:
+            # init animator
+            self.num = num
+            self.animator = Animator(fig=self.fig, ax=self.ax, cars_object=self.cars_object,
+                                     lights_object=self.lights_object, num=self.num)
+
         return state
 
     def refresh_stateview(self):
