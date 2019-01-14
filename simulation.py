@@ -45,12 +45,8 @@ def update_cars(cars, dt):
                 new_xpaths.append(car[1]['xpath'][1:])
                 new_ypaths.append(car[1]['ypath'][1:])
             else:
-                if frontview.end_of_route():
-                    new_xpaths.append(None)
-                    new_ypaths.append(None)
-                else:
-                    new_xpaths.append(car[1]['xpath'])
-                    new_ypaths.append(car[1]['ypath'])
+                new_xpaths.append(car[1]['xpath'])
+                new_ypaths.append(car[1]['ypath'])
 
             next_node = np.array(frontview.upcoming_node_position())
             position = np.array(frontview.position)
