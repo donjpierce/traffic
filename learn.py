@@ -55,7 +55,6 @@ for i in range(num_episodes):
         action = np.random.randint(0, 2)
     else:
         action = np.argmax(model.predict(np.identity(10)[state:state + 1]))
-    print('action: {}'.format(action))
     new_s, r, done, _ = env.step(action=action, num=(i, num_episodes))
     target = r + y * np.max(model.predict(np.identity(10)[new_s:new_s + 1]))
     target_vec = model.predict(np.identity(10)[state:state + 1])[0]
