@@ -104,7 +104,7 @@ class Animator:
         :return None:
         """
         try:
-            self.fig.savefig('frames/episode{}_of{}_frame{}'.format(self.num[0], self.num[1], i))
+            self.fig.savefig('frames/episode{}_of{}_frame{}'.format(self.num[0] + 1, self.num[1], i))
         except FileNotFoundError:
             raise Exception('Please make a folder called "frames" in this project directory')
 
