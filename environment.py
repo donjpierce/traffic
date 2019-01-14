@@ -118,7 +118,7 @@ class Env:
         route_time = self.cars_object.state.loc[self.agent]['route-time']
         self.route_times.append(route_time)
         latest_two_times = [self.route_times[-i] for i in range(2)]
-        if len(self.route_times) < 3:
+        if len(self.route_times) < num[1]:
             done = False
             shortest_route_found_reward = 0
         elif np.isclose(latest_two_times, np.min(self.route_times), atol=1).all():
@@ -132,7 +132,7 @@ class Env:
             done = False
             shortest_route_found_reward = 0
 
-        if num[0] < 2:
+        if num[0] < 1:
             reward = 0
         else:
             reward = self.route_times[num[0] - 1] - self.route_times[num[0]] + shortest_route_found_reward
@@ -161,5 +161,3 @@ class Env:
             arrived = True
 
         return arrived
-
-
