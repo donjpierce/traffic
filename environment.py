@@ -20,6 +20,7 @@ class Env:
         :param   animate:      bool: if the environment is to be animated while learning
         """
         self.N = n
+        self.num = None
         self.fig = fig
         self.ax = ax
         self.agent = agent
@@ -50,8 +51,9 @@ class Env:
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
         state = state.index(True)
+        self.num = num
         self.animator = self.animator = Animator(fig=self.fig, ax=self.ax, cars_object=self.cars_object,
-                                                 lights_object=self.lights_object, num=num)
+                                                 lights_object=self.lights_object, num=self.num)
         return state
 
     def refresh_stateview(self):
