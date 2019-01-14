@@ -23,8 +23,8 @@ Or after selecting a learning agent from the available cars, run `python learn.p
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/car17_learn.png)
 
 **Rewards**
-As can be seen in the above plot, the reward system for this learning algorithm does not always converge on a route with shortest-time. In the case of car no. 17,
-this is because the arrival times of the original route and the alternate route were both very similar.
+As can be seen in the above plot, a purely time-based reward system for this learning algorithm does not always converge on a route with shortest-time. In the case of car no. 17,
+this is because the arrival times of the original route and the alternate route were both very similar. A new reward system is needed, one based on the positivity of the time difference, for convergence.
 
 **A note on the requirements for this code base**
 
