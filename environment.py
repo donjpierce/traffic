@@ -82,8 +82,6 @@ class Env:
         # initialize the car and light state objects
         init_car_state = self.car_init_method(self.N, self.axis, car_id=self.agent, alternate_route=alternate_route)
         self.cars_object = Cars(init_state=init_car_state, axis=self.axis)
-        init_light_state = self.light_init_method(fig_axis=self.axis)
-        self.lights_object = TrafficLights(light_state=init_light_state, axis=self.axis)
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
         state = state.index(True)
@@ -107,13 +105,13 @@ class Env:
             new_state = state.index(True)
 
         if self.animate:
-            self.animator.reset(num)
+            self.animator.reset(self.num)
 
         arrived = False
         i = 0
         while not arrived:
+            arrived = self.simulation_step(i)
             i += 1
-            arrived = self.simulation_step(i, self.animator)
 
         route_time = self.cars_object.state.loc[self.agent]['route-time']
         self.route_times.append(route_time)
@@ -141,18 +139,18 @@ class Env:
 
         return new_state, reward, done, debug_report
 
-    def simulation_step(self, i, animator):
+    def simulation_step(self, i):
         """
         make one step in the simulation
 
         :param         i: simulation step
-        :param  animator: None or Animator object
         :return  arrived: bool
         """
         frontview = nav.FrontView(self.cars_object.state.loc[self.agent])
-        if not frontview.end_of_route():
+        end_of_route = frontview.end_of_route()
+        if not end_of_route:
             if self.animate:
-                animator.animate(i)
+                self.animator.animate(i)
             else:
                 self.lights_object.update(self.dt)
                 self.cars_object.update(self.dt, self.lights_object.state)

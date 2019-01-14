@@ -45,7 +45,7 @@ num_episodes = 3
 
 for i in range(num_episodes):
     print("Episode {} of {}".format(i + 1, num_episodes))
-    state = env.reset(i)
+    state = env.reset((i, num_episodes))
     eps *= decay_factor
     # done = False
     r_sum = 0
