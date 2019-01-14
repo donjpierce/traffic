@@ -63,7 +63,7 @@ for i in range(num_episodes):
     model.fit(np.identity(10)[state:state + 1], target_vec.reshape(-1, 2), epochs=1, verbose=0)
     # state = new_s
     r_sum += r
-    print('Action: {}, Reward: {}'.format(action, r + 1))
+    print('Action: {}, Reward: {}'.format(action, r))
     r_avg_list.append(r_sum / num_episodes)
 
 plt.plot(np.arange(num_episodes), r_avg_list)

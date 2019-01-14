@@ -138,7 +138,6 @@ class Env:
             done = False
             shortest_route_found_reward = 0
 
-        print('num from environment step: {}'.format(num))
         if num[0] < 1:
             reward = 0
         else:
