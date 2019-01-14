@@ -29,12 +29,12 @@ class Env:
         self.animator = None
         self.axis = self.ax.axis()
         self.route_times = []
-        self.cars_object = None
-        self.lights_object = None
         # self.car_init_method = sim.init_culdesac_start_location
         # self.light_init_method = sim.init_traffic_lights
         self.car_init_method = convergent_learner.init_custom_agent
         self.light_init_method = convergent_learner.init_custom_lights
+        self.cars_object = Cars(self.car_init_method(self.N, self.axis), self.axis)
+        self.lights_object = TrafficLights(self.light_init_method(self.axis, prescale=40), self.axis)
 
     def reset(self, num):
         """
@@ -47,8 +47,8 @@ class Env:
         init_cars = self.car_init_method(self.N, self.axis)
         self.cars_object = Cars(init_state=init_cars, axis=self.axis)
         # init lights
-        init_light_state = self.light_init_method
-        self.lights_object = TrafficLights(init_light_state(self.axis, prescale=40), self.axis)
+        # init_light_state = self.light_init_method
+        # self.lights_object = TrafficLights(init_light_state(self.axis, prescale=40), self.axis)
         # init stateview
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
