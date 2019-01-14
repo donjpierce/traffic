@@ -27,7 +27,7 @@ G = ox.project_graph(G)
 fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
 
 # initialize the environment for the learning agent
-env = Env(n=N, fig=fig, ax=ax, agent=agent, dt=dt, animate=True)
+env = Env(n=N, fig=fig, ax=ax, agent=agent, dt=dt, animate=False)
 
 # initialize the Keras training model
 model = Sequential()
@@ -41,7 +41,7 @@ y = 0.95
 eps = 0.5
 decay_factor = 0.999
 r_avg_list = []
-num_episodes = 10
+num_episodes = 30
 
 for i in range(num_episodes):
     print("Episode {} of {}".format(i + 1, num_episodes))
