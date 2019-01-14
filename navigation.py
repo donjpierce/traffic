@@ -111,11 +111,11 @@ class FrontView:
         """
         Determines if the car has reached the end of the route
 
-        :return         bool: False if not, True if car is at the end of its root
+        :return bool: False if not, True if car is at the end of its root
         """
         xdest, ydest = get_position_of_node(self.car['destination'])
-        car_near_xdest = np.isclose(xdest, self.car['x'], atol=self.stop_distance)
-        car_near_ydest = np.isclose(ydest, self.car['y'], atol=self.stop_distance)
+        car_near_xdest = np.isclose(xdest, self.car['x'], atol=1)
+        car_near_ydest = np.isclose(ydest, self.car['y'], atol=1)
 
         if car_near_xdest and car_near_ydest:
             return True

@@ -96,6 +96,9 @@ class Env:
         :param                         num: tuple: the simulation number out of the total number of simulations
         :return new_state, reward, done, _:  list: the end of the return is free to contain debugging info
         """
+        if self.animate:
+            self.animator.reset(self.num)
+
         stateview = self.refresh_stateview()
         state, new_route, new_xpath, new_ypath = stateview.determine_state()
 
@@ -103,9 +106,6 @@ class Env:
             new_state = self.initialize_custom_reset(alternate_route=(new_route, new_xpath, new_ypath))
         else:
             new_state = state.index(True)
-
-        if self.animate:
-            self.animator.reset(self.num)
 
         arrived = False
         i = 0
@@ -130,6 +130,7 @@ class Env:
             done = False
             shortest_route_found_reward = 0
 
+        print(num)
         if num[0] < 1:
             reward = 0
         else:
