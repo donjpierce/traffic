@@ -46,15 +46,14 @@ class Env:
         # initialize the car and light state objects
         init_cars = self.car_init_method(self.N, self.axis)
         self.cars_object = Cars(init_state=init_cars, axis=self.axis)
-        print(self.cars_object.state)
         init_light_state = self.light_init_method
         self.lights_object = TrafficLights(init_light_state(self.axis, prescale=40), self.axis)
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
         state = state.index(True)
         self.num = num
-        self.animator = self.animator = Animator(fig=self.fig, ax=self.ax, cars_object=self.cars_object,
-                                                 lights_object=self.lights_object, num=self.num)
+        self.animator = Animator(fig=self.fig, ax=self.ax, cars_object=self.cars_object,
+                                 lights_object=self.lights_object, num=self.num)
         return state
 
     def refresh_stateview(self):
