@@ -41,7 +41,7 @@ y = 0.95
 eps = 0.5
 decay_factor = 0.999
 r_avg_list = []
-num_episodes = 3
+num_episodes = 10
 
 for i in range(num_episodes):
     print("Episode {} of {}".format(i + 1, num_episodes))
@@ -50,10 +50,12 @@ for i in range(num_episodes):
     # done = False
     r_sum = 0
     # while not done:
-    if np.random.random() < eps:
+    rand = np.random.random()
+    if rand < eps:
         action = np.random.randint(0, 2)
     else:
         action = np.argmax(model.predict(np.identity(10)[state:state + 1]))
+    print('action: {}'.format(action))
     new_s, r, done, _ = env.step(action=action, num=(i, num_episodes))
     target = r + y * np.max(model.predict(np.identity(10)[new_s:new_s + 1]))
     target_vec = model.predict(np.identity(10)[state:state + 1])[0]
@@ -63,7 +65,6 @@ for i in range(num_episodes):
     r_sum += r
     print('Action: {}, Reward: {}'.format(action, r + 1))
     r_avg_list.append(r_sum / num_episodes)
-
 
 plt.plot(np.arange(num_episodes), r_avg_list)
 plt.xlabel('Game number')

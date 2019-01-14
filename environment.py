@@ -82,6 +82,12 @@ class Env:
         # initialize the car and light state objects
         init_car_state = self.car_init_method(self.N, self.axis, car_id=self.agent, alternate_route=alternate_route)
         self.cars_object = Cars(init_state=init_car_state, axis=self.axis)
+
+        if self.animate:
+            # init animator
+            self.animator = Animator(fig=self.fig, ax=self.ax, cars_object=self.cars_object,
+                                     lights_object=self.lights_object, num=self.num)
+
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
         state = state.index(True)
@@ -96,6 +102,8 @@ class Env:
         :param                         num: tuple: the simulation number out of the total number of simulations
         :return new_state, reward, done, _:  list: the end of the return is free to contain debugging info
         """
+        debug_report = []
+
         if self.animate:
             self.animator.reset(self.num)
 
@@ -130,13 +138,11 @@ class Env:
             done = False
             shortest_route_found_reward = 0
 
-        print(num)
+        print('num from environment step: {}'.format(num))
         if num[0] < 1:
             reward = 0
         else:
             reward = self.route_times[num[0] - 1] - self.route_times[num[0]] + shortest_route_found_reward
-
-        debug_report = 'Debug info: none'
 
         return new_state, reward, done, debug_report
 
