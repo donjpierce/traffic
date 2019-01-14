@@ -93,8 +93,6 @@ class TrafficLights:
         """
         self.time_elapsed += dt
         time_to_switch = np.isclose(0, self.time_elapsed % self.state['switch-time'], rtol=1.0e-4)
-        if time_to_switch[0]:
-            print('light switched')
         self.state['go-values'] = ~self.state['go-values'] * time_to_switch + self.state['go-values'] * ~time_to_switch
 
         return self.state
