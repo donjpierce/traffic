@@ -132,7 +132,7 @@ class Env:
             The latest two route times are within 1 second of the minimum time achieved.
             Define this environment condition as having found the shortest route. 
             """
-            shortest_route_found_reward = 100
+            shortest_route_found_reward = 10
             done = True
         else:
             done = False
@@ -141,9 +141,9 @@ class Env:
         if num[0] < 1:
             reward = 0
         else:
-            time_delta = self.route_times[num[0] - 1] - self.route_times[num[0]]
+            time_delta = self.route_times[num[0] - 1] - self.route_times[num[0]] + shortest_route_found_reward
             if time_delta > 0:
-                reward = 10
+                reward = time_delta
             else:
                 reward = 0
 
