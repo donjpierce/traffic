@@ -124,7 +124,6 @@ class Env:
         self.route_times.append(route_time)
         latest_two_times = [self.route_times[-i] for i in range(2)]
         if len(self.route_times) < self.shortest_route_thresh:
-            done = False
             shortest_route_found_reward = 0
         elif np.isclose(latest_two_times, np.min(self.route_times), atol=1).all():
             """
@@ -132,9 +131,7 @@ class Env:
             Define this environment condition as having found the shortest route. 
             """
             shortest_route_found_reward = self.high
-            done = True
         else:
-            done = False
             shortest_route_found_reward = 0
 
         if num[0] < 1:
@@ -145,7 +142,7 @@ class Env:
                 reward = time_delta
             else:
                 reward = 0
-
+        done = True
         return new_state, reward, done, debug_report
 
     def simulation_step(self, i):
