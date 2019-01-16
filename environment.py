@@ -36,6 +36,7 @@ class Env:
         self.cars_object = Cars(self.car_init_method(self.N, self.axis), self.axis)
         self.lights_object = TrafficLights(self.light_init_method(self.axis, prescale=40), self.axis)
         self.high = 10
+        self.low = 2
         self.shortest_route_thresh = 5
 
     def reset(self, num):
