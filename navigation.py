@@ -599,7 +599,7 @@ def eta(car, lights, speed_limit=250):
     route = np.array(car['route'])
 
     if route.size > 0:
-        route_length = sum([G.get_edge_data(route[i], route[i + 1])[0]['length'] for i in range(len(route) - 1)])
+        route_length = sum([G.get_edge_data(route[i], route[i + 1])[0]['length'] for i in range(route.size - 1)])
 
         eta_from_distance = route_length / speed_limit
 
