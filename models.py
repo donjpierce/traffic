@@ -34,7 +34,7 @@ def determine_traffic_light_timer():
 
     :return random_wait: double: wait time in units of dt
     """
-    random_wait = round(random.random(), 2)
+    random_wait = round(random.random() * 5, 2)
     return random_wait
 
 

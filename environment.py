@@ -35,6 +35,7 @@ class Env:
         self.light_init_method = convergent_learner.init_custom_lights
         self.cars_object = Cars(self.car_init_method(self.N, self.axis), self.axis)
         self.lights_object = TrafficLights(self.light_init_method(self.axis, prescale=40), self.axis)
+        self.high = 10
 
     def reset(self, num):
         """
@@ -43,13 +44,9 @@ class Env:
         :param    num: tuple: int, int
         :return state:   int
         """
-        # init cars
+        # initialize cars every reset
         init_cars = self.car_init_method(self.N, self.axis)
         self.cars_object = Cars(init_state=init_cars, axis=self.axis)
-        # init lights
-        # init_light_state = self.light_init_method
-        # self.lights_object = TrafficLights(init_light_state(self.axis, prescale=40), self.axis)
-        # init stateview
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
         state = state.index(True)
@@ -124,7 +121,7 @@ class Env:
         route_time = self.cars_object.state.loc[self.agent]['route-time']
         self.route_times.append(route_time)
         latest_two_times = [self.route_times[-i] for i in range(2)]
-        if len(self.route_times) < num[1]:
+        if len(self.route_times) < 3:
             done = False
             shortest_route_found_reward = 0
         elif np.isclose(latest_two_times, np.min(self.route_times), atol=1).all():
@@ -132,7 +129,7 @@ class Env:
             The latest two route times are within 1 second of the minimum time achieved.
             Define this environment condition as having found the shortest route. 
             """
-            shortest_route_found_reward = 10
+            shortest_route_found_reward = self.high
             done = True
         else:
             done = False
