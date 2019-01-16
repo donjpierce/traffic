@@ -36,6 +36,7 @@ class Env:
         self.cars_object = Cars(self.car_init_method(self.N, self.axis), self.axis)
         self.lights_object = TrafficLights(self.light_init_method(self.axis, prescale=40), self.axis)
         self.high = 10
+        self.shortest_route_thresh = 3
 
     def reset(self, num):
         """
@@ -121,7 +122,7 @@ class Env:
         route_time = self.cars_object.state.loc[self.agent]['route-time']
         self.route_times.append(route_time)
         latest_two_times = [self.route_times[-i] for i in range(2)]
-        if len(self.route_times) < 3:
+        if len(self.route_times) < self.shortest_route_thresh:
             done = False
             shortest_route_found_reward = 0
         elif np.isclose(latest_two_times, np.min(self.route_times), atol=1).all():
