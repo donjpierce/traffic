@@ -39,7 +39,7 @@ asymptotes as the number of games increases is because the learning agent eventu
 
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/car17_learn.png)
 
-There are two traffic lights in the initial route for this car. Currently by default, the rerouting algorithm chooses to reroute
+There are two traffic lights (shown as blue dots) in the initial route for this car. Currently by default, the rerouting algorithm chooses to reroute
 around the light with the longest switch-time. In this case, it was the second light in the route which was avoided by the
 rerouting algorithm. Since traffic light switch-times are randomly initialized each time a map is drawn, this will not always be the case.
 
