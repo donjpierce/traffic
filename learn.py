@@ -39,30 +39,30 @@ model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 # now execute Q learning
 y = 0.95
 eps = 0.5
-decay_factor = 0.999
+decay_factor = 0.99
 r_avg_list = []
-num_episodes = 1000
+num_episodes = 100
 
 for i in range(num_episodes):
     print("Episode {} of {}".format(i + 1, num_episodes))
     state = env.reset((i, num_episodes))
     eps *= decay_factor
-    # done = False
     r_sum = 0
-    # while not done:
-    rand = np.random.random()
-    if rand < eps:
-        action = np.random.randint(0, 2)
-    else:
-        action = np.argmax(model.predict(np.identity(10)[state:state + 1]))
-    new_s, r, done, _ = env.step(action=action, num=(i, num_episodes))
-    target = r + y * np.max(model.predict(np.identity(10)[new_s:new_s + 1]))
-    target_vec = model.predict(np.identity(10)[state:state + 1])[0]
-    target_vec[action] = target
-    model.fit(np.identity(10)[state:state + 1], target_vec.reshape(-1, 2), epochs=1, verbose=0)
-    # state = new_s
-    r_sum += r
-    print('Action: {}, Reward: {}'.format(action, r))
+    done = False
+    while not done:
+        rand = np.random.random()
+        if rand < eps:
+            action = np.random.randint(0, 2)
+        else:
+            action = np.argmax(model.predict(np.identity(10)[state:state + 1]))
+        new_s, r, done, _ = env.step(action=action, num=(i, num_episodes))
+        target = r + y * np.max(model.predict(np.identity(10)[new_s:new_s + 1]))
+        target_vec = model.predict(np.identity(10)[state:state + 1])[0]
+        target_vec[action] = target
+        model.fit(np.identity(10)[state:state + 1], target_vec.reshape(-1, 2), epochs=1, verbose=0)
+        state = new_s
+        r_sum += r
+        print('Action: {}, Reward: {}'.format(action, r))
     r_avg_list.append(r_sum / num_episodes)
 
 plt.plot(np.arange(num_episodes), r_avg_list)
