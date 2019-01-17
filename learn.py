@@ -40,11 +40,12 @@ model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 y = 0.95
 eps = 0.5
 decay_factor = 0.99
-num_episodes = 100
+num_episodes = 90
 
 r_avg_list = []
 r_sum_list = []
 
+file = open('diag', 'w')
 
 for i in range(num_episodes):
     print("Episode {} of {}".format(i + 1, num_episodes))
@@ -52,6 +53,8 @@ for i in range(num_episodes):
     eps *= decay_factor
     r_sum = 0
     done = False
+    diag_action = 0
+    diag_reward = 0
     while not done:
         rand = np.random.random()
         if rand < eps:
@@ -66,10 +69,13 @@ for i in range(num_episodes):
         state = new_s
         r_sum += r
         print('Action: {}, Reward: {}'.format(action, r))
+        diag_action += action
+        diag_reward += r
     r_avg_list.append(r_sum)
     r_sum_list.append(sum(r_avg_list) / (i + 1))
+    file.write('Action: {}, Reward: {}, r_avg: {} \n'.format(diag_action, diag_reward, sum(r_avg_list) / (i + 1)))
 
-
+file.close()
 plt.plot(np.arange(num_episodes), r_sum_list)
 plt.xlabel('Game number')
 plt.ylabel('Average reward per game')
