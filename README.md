@@ -16,6 +16,10 @@ Or after selecting a learning agent from the available cars, run `python learn.p
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/piedmont33cars.gif)
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/lowerManhattan.gif)
 
+***Simple Example of Optimization***
+
+![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/car_learn.png)
+
 **Special Case: Car 17 Route, Alternate Route, and Learning Process**
 
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/avg_rewards.png)
