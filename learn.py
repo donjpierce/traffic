@@ -45,7 +45,7 @@ num_episodes = 90
 r_avg_list = []
 r_sum_list = []
 
-file = open('diag', 'w')
+file = open('diag.txt', 'w')
 
 for i in range(num_episodes):
     print("Episode {} of {}".format(i + 1, num_episodes))
