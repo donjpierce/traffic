@@ -19,7 +19,21 @@ Or after selecting a learning agent from the available cars, run `python learn.p
 **Simple Example of Optimization**
 
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/car_learn.png)
+The above figure is a simple example of how a learning agent reroutes around a single traffic light. 
+
+In the original route (left) the learning agent is in state 1. State 1 implies three criteria:
+(1) there are obstacle(s) in the route, (2) the detour around the most significant obstacle is short, (3) the detour contains no obstacle(s). (See the Projects tab of this repository to learn about all 10 possible
+states in the Markov decision chain for this project.)
+
+The alternate route (right) is traveled in lieu of the original if the learning agent takes Action 1 (Action 0 is to do nothing). 
+
+The reward-scheme for this learning algorithm is based on whether the time to travel from A to B is the shortest of the two
+action possibilities. Since the alternate route above does not experience a traffic light, taking Action 1 (i.e. rerouting) will be preferred the more the learning agent performs the simulation.
+
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/avg_rewards_decay0.99.png)
+
+Sure enough, the average reward per game improves while training for 90-games (above). The reason the average reward per game 
+asymptotes as the number of games increases is because the learning agent eventually only chooses Action 1 (as it should for highest reward).
 
 **Special Case: Car 17 Route, Alternate Route, and Learning Process**
 
