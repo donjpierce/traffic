@@ -39,7 +39,7 @@ model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 # now execute Q learning
 y = 0.95
 eps = 0.5
-decay_factor = 0.99
+decay_factor = 0.999
 num_episodes = 90
 
 r_avg_list = []
@@ -73,7 +73,8 @@ for i in range(num_episodes):
         diag_reward += r
     r_avg_list.append(r_sum)
     r_sum_list.append(sum(r_avg_list) / (i + 1))
-    file.write('Action: {}, Reward: {}, r_avg: {} \n'.format(diag_action, diag_reward, sum(r_avg_list) / (i + 1)))
+    file.write('Action: {}, Reward: {}, r_avg: {} \n'.format(
+        diag_action, round(diag_reward, 2), round(sum(r_avg_list) / (i + 1), 2)))
 
 file.close()
 plt.plot(np.arange(num_episodes), r_sum_list)
