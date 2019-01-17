@@ -122,12 +122,12 @@ class Env:
 
         route_time = self.cars_object.state.loc[self.agent]['route-time']
         self.route_times.append(route_time)
-        latest_two_times = [self.route_times[-i] for i in range(2)]
+        latest_two_times = [self.route_times[-i] for i in range(1)]
         if len(self.route_times) < self.shortest_route_thresh:
             shortest_route_found_reward = 0
-        elif np.isclose(latest_two_times, np.min(self.route_times), atol=0.01).all():
+        elif np.isclose(latest_two_times, np.min(self.route_times), atol=5 * self.animator.dt).all():
             """
-            The latest two route times are within 1 second of the minimum time achieved.
+            The latest two route times are within 0.005 second of the minimum time achieved.
             Define this environment condition as having found the shortest route. 
             """
             shortest_route_found_reward = self.high
