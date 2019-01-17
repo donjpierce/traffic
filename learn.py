@@ -41,6 +41,7 @@ y = 0.95
 eps = 0.5
 decay_factor = 0.99
 r_avg_list = []
+r_sum_list = []
 num_episodes = 100
 
 for i in range(num_episodes):
@@ -63,9 +64,11 @@ for i in range(num_episodes):
         state = new_s
         r_sum += r
         print('Action: {}, Reward: {}'.format(action, r))
-    r_avg_list.append(r_sum / i)
+    r_avg_list.append(r_sum)
+    r_sum_list.append(sum(r_avg_list) / num_episodes)
+    print('y: {}, x: {}'.format(sum(r_sum_list) / num_episodes, i))
 
-plt.plot(np.arange(num_episodes), r_avg_list)
+plt.plot(np.arange(num_episodes), r_sum_list)
 plt.xlabel('Game number')
 plt.ylabel('Averages reward per game')
 plt.suptitle('Average reward per game for car no. {}'.format(agent))
