@@ -66,7 +66,7 @@ for i in range(num_episodes):
         print('Action: {}, Reward: {}'.format(action, r))
     r_avg_list.append(r_sum)
     r_sum_list.append(sum(r_avg_list) / num_episodes)
-    print('y: {}, x: {}'.format(sum(r_sum_list) / num_episodes, i))
+    print('y: {}, x: {}'.format(sum(r_avg_list) / num_episodes, i))
 
 plt.plot(np.arange(num_episodes), r_sum_list)
 plt.xlabel('Game number')
