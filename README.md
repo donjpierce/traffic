@@ -35,15 +35,13 @@ action possibilities. Since the alternate route above does not experience a traf
 Sure enough, the average reward per game improves while training for 90-games (above). The reason the average reward per game 
 asymptotes as the number of games increases is because the learning agent eventually only chooses Action 1 (as it should for highest reward).
 
-**Special Case: Car 17 Route, Alternate Route, and Learning Process**
-
-![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/avg_rewards.png)
+**Car 17 Route and Alternate Route**
 
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/car17_learn.png)
 
-**Rewards**
-As can be seen in the above plot, a purely time-based reward system for this learning algorithm does not always converge on a route with shortest-time. In the case of car no. 17,
-this is because the arrival times of the original route and the alternate route were both very similar. A new reward system is needed, one based on the positivity of the time difference, for convergence.
+Ther are two traffic lights in the initial route for this car. Currently by default, the rerouting algorithm chooses to reroute
+around the light with the longest switch-time. In this case, it was the second light in the route which was avoided by the
+rerouting algorithm. Since traffic light switch-times are randomly initialized each time a map is drawn, this will not always be the case.
 
 **A note on the requirements for this code base**
 
