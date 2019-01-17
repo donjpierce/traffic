@@ -21,7 +21,7 @@ Or after selecting a learning agent from the available cars, run `python learn.p
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/car_learn.png)
 The above figure is a simple example of how a learning agent reroutes around a single traffic light. 
 
-In the original route (left) the learning agent is in state 1. State 1 implies three criteria:
+In the original route (left) the learning agent is in State 1. State 1 implies three criteria:
 (1) there are obstacle(s) in the route, (2) the detour around the most significant obstacle is short, (3) the detour contains no obstacle(s). (See the Projects tab of this repository to learn about all 10 possible
 states in the Markov decision chain for this project.)
 
