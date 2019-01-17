@@ -44,7 +44,7 @@ num_episodes = 100
 
 r_avg_list = []
 r_sum_list = []
-diagnostics = open('diagnostics.txt', 'w')
+
 
 for i in range(num_episodes):
     print("Episode {} of {}".format(i + 1, num_episodes))
@@ -52,8 +52,6 @@ for i in range(num_episodes):
     eps *= decay_factor
     r_sum = 0
     done = False
-    diag_action = 0
-    diag_reward = 0
     while not done:
         rand = np.random.random()
         if rand < eps:
@@ -68,17 +66,12 @@ for i in range(num_episodes):
         state = new_s
         r_sum += r
         print('Action: {}, Reward: {}'.format(action, r))
-        diag_action += action
-        diag_reward += r
     r_avg_list.append(r_sum)
-    r_sum_list.append(sum(r_avg_list) / num_episodes)
-    diagnostics.write('Episode: {}, Total: {}, Action: {}, Reward: {}, Total Average Rewards: {}'.format(
-        i, num_episodes, diag_action, round(diag_reward, 3), round(sum(r_avg_list), 3)
-    ))
+    r_sum_list.append(sum(r_avg_list) / (i + 1))
 
-diagnostics.close()
+
 plt.plot(np.arange(num_episodes), r_sum_list)
 plt.xlabel('Game number')
-plt.ylabel('Averages reward per game')
+plt.ylabel('Average reward per game')
 plt.suptitle('Average reward per game for car no. {}'.format(agent))
 plt.show()
