@@ -40,7 +40,7 @@ model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 y = 0.95
 eps = 0.5
 decay_factor = 0.999
-num_episodes = 500
+num_episodes = 300
 
 r_avg_list = []
 r_sum_list = []

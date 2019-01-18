@@ -125,7 +125,7 @@ class Env:
         latest_two_times = [self.route_times[-i] for i in range(1)]
         if len(self.route_times) < self.shortest_route_thresh:
             shortest_route_found_reward = 0
-        elif np.isclose(latest_two_times, np.min(self.route_times), atol=5 * self.animator.dt).all():
+        elif np.isclose(latest_two_times, np.min(self.route_times), atol=5 * self.dt).all():
             """
             The latest two route times are within 0.005 second of the minimum time achieved.
             Define this environment condition as having found the shortest route. 
