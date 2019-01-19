@@ -728,7 +728,7 @@ def determine_limits(route):
 
     xmin, xmax = min(xs), max(xs)
     ymin, ymax = min(ys), max(ys)
-    axis = (xmin, xmax, ymin, ymax)
+    axis = (xmin - 10, xmax + 10, ymin - 10, ymax + 10)
     return axis
 
 
