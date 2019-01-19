@@ -713,6 +713,25 @@ def build_new_route(route, reroute_node, direction, traffic, avoid):
     return new_route, new_xpath, new_ypath, detour
 
 
+def determine_limits(route):
+    """
+    this function determines the axis limits for an Animator focused on a specific route in the system
+
+    :param   route: list
+    :return   axis: list
+    """
+    xs, ys = [], []
+    for node in route:
+        x, y = get_position_of_node(node)
+        xs.append(x)
+        ys.append(y)
+
+    xmin, xmax = min(xs), max(xs)
+    ymin, ymax = min(ys), max(ys)
+    axis = (xmin, xmax, ymin, ymax)
+    return axis
+
+
 def lines_to_node(origin, destination):
     """
     return the points of all nodes in the route, including the minor nodes which make up line geometry

@@ -1,11 +1,15 @@
+import navigation as nav
+
+
 class Animator:
-    def __init__(self, fig, ax, cars_object, lights_object, num, frame_rate=1000, dt=1 / 1000, n=1):
+    def __init__(self, fig, ax, cars_object, lights_object, num, frame_rate=1000, dt=1 / 1000, n=1, focus=None):
         self.fig = fig
         self.ax = ax
         self.num = num
         self.frame_rate = frame_rate
         self.dt = dt
         self.N = n
+        self.focus = focus  # the car ID on which the Animator should focus
         self.cars_object = cars_object
         self.lights_object = lights_object
         self.number_of_lights = len(self.lights_object.state)
@@ -30,21 +34,11 @@ class Animator:
         for face in self.faces:
             face.set_data([], [])
 
-        # limits for the path view of 1 car with TEMP_dest_node destination
-        # ax.set_xlim(566730, 567270)
-        # ax.set_ylim(4185840, 4186260)
-
-        # limits for viewing 1st traffic light in Piedmont
-        # ax.set_xlim(566930, 567404)
-        # ax.set_ylim(4186020, 4186300)
-
-        # limits for viewing special area for machine learning tests
-        # ax.set_xlim(567295, 568600)
-        # ax.set_ylim(4186360, 4187450)
-
-        # limits for convergent_learner.py
-        self.ax.set_xlim(567012, 567809)
-        self.ax.set_ylim(4186330, 4187070)
+        if self.focus:
+            route = self.cars_object.state.loc[self.focus]['route']
+            new_axis = nav.determine_limits(route)
+            self.ax.set_xlim(new_axis[0], new_axis[1])
+            self.ax.set_ylim(new_axis[2], new_axis[3])
 
         axis = self.ax.axis()
 

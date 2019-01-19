@@ -122,6 +122,7 @@ class Env:
 
         route_time = self.cars_object.state.loc[self.agent]['route-time']
         self.route_times.append(route_time)
+        min(self.route_times, key=lambda x: abs(x - np.min(self.route_times)))
         if len(self.route_times) < self.shortest_route_thresh:
             shortest_route_found_reward = 0
         elif np.isclose(self.route_times[-1], np.min(self.route_times), atol=5 * self.dt).all():

@@ -39,13 +39,11 @@ model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 # now execute Q learning
 y = 0.95
 eps = 0.5
-decay_factor = 0.999
+decay_factor = 0.99
 num_episodes = 300
 
 r_avg_list = []
 r_sum_list = []
-
-# file = open('diag.txt', 'w')
 
 for i in range(num_episodes):
     print("Episode {} of {}".format(i + 1, num_episodes))
@@ -72,11 +70,11 @@ for i in range(num_episodes):
         diag_action += action
         diag_reward += r
     r_avg_list.append(r_sum)
-    r_sum_list.append(sum(r_avg_list) / (i + 1))
-    # file.write('Action: {}, Reward: {}, r_avg: {} \n'.format(
-    #     diag_action, round(diag_reward, 2), round(sum(r_avg_list) / (i + 1), 2)))
+    r_sum_list.append(sum(r_avg_list) / num_episodes)
+    file = open('diag.txt', 'w')
+    file.write('Action: {}, Reward: {} \n'.format(diag_action, round(diag_reward, 2)))
+    file.close()
 
-# file.close()
 plt.plot(np.arange(num_episodes), r_sum_list)
 plt.xlabel('Game number')
 plt.ylabel('Average reward per game')
