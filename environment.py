@@ -122,10 +122,10 @@ class Env:
 
         route_time = self.cars_object.state.loc[self.agent]['route-time']
         self.route_times.append(route_time)
-        min(self.route_times, key=lambda x: abs(x - np.min(self.route_times)))
+        # TODO: need new way of identifying shortest route time.
         if len(self.route_times) < self.shortest_route_thresh:
             shortest_route_found_reward = 0
-        elif np.isclose(self.route_times[-1], np.min(self.route_times), atol=5 * self.dt).all():
+        elif np.isclose(0, self.route_times[-1] - np.min(self.route_times), atol=5 * self.dt).all():
             """
             If the route time achieved after the simulation is within 0.005 second of the minimum time achieved.
             Define this environment condition as having found the shortest route (locally). 

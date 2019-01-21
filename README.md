@@ -32,8 +32,7 @@ action possibilities. Since the alternate route above does not experience a traf
 
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/avg_rewards_decay0.99.png)
 
-Sure enough, the average reward per game improves while training for 90-games (above). The reason the average reward per game 
-asymptotes as the number of games increases is because the learning agent eventually only chooses Action 1 (as it should for highest reward).
+Sure enough, the average reward per game improves while training for 90-games (above).
 
 **Car 17 Route and Alternate Route**
 
