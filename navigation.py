@@ -142,7 +142,7 @@ class StateView:
         self.car = cars.loc[self.index]
         self.route = np.array(self.car['route'])
         self.eta = eta(self.car, self.lights)
-        self.max_cars = 10  # the number of cars in a bin for the bin to be considered 'congested'
+        self.max_cars = 10  # the number of cars in a bin for the bin to be considered 'congested traffic'
         self.speed_limit = 250
 
     def determine_state(self):
@@ -244,7 +244,7 @@ class StateView:
                     # STATE 6       <---------
                     state = [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
                 else:
-                    # STATE 5
+                    # STATE 5       <---------
                     state = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
                 return state, new_route, new_xpath, new_ypath
             else:

@@ -125,14 +125,17 @@ class Env:
         # TODO: need new way of identifying shortest route time.
         if len(self.route_times) < self.shortest_route_thresh:
             shortest_route_found_reward = 0
+            done = False
         elif np.isclose(0, self.route_times[-1] - np.min(self.route_times), atol=5 * self.dt).all():
             """
-            If the route time achieved after the simulation is within 0.005 second of the minimum time achieved.
+            If the route time achieved after the simulation is within 5 x dt second of the minimum time achieved.
             Define this environment condition as having found the shortest route (locally). 
             """
             shortest_route_found_reward = self.high
+            done = True
         else:
             shortest_route_found_reward = 0
+            done = False
 
         if num[0] < 1:
             reward = 0
@@ -142,7 +145,7 @@ class Env:
                 reward = time_delta
             else:
                 reward = 0
-        done = True
+
         return new_state, reward, done, debug_report
 
     def simulation_step(self, i):

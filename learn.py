@@ -49,13 +49,14 @@ file = open('diag.txt', 'w')
 
 for i in range(num_episodes):
     print("Episode {} of {}".format(i + 1, num_episodes))
-    state = env.reset((i, num_episodes))
     eps *= decay_factor
     r_sum = 0
     done = False
     diag_action = 0
     diag_reward = 0
+    state = env.reset((i, num_episodes))
     while not done:
+        env.reset((i, num_episodes))
         rand = np.random.random()
         if rand < eps:
             action = np.random.randint(0, 2)
@@ -71,9 +72,9 @@ for i in range(num_episodes):
         print('Action: {}, Reward: {}'.format(action, r))
         diag_action += action
         diag_reward += r
-    r_avg_list.append(r_sum)
-    r_sum_list.append(sum(r_avg_list) / (i + 1))
-    file.write('Action: {}, Reward: {} \n'.format(diag_action, round(diag_reward, 2)))
+        r_avg_list.append(r_sum)
+        r_sum_list.append(sum(r_avg_list) / (i + 1))
+        file.write('Action: {}, Reward: {} \n'.format(diag_action, round(diag_reward, 2)))
 
 file.close()
 
