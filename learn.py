@@ -72,9 +72,9 @@ for i in range(num_episodes):
         print('Action: {}, Reward: {}'.format(action, r))
         diag_action += action
         diag_reward += r
-        r_avg_list.append(r_sum)
-        r_sum_list.append(sum(r_avg_list) / (i + 1))
-        file.write('Action: {}, Reward: {} \n'.format(diag_action, round(diag_reward, 2)))
+    r_avg_list.append(r_sum)
+    r_sum_list.append(sum(r_avg_list) / (i + 1))
+    file.write('Action: {}, Reward: {} \n'.format(diag_action, round(diag_reward, 2)))
 
 file.close()
 
