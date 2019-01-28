@@ -40,7 +40,7 @@ model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 y = 0.95
 eps = 0.5
 decay_factor = 0.999
-num_episodes = 300
+num_episodes = 100
 
 r_avg_list = []
 r_sum_list = []
@@ -70,11 +70,12 @@ for i in range(num_episodes):
         state = new_s
         r_sum += r
         print('Action: {}, Reward: {}'.format(action, r))
+        file.write('Action: {}, Reward: {}'.format(action, round(r, 2)))
         diag_action += action
         diag_reward += r
     r_avg_list.append(r_sum)
     r_sum_list.append(sum(r_avg_list) / (i + 1))
-    file.write('Action: {}, Reward: {} \n'.format(diag_action, round(diag_reward, 2)))
+    file.write('Episode: {}, Total Rewards: {} \n'.format(i, round(r_sum, 2)))
 
 file.close()
 
