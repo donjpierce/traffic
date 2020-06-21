@@ -31,7 +31,7 @@ import simulation as sim
 
 
 """Piedmont, California"""
-G = ox.load_graphml('data/piedmont.graphml')
+G = ox.load_graphml('piedmont.graphml')
 G = ox.project_graph(G)
 fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5, show=False)
 ax.set_title('Piedmont, California')
@@ -42,9 +42,9 @@ axis = ax.axis()
 
 
 """ initialize the car and light state objects """
-N = 33 # cars
-cars = Cars(sim.init_culdesac_start_location(N, axis), axis)
-# cars = Cars(sim.init_random_node_start_location(N, axis), axis)
+N = 33  # cars
+# cars = Cars(sim.init_culdesac_start_location(N, axis), axis)
+cars = Cars(sim.init_random_node_start_location(N, axis), axis)
 lights = TrafficLights(sim.init_traffic_lights(axis, prescale=40), axis)
 
 """ for an example of learning using a single, convergent learner, initialize the sim using these cars and lights: """
@@ -53,7 +53,7 @@ lights = TrafficLights(sim.init_traffic_lights(axis, prescale=40), axis)
 
 
 # initialize the Animator
-animator = Animator(fig=fig, ax=ax, cars_object=cars, lights_object=lights, num=(1, 10))
+animator = Animator(fig=fig, ax=ax, cars_object=cars, lights_object=lights, num=(1, 10), n=N)
 init = animator.reset
 animate = animator.animate
 
@@ -62,6 +62,6 @@ animate = animator.animate
 # ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
 
 # for creating mp4 movies
-ani = animation.FuncAnimation(fig, animate, init_func=init, frames=20000)
-mywriter = animation.FFMpegWriter(fps=300)
+ani = animation.FuncAnimation(fig, animate, init_func=init, frames=10000)
+mywriter = animation.FFMpegWriter(fps=30)
 ani.save('movie.mp4', writer=mywriter)
