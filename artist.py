@@ -17,24 +17,24 @@ import simulation as sim
 # ax.set_title('Manhattan, New York City')
 
 """Lower Manhattan"""
-G = ox.load_graphml('lowermanhattan.graphml')
-G = ox.project_graph(G)
-fig, ax = ox.plot_graph(G, fig_height=12, node_size=0, edge_linewidth=0.5)
-ax.set_title('Lower Manhattan, New York City')
+# G = ox.load_graphml('data/lowermanhattan.graphml')
+# G = ox.project_graph(G)
+# fig, ax = ox.plot_graph(G, fig_height=12, node_size=0, edge_linewidth=0.5)
+# ax.set_title('Lower Manhattan, New York City')
 
 
 """San Francisco"""
-# G = ox.load_graphml('sanfrancisco.graphml')
+# G = ox.load_graphml('data/sanfrancisco.graphml')
 # G = ox.project_graph(G)
 # fig, ax = ox.plot_graph(G, fig_height=12, fig_width=10, node_size=0, edge_linewidth=0.5)
 # ax.set_title('San Francisco, California')
 
 
 """Piedmont, California"""
-# G = ox.load_graphml('piedmont.graphml')
-# G = ox.project_graph(G)
-# fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
-# ax.set_title('Piedmont, California')
+G = ox.load_graphml('data/piedmont.graphml')
+G = ox.project_graph(G)
+fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5, show=False)
+ax.set_title('Piedmont, California')
 
 
 # grab the dimensions of the figure
@@ -42,9 +42,9 @@ axis = ax.axis()
 
 
 """ initialize the car and light state objects """
-N = 500  # cars
-# cars = Cars(sim.init_culdesac_start_location(N, axis), axis)
-cars = Cars(sim.init_random_node_start_location(N, axis), axis)
+N = 33 # cars
+cars = Cars(sim.init_culdesac_start_location(N, axis), axis)
+# cars = Cars(sim.init_random_node_start_location(N, axis), axis)
 lights = TrafficLights(sim.init_traffic_lights(axis, prescale=40), axis)
 
 """ for an example of learning using a single, convergent learner, initialize the sim using these cars and lights: """
