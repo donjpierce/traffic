@@ -63,5 +63,5 @@ animate = animator.animate
 
 # for creating mp4 movies
 ani = animation.FuncAnimation(fig, animate, init_func=init, frames=10000)
-mywriter = animation.FFMpegWriter(fps=30)
+mywriter = animation.FFMpegWriter(fps=120)
 ani.save('movie.mp4', writer=mywriter)
