@@ -1,6 +1,6 @@
 # python=3.6 requires using Qt4Agg backend for animation saving
 import matplotlib
-matplotlib.use('Qt4Agg')
+# matplotlib.use('Qt4Agg')
 import models
 import navigation as nav
 from networkx import NetworkXNoPath

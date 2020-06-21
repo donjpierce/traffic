@@ -1,6 +1,6 @@
 # python=3.6 requires using Qt4Agg backend for animation saving
 import matplotlib
-matplotlib.use('Qt4Agg')
+# matplotlib.use('Qt4Agg')
 from environment import Env
 from keras import Sequential, layers
 import matplotlib.pyplot as plt

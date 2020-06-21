@@ -18,7 +18,7 @@ class Animator:
         self.lights = sum([ax.plot([], [], color='red', marker='+', ms=2) for l in range(self.number_of_lights)], [])
         self.faces = sum([ax.plot([], [], color='red', marker='^', ms=2) for f in range(self.number_of_faces)], [])
 
-    def reset(self, num):
+    def reset(self, num=None):
         """
         Set initial blank data
 
@@ -42,7 +42,7 @@ class Animator:
 
         axis = self.ax.axis()
 
-        self.num = num
+        self.num = num if num else self.num
         self.ax.annotate('Episode {} of {}'.format(self.num[0] + 1, self.num[1]), xy=(axis[0] + 10, axis[2] + 10))
         self.fig.canvas.draw()
 

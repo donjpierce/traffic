@@ -1,7 +1,7 @@
 # python=3.6 requires using Qt4Agg backend for animation saving
 from animate import Animator
 import matplotlib
-matplotlib.use('Qt4Agg')
+# matplotlib.use('Qt4Agg')
 from cars import Cars, TrafficLights
 import convergent_learner as cl
 from matplotlib import animation
