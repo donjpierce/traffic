@@ -144,7 +144,7 @@ class StateView:
         self.route = np.array(self.car['route'])
         self.eta = eta(self.car, self.lights)
         self.max_cars = 10  # the number of cars in a bin for the bin to be considered 'congested traffic'
-        self.speed_limit = 250
+        self.speed_limit = 1000
 
     def determine_state(self):
         """

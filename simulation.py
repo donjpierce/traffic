@@ -10,10 +10,10 @@ import pandas as pd
 
 
 # fill the initial state with N cars
-speed_limit = 250
+speed_limit = 1000
 stop_distance = 5
 free_distance = 20
-default_acceleration = 5
+default_acceleration = 6
 
 
 def update_cars(cars, dt):
@@ -32,12 +32,15 @@ def update_cars(cars, dt):
     new_vy = []
     new_times = []
 
-    for car in cars.iterrows():
+    for i, car in enumerate(cars.iterrows()):
+        # print(i)
         xpath, ypath = np.array(car[1]['xpath']), np.array(car[1]['ypath'])
+        # print(xpath.any(), ypath.any())
         if xpath.any() and ypath.any():
             # add to route timer
             new_times.append(car[1]['route-time'] + dt)
 
+            # initialize an obstacle scan of the frontal view
             frontview = nav.FrontView(car[1], stop_distance)
 
             # determine if the car has just crossed a node
@@ -52,6 +55,9 @@ def update_cars(cars, dt):
             position = np.array(frontview.position)
 
             velocity_direction = models.unit_vector(next_node - position)
+            if i == 0:
+                print(f"pos: {position} || v dir: {velocity_direction} || speed lim: {speed_limit}"
+                      f" || usf: {update_speed_factor(car[1])}")
             velocity = velocity_direction * speed_limit * update_speed_factor(car[1])
 
             # if the car has stalled and accelerate() returns True, then give it a push
@@ -61,8 +67,14 @@ def update_cars(cars, dt):
             new_vx.append(velocity[0])
             new_vy.append(velocity[1])
         else:
-            # end of route returns the final route time
-            return None, None, None, 0, 0, car[1]['route-time']
+            # set empty paths
+            new_xpaths.append([])
+            new_ypaths.append([])
+            # set null velocity
+            new_vx.append(0)
+            new_vy.append(0)
+            # save final route time
+            new_times.append(car[1]['route-time'])
 
     package = pd.Series(new_route), pd.Series(new_xpaths), pd.Series(new_ypaths), pd.Series(new_vx), \
         pd.Series(new_vy), pd.Series(new_times)

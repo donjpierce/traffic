@@ -57,7 +57,9 @@ class Cars:
 
         self.state['x'] = self.state['x'] + self.state['vx'] * dt
         self.state['y'] = self.state['y'] + self.state['vy'] * dt
-
+        # print(f"time elapsed: {self.time_elapsed}")
+        # print(f"incoming red light: {light_distances}")
+        # print(f"(vx, vy) : {self.state['vx'].values[0], self.state['vy'].values[0]}")
         return self.state
 
     def find_obstacles(self):

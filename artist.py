@@ -42,10 +42,10 @@ axis = ax.axis()
 
 
 """ initialize the car and light state objects """
-N = 33  # cars
+N = 80  # cars
 # cars = Cars(sim.init_culdesac_start_location(N, axis), axis)
-cars = Cars(sim.init_random_node_start_location(N, axis), axis)
-lights = TrafficLights(sim.init_traffic_lights(axis, prescale=40), axis)
+cars = Cars(sim.init_culdesac_start_location(N, axis), axis)
+lights = TrafficLights(sim.init_traffic_lights(axis, prescale=100), axis)
 
 """ for an example of learning using a single, convergent learner, initialize the sim using these cars and lights: """
 # cars = Cars(cl.init_custom_agent(n=1, fig_axis=axis), axis=axis)
@@ -57,11 +57,12 @@ animator = Animator(fig=fig, ax=ax, cars_object=cars, lights_object=lights, num=
 init = animator.reset
 animate = animator.animate
 
-# for creating HTML frame-movies
-# ani = animation.FuncAnimation(fig, animate, init_func=init, frames=1200, interval=30, blit=True)
-# ani.save('traffic.html', fps=300, extra_args=['-vcodec', 'libx264'])
+# for creating HTML movies
+ani = animation.FuncAnimation(fig, animate, init_func=init, frames=500, interval=30, blit=True)
+mywriter = animation.HTMLWriter(fps=60)
+ani.save('traffic.html', writer=mywriter)
 
 # for creating mp4 movies
-ani = animation.FuncAnimation(fig, animate, init_func=init, frames=10000)
-mywriter = animation.FFMpegWriter(fps=120)
-ani.save('movie.mp4', writer=mywriter)
+# ani = animation.FuncAnimation(fig, animate, init_func=init, frames=500)
+# mywriter = animation.FFMpegWriter(fps=60)
+# ani.save('movie.mp4', writer=mywriter)
