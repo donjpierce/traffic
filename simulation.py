@@ -33,9 +33,7 @@ def update_cars(cars, dt):
     new_times = []
 
     for i, car in enumerate(cars.iterrows()):
-        # print(i)
         xpath, ypath = np.array(car[1]['xpath']), np.array(car[1]['ypath'])
-        # print(xpath.any(), ypath.any())
         if xpath.any() and ypath.any():
             # add to route timer
             new_times.append(car[1]['route-time'] + dt)
@@ -55,9 +53,6 @@ def update_cars(cars, dt):
             position = np.array(frontview.position)
 
             velocity_direction = models.unit_vector(next_node - position)
-            if i == 0:
-                print(f"pos: {position} || v dir: {velocity_direction} || speed lim: {speed_limit}"
-                      f" || usf: {update_speed_factor(car[1])}")
             velocity = velocity_direction * speed_limit * update_speed_factor(car[1])
 
             # if the car has stalled and accelerate() returns True, then give it a push
@@ -275,9 +270,9 @@ def init_culdesac_start_location(n, axis, car_id=None, alternate_route=None):
         # i = 17  # TEMP SETTING
         origin = culdesacs[i]
         destination = culdesacs[i + 1]
-        """ TEMP SETTINGS FOR ONE-CAR-ONE-ROUTE STUDY """
+        """ START TEMP SETTINGS FOR ONE-CAR-ONE-ROUTE STUDY """
         # destination = 53028190
-        """ TEMP SETTINGS FOR ONE-CAR-ONE-ROUTE STUDY """
+        """ END TEMP SETTINGS FOR ONE-CAR-ONE-ROUTE STUDY """
         try:
             path = nav.get_init_path(origin, destination)
             route = nav.get_route(origin, destination)

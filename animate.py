@@ -43,7 +43,7 @@ class Animator:
         axis = self.ax.axis()
 
         self.num = num if num else self.num
-        self.ax.annotate('Episode {} of {}'.format(self.num[0] + 1, self.num[1]), xy=(axis[0] + 10, axis[2] + 10))
+        self.ax.annotate('Episode {} of {}'.format(self.num[0], self.num[1]), xy=(axis[0] + 10, axis[2] + 10))
         self.fig.canvas.draw()
 
         return self.cars + self.lights + self.faces

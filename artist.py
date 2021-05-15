@@ -8,7 +8,6 @@ from matplotlib import animation
 import osmnx as ox
 import simulation as sim
 
-
 # load figure for animation
 """ Manhattan """
 # G = ox.load_graphml('manhattan.graphml')
@@ -22,19 +21,18 @@ import simulation as sim
 # fig, ax = ox.plot_graph(G, fig_height=12, node_size=0, edge_linewidth=0.5)
 # ax.set_title('Lower Manhattan, New York City')
 
-
 """San Francisco"""
-# G = ox.load_graphml('data/sanfrancisco.graphml')
+G = ox.load_graphml('data/sanfrancisco.graphml')
 # G = ox.project_graph(G)
-# fig, ax = ox.plot_graph(G, fig_height=12, fig_width=10, node_size=0, edge_linewidth=0.5)
-# ax.set_title('San Francisco, California')
+fig, ax = ox.plot_graph(G, fig_height=12, fig_width=10, node_size=0, edge_linewidth=0.5)
+ax.set_title('San Francisco, California')
 
 
 """Piedmont, California"""
-G = ox.load_graphml('piedmont.graphml')
-G = ox.project_graph(G)
-fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5, show=False)
-ax.set_title('Piedmont, California')
+# G = ox.load_graphml('piedmont.graphml')
+# G = ox.project_graph(G)
+# fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5, show=False)
+# ax.set_title('Piedmont, California')
 
 
 # grab the dimensions of the figure
@@ -42,24 +40,28 @@ axis = ax.axis()
 
 
 """ initialize the car and light state objects """
-N = 80  # cars
+N = 1200  # cars
 # cars = Cars(sim.init_culdesac_start_location(N, axis), axis)
-cars = Cars(sim.init_culdesac_start_location(N, axis), axis)
+cars = Cars(sim.init_random_node_start_location(N, axis), axis)
 lights = TrafficLights(sim.init_traffic_lights(axis, prescale=100), axis)
 
 """ for an example of learning using a single, convergent learner, initialize the sim using these cars and lights: """
 # cars = Cars(cl.init_custom_agent(n=1, fig_axis=axis), axis=axis)
 # lights = TrafficLights(cl.init_custom_lights(fig_axis=axis, prescale=None), axis)
 
+# time of simulation (in seconds)
+duration = 60
+frames_per_second = 60
+n_frames = duration * frames_per_second
 
 # initialize the Animator
-animator = Animator(fig=fig, ax=ax, cars_object=cars, lights_object=lights, num=(1, 10), n=N)
+animator = Animator(fig=fig, ax=ax, cars_object=cars, lights_object=lights, num=(1, 1), n=N)
 init = animator.reset
 animate = animator.animate
 
 # for creating HTML movies
-ani = animation.FuncAnimation(fig, animate, init_func=init, frames=500, interval=30, blit=True)
-mywriter = animation.HTMLWriter(fps=60)
+ani = animation.FuncAnimation(fig, animate, init_func=init, frames=n_frames, interval=30, blit=True)
+mywriter = animation.HTMLWriter(fps=frames_per_second)
 ani.save('traffic.html', writer=mywriter)
 
 # for creating mp4 movies
