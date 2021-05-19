@@ -344,7 +344,7 @@ def init_traffic_lights(axis, prescale=10):
                  'x': position[0],
                  'y': position[1],
                  'switch-counter': 0,
-                 'switch-time': models.determine_traffic_light_timer()
+                 'switch-time': models.determine_traffic_light_timer(degree)
                  }
 
         light['out-xpositions'] = [position[0] + epsilon * out_vectors[j][0] for j in range(light['degree'])]

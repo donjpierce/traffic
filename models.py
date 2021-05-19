@@ -28,13 +28,13 @@ def initial_light_colors(n):
     return init_colors
 
 
-def determine_traffic_light_timer():
+def determine_traffic_light_timer(degree):
     """
     For now, wait times are determined by taking a random fraction of the degree
 
     :return random_wait: double: wait time in units of dt
     """
-    random_wait = round(random.random() * 3, 2)
+    random_wait = round(random.random() * degree, 2)
     return random_wait
 
 
