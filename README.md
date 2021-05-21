@@ -10,11 +10,15 @@ Usage:
 After customizing desired parameters, run the `artist` scratch file with `python artist.py` to render .mp4 movies of a traffic simulation.
 Or after selecting a learning agent from the available cars, run `python learn.py` to optimize that car's route to shortest-time.
 
+**High Performance Example**
 
+![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/sf_high_performance.gif)
 
+ **Low Performance Examples**
 
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/piedmont33cars.gif)
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/lowerManhattan.gif)
+
 
 **Simple Example of Optimization**
 
