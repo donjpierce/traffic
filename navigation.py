@@ -410,7 +410,8 @@ class StateView:
 
 def car_obstacles(frontview, cars):
     """
-    Determines if there are any other_cars within the car's bin and then
+    Determines if there are any other_cars within the car's bin and then calculates the distance to the
+    nearest car in the same bin
 
     Parameters
     __________
