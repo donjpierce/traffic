@@ -7,9 +7,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import osmnx as ox
 
+# define time step for simulation
 dt = 1 / 1000
-N = 1
-agent = 0
+# number of cars to simulate in graph
+N = 60
+# of the N generated cars, which to use as the learning agent
+agent = 3
 
 """Lower Manhattan"""
 # G = ox.load_graphml('lowermanhattan.graphml')
