@@ -4,6 +4,7 @@ and thus contains methods for updating car position and finding path to car dest
 also contains methods for locating cars and intersections in the front_view
 and calculating the curvature of the bend in the road for speed adjustments
 """
+import json
 import models
 import networkx as nx
 import numpy as np
@@ -14,7 +15,7 @@ G = ox.load_graphml('piedmont.graphml')
 # G = ox.load_graphml('manhattan.graphml')
 # G = ox.load_graphml('data/sanfrancisco.graphml')
 # G = ox.load_graphml('data/lowermanhattan.graphml')
-# G = ox.project_graph(G)
+G = ox.project_graph(G)
 
 
 class FrontView:
@@ -279,6 +280,9 @@ class StateView:
 
             # Determine in which direction to reroute
             dv_table = self.dv_table(reroute_node)
+            if not len(dv_table):
+                # no re-routing at this node
+                continue
             direction = dv_table['potential-nodes'].loc[dv_table.index[dv_table['sum-distances'].idxmin()]]
 
             # get new route around obstacle
@@ -515,7 +519,11 @@ def find_culdesacs():
 
     :return culdesacs: list of node IDs
     """
-    culdesacs = [key for key, value in G.graph['streets_per_node'].items() if value == 1]
+    streets_per_node = G.graph['streets_per_node']
+    # parse out the data structure provided by OSM
+    nodes = streets_per_node.split(',')
+    streets_per_node = {node.split(':')[0][1:]: node.split(':')[1][1:].replace('}', '') for node in nodes}
+    culdesacs = [key for key, value in streets_per_node.items() if int(value) == 1]
     return culdesacs
 
 

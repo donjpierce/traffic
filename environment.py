@@ -29,7 +29,8 @@ class Env:
         self.animator = None
         self.axis = self.ax.axis()
         self.route_times = []
-        self.car_init_method = sim.init_culdesac_start_location
+        self.car_init_method = sim.init_random_node_start_location
+        # self.car_init_method = sim.init_culdesac_start_location
         self.light_init_method = sim.init_traffic_lights
         # self.car_init_method = convergent_learner.init_custom_agent
         # self.light_init_method = convergent_learner.init_custom_lights

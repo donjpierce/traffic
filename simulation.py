@@ -7,7 +7,7 @@ import navigation as nav
 from networkx.exception import NetworkXNoPath
 import numpy as np
 import pandas as pd
-
+import random
 
 # fill the initial state with N cars
 speed_limit = 1000
@@ -194,14 +194,19 @@ def init_random_node_start_location(n, axis):
     # TODO: combine this function with other car initialization functions using flags
 
     nodes = nav.find_nodes(n)
-    culdesacs = nav.find_culdesacs()
 
     cars_data = []
-
     for i in range(n):
         if i < n - 1:
             origin = nodes[i]
-            destination = culdesacs[i % len(culdesacs)]
+
+            # random routes end at culdesacs
+            # culdesacs = nav.find_culdesacs()
+            # destination = culdesacs[i % len(culdesacs)]
+
+            # random routes end at random places too
+            random_index = round(random.random() * n)
+            destination = nodes[random_index]
 
             try:
                 path = nav.get_init_path(origin, destination)

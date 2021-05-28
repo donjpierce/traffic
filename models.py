@@ -127,11 +127,12 @@ def path_decompiler(lines):
     # the path must be cleaned of twin nodes for car dynamics
     # these are nodes which overlap (two nodes laying on top of each other on the same point)
     # OpenStreetMap has this issue
-    clean_path = []
-    for i in range(len(path)):
-        if (i < len(path) - 1) and (path[i] != path[i + 1]):
-            clean_path.append(path[i])
-    clean_path.append(path[-1])
+    clean_path = [] if len(path) else path
+    if len(path):
+        for i in range(len(path)):
+            if (i < len(path) - 1) and (path[i] != path[i + 1]):
+                clean_path.append(path[i])
+        clean_path.append(path[-1])
     return clean_path
 
 

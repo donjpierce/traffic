@@ -10,9 +10,9 @@ import osmnx as ox
 # define time step for simulation
 dt = 1 / 1000
 # number of cars to simulate in graph
-N = 60
+N = 50
 # of the N generated cars, which to use as the learning agent
-agent = 3
+agent = 17
 
 """Lower Manhattan"""
 # G = ox.load_graphml('lowermanhattan.graphml')
@@ -42,8 +42,8 @@ model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 # now execute Q learning
 y = 0.95
 eps = 0.5
-decay_factor = 0.999
-num_episodes = 10
+decay_factor = 0.80
+num_episodes = 40
 
 r_avg_list = []
 r_sum_list = []
