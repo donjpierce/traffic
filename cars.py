@@ -12,19 +12,21 @@ import numpy as np
 
 
 class Cars:
-    def __init__(self, init_state, axis):
+    def __init__(self, init_state, graph):
         """
         car objects are used for accessing and updating each car's parameters
 
         Parameters
         __________
         :param init_state: dataframe:    each Series row is a car
+        :param graph: object: OGraph object from osm_request
         """
         self.init_state = init_state
         self.state = self.init_state.copy()
         self.time_elapsed = 0
         self.lights = 0
-        self.axis = axis
+        self.graph = graph
+        self.axis = self.graph.axis
         self.stop_distance = 5
 
     def update(self, dt, lights):
@@ -65,7 +67,7 @@ class Cars:
     def find_obstacles(self):
         node_distances, car_distances, light_distances = [], [], []
         for car in self.state.iterrows():
-            frontview = nav.FrontView(car[1], stop_distance=self.stop_distance)
+            frontview = nav.FrontView(car[1], self.graph, stop_distance=self.stop_distance)
             node_distances.append(frontview.distance_to_node())
             car_distances.append(frontview.distance_to_car(self.state))
             light_distances.append(frontview.distance_to_light(self.lights))
@@ -74,17 +76,18 @@ class Cars:
 
 
 class TrafficLights:
-    def __init__(self, light_state, axis):
+    def __init__(self, light_state, graph):
         """
         traffic light objects are used for finding, updating, and timing traffic light nodes
 
         :param light_state: list: each entry in the list is a light dictionary
+        :param graph: objectL OGraph object from osm_request
         """
         self.init_state = light_state
         self.state = self.init_state.copy()
         self.time_elapsed = 0
-        self.xbins = np.arange(axis[0], axis[1], 200)
-        self.ybins = np.arange(axis[2], axis[3], 200)
+        self.xbins = np.arange(graph.axis[0], graph.axis[1], 200)
+        self.ybins = np.arange(graph.axis[2], graph.axis[3], 200)
 
     def update(self, dt):
         """

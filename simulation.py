@@ -183,17 +183,17 @@ def obstacle_factor(d):
     return factor
 
 
-def init_random_node_start_location(n, axis):
+def init_random_node_start_location(n, graph):
     """
     initializes n cars at n random nodes and sets their destinations as a culdesac
 
     :param      n:  int
-    :param   axis: list: x_range, y_range of road network
+    :param graph: object: OGraph object from osm_request
     :return state: dict
     """
     # TODO: combine this function with other car initialization functions using flags
 
-    nodes = nav.find_nodes(n)
+    nodes = nav.find_nodes(graph, n)
 
     cars_data = []
     for i in range(n):
@@ -209,13 +209,13 @@ def init_random_node_start_location(n, axis):
             destination = nodes[random_index]
 
             try:
-                path = nav.get_init_path(origin, destination)
-                route = nav.get_route(origin, destination)
+                path = nav.get_init_path(graph, origin, destination)
+                route = nav.get_route(graph, origin, destination)
             except NetworkXNoPath:
                 print('No path between {} and {}.'.format(origin, destination))
                 continue
 
-            x, y = nav.get_position_of_node(origin)
+            x, y = nav.get_position_of_node(graph, origin)
 
             car = {'object': 'car',
                    'x': x,
@@ -237,6 +237,7 @@ def init_random_node_start_location(n, axis):
     cars = pd.DataFrame(cars_data)
 
     # determine binning and assign bins to cars
+    axis = graph.axis
     xbins, ybins = np.arange(axis[0], axis[1], 200), np.arange(axis[2], axis[3], 200)
     x_indices, y_indices = np.digitize(cars['x'], xbins), np.digitize(cars['y'], ybins)
     cars['xbin'], cars['ybin'] = pd.Series(x_indices), pd.Series(y_indices)
@@ -246,14 +247,14 @@ def init_random_node_start_location(n, axis):
     return cars
 
 
-def init_culdesac_start_location(n, axis, car_id=None, alternate_route=None):
+def init_culdesac_start_location(n, graph, car_id=None, alternate_route=None):
     """
     initializes N cars into N culdesacs
 
     Parameters
     __________
     :param               n:                    int
-    :param            axis: list of x and y ranges
+    :param graph: object: OGraph object from osm_request
     :param          car_id:            None or int: optional, int if you wish to prescribe an alternate route for car
     :param alternate_route:                   list: optional, list of alternate route nodes for provided car
 
@@ -263,7 +264,7 @@ def init_culdesac_start_location(n, axis, car_id=None, alternate_route=None):
     """
     # TODO: combine this function with other car initialization functions using flags
 
-    culdesacs = nav.find_culdesacs()
+    culdesacs = nav.find_culdesacs(graph)
 
     if n > len(culdesacs):
         raise ValueError('Number of cars greater than culdesacs to place them. '
@@ -280,12 +281,12 @@ def init_culdesac_start_location(n, axis, car_id=None, alternate_route=None):
         """ END TEMP SETTINGS FOR ONE-CAR-ONE-ROUTE STUDY """
         try:
             path = nav.get_init_path(origin, destination)
-            route = nav.get_route(origin, destination)
+            route = nav.get_route(graph, origin, destination)
         except NetworkXNoPath:
             print('No path between {} and {}.'.format(origin, destination))
             continue
 
-        position = nav.get_position_of_node(origin)
+        position = nav.get_position_of_node(graph, origin)
 
         car = {'object': 'car',
                'x': position[0],
@@ -310,21 +311,23 @@ def init_culdesac_start_location(n, axis, car_id=None, alternate_route=None):
     cars = pd.DataFrame(cars_data)
 
     # determine binning and assign bins to cars
-    cars['xbin'], cars['ybin'] = models.determine_bins(axis, cars)
+    cars['xbin'], cars['ybin'] = models.determine_bins(graph.axis, cars)
 
     # print('Number of cars: {}'.format(len(cars)))
     return cars
 
 
-def init_traffic_lights(axis, prescale=10):
+def init_traffic_lights(graph, prescale=10):
     """
     traffic lights are initialized here
 
+    :param graph: object: OGraph object from osm_request
+    :param prescale: int: percentage of intersections in graph to skip over and not create a light
     :return lights: list
     """
     epsilon = 0.3  # a factor which forces the positions of the light faces to be close to the intersection
 
-    light_nodes = nav.find_traffic_lights(prescale)
+    light_nodes = nav.find_traffic_lights(graph, prescale)
 
     lights_data = []
 
@@ -333,13 +336,13 @@ def init_traffic_lights(axis, prescale=10):
         node_id = light[0]
 
         try:
-            out_vectors = np.array(nav.determine_pedigree(node_id))
+            out_vectors = np.array(nav.determine_pedigree(graph, node_id))
         except NetworkXNoPath or ValueError:
             print('Could not determine pedigree for light at node {}'.format(node_id))
             continue
 
         degree = len(out_vectors)
-        position = nav.get_position_of_node(node_id)
+        position = nav.get_position_of_node(graph, node_id)
         go = [False, True] * degree * 2
         go = go[:degree]
 
@@ -363,7 +366,7 @@ def init_traffic_lights(axis, prescale=10):
     lights = pd.DataFrame(lights_data)
 
     # determine binning and assign bins to lights
-    lights['xbin'], lights['ybin'] = models.determine_bins(axis, lights)
+    lights['xbin'], lights['ybin'] = models.determine_bins(graph.axis, lights)
 
     # print('Number of traffic lights: {}'.format(len(lights)))
     return lights

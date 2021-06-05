@@ -8,22 +8,15 @@ import json
 import models
 import networkx as nx
 import numpy as np
-import osmnx as ox
-
-
-G = ox.load_graphml('piedmont.graphml')
-# G = ox.load_graphml('manhattan.graphml')
-# G = ox.load_graphml('data/sanfrancisco.graphml')
-# G = ox.load_graphml('data/lowermanhattan.graphml')
-G = ox.project_graph(G)
 
 
 class FrontView:
-    def __init__(self, car, stop_distance=5, look_ahead_nodes=3):
+    def __init__(self, car, graph, stop_distance=5, look_ahead_nodes=3):
         """
         take a car Series and determines the obstacles it faces in its frontal view
 
-        :param              car: Series row of the main dataframe
+        :param              car: Series: row of the main dataframe
+        :param            graph: object: OGraph object from osm_request
         :param    stop_distance: int
         :param look_ahead_nodes: int
         """
@@ -31,6 +24,7 @@ class FrontView:
         self.look_ahead_nodes = look_ahead_nodes
         self.car = car
         self.position = car['x'], car['y']
+        self.graph = graph
         self.view = self.determine_view()
         self.angles = models.get_angles(self.view)
 
@@ -87,12 +81,12 @@ class FrontView:
                 if len(self.view) >= 2:
                     return self.view[1]
                 else:
-                    return get_position_of_node(self.car['destination'])
+                    return get_position_of_node(self.graph, self.car['destination'])
             else:
                 return self.view[0]
         else:
             # end of route
-            return get_position_of_node(self.car['destination'])
+            return get_position_of_node(self.graph, self.car['destination'])
 
     def crossed_node_event(self):
         """
@@ -128,16 +122,17 @@ class FrontView:
 
 
 class StateView:
-    def __init__(self, axis, car_index, cars, lights):
+    def __init__(self, graph, car_index, cars, lights):
         """
         the reinforcement learning agent object
 
-        :param      axis:
+        :param      graph:
         :param car_index:
         :param      cars: DataFrame
         :param    lights: DataFrame
         """
-        self.axis = axis
+        self.graph = graph
+        self.axis = self.graph.axis
         self.cars = cars
         self.lights = lights
         self.index = car_index
@@ -206,13 +201,13 @@ class StateView:
         Calculate the length of the detour and the length of  
         the stretch of the original route which was avoided by the detour:
         """
-        detour_length = sum([G.get_edge_data(detour[i], detour[i + 1])[0]['length']
+        detour_length = sum([self.graph.get_edge_data(detour[i], detour[i + 1])[0]['length']
                              for i in range(len(detour) - 1)])
         departure_ind = np.where(self.route == detour[0])[0][0]
         return_ind = np.where(self.route == detour[-1])[0][0]
         span = return_ind - departure_ind
-        original_length = sum([G.get_edge_data(self.route[departure_ind + i],
-                                               self.route[departure_ind + i + 1])[0]['length']
+        original_length = sum([self.graph.get_edge_data(self.route[departure_ind + i],
+                                                        self.route[departure_ind + i + 1])[0]['length']
                                for i in range(span + 1)])
         if detour_length <= 2 * original_length:
             # detour is short
@@ -356,7 +351,7 @@ class StateView:
         xbins, ybins = np.arange(self.axis[0], self.axis[1], 200), np.arange(self.axis[2], self.axis[3], 200)
         x_inds, y_inds = [], []
         for node in route:
-            x, y = get_position_of_node(node)
+            x, y = get_position_of_node(self.graph, node)
             x_inds.append(np.digitize(x, xbins))
             y_inds.append(np.digitize(y, ybins))
 
@@ -386,7 +381,7 @@ class StateView:
         :param      node:
         :return dv_table:
         """
-        possible_directions = np.array([dot for dot in G[node].__iter__()])
+        possible_directions = np.array([dot for dot in self.graph.G[node].__iter__()])
         nodes_already_in_route = [np.where(route_node == possible_directions)[0][0] for route_node in self.route
                                   if np.where(route_node == possible_directions)[0].size > 0]
         possible_directions = np.delete(possible_directions, nodes_already_in_route)
@@ -395,7 +390,7 @@ class StateView:
         sum_three_node_dist = []
         directions = []
         for direction in possible_directions:
-            twice_out = np.array([dot for dot in G[direction].__iter__()])
+            twice_out = np.array([dot for dot in self.graph.G[direction].__iter__()])
             if twice_out.size == 0 or (direction == self.route).any():
                 # avoid culdesacs and nodes already in the route
                 continue
@@ -403,8 +398,8 @@ class StateView:
             directions.append(direction)
             distances = []
             for compare_node in self.route[reroute_node_index + 2:reroute_node_index + 5]:
-                compare_node_pos = get_position_of_node(compare_node)
-                potential_node_pos = get_position_of_node(direction)
+                compare_node_pos = get_position_of_node(self.graph, compare_node)
+                potential_node_pos = get_position_of_node(self.graph, direction)
                 distances.append(np.linalg.norm(compare_node_pos - potential_node_pos))
             sum_three_node_dist.append(sum(distances))
 
@@ -491,21 +486,22 @@ def light_obstacles(frontview, lights):
         return False
 
 
-def determine_pedigree(node_id):
+def determine_pedigree(graph, node_id):
     """
      each traffic light has a list of vectors, pointing in the direction of the road a light color should influence
 
+    :param graph: object: OGraph object from osm_request
      :param  node_id:    int
      :return vectors:   list: list of vectors pointing from the intersection to the nearest point on the out roads
      """
-    x, y = get_position_of_node(node_id)
+    x, y = get_position_of_node(graph, node_id)
 
-    out_nodes = [dot for dot in G[node_id].__iter__()]
+    out_nodes = [dot for dot in graph.G[node_id].__iter__()]
 
     vectors = []
     for node in out_nodes:
         try:
-            out_x, out_y = lines_to_node(node_id, node)[0][1]
+            out_x, out_y = lines_to_node(graph, node_id, node)[0][1]
         except IndexError:
             continue
         vectors.append((out_x - x, out_y - y))
@@ -513,13 +509,14 @@ def determine_pedigree(node_id):
     return vectors
 
 
-def find_culdesacs():
+def find_culdesacs(graph):
     """
     culdesacs are nodes with only one edge connection and which are not on the boundary of the OpenStreetMap
 
+    :param graph: object: OGraph object from osm_request
     :return culdesacs: list of node IDs
     """
-    streets_per_node = G.graph['streets_per_node']
+    streets_per_node = graph.G.graph['streets_per_node']
     # parse out the data structure provided by OSM
     nodes = streets_per_node.split(',')
     streets_per_node = {node.split(':')[0][1:]: node.split(':')[1][1:].replace('}', '') for node in nodes}
@@ -527,53 +524,58 @@ def find_culdesacs():
     return culdesacs
 
 
-def find_traffic_lights(prescale=10):
+def find_traffic_lights(graph, prescale=10):
     """
     traffic lights are nodes in the graph which have degree > 3
 
+    :param graph: object: OGraph object from osm_request
+    :param prescale: int:
     :return light_intersections: a list of node IDs suitable for traffic lights
     """
     light_intersections = []
-    for i, node in enumerate(G.degree()):
+    for i, node in enumerate(graph.G.degree()):
         if (node[1] > 3) and not (i % prescale):
             light_intersections.append(node)
 
     return light_intersections
 
 
-def find_nodes(n):
+def find_nodes(graph, n):
     """
     returns n node IDs from the networkx graph
 
+    :param graph: object: OGraph object from osm_request
     :param      n: int
     :return nodes: list
     """
     nodes = []
-    for node in G.nodes():
+    for node in graph.G.nodes():
         nodes.append(node)
     return nodes[:n]
 
 
-def get_position_of_node(node):
+def get_position_of_node(graph, node):
     """
     Get latitude and longitude given node ID
 
+    :param graph: object: OGraph object from osm_request
     :param node:      graphml node ID
     :return position: array:    [latitude, longitude]
     """
-    # note that the x and y coordinates of the G.nodes are flipped
-    # this is possibly an issue with the omnx G.load_graphml method
+    # note that the x and y coordinates of the graph.nodes are flipped
+    # this is possibly an issue with the omnx graph.load_graphml method
     # a correction is to make the position tuple be (y, x) as below
-    position = np.array([G.nodes[node]['x'], G.nodes[node]['y']])
+    position = np.array([graph.G.nodes[node]['x'], graph.G.nodes[node]['y']])
     return position
 
 
-def get_init_path(origin, destination):
+def get_init_path(graph, origin, destination):
     """
     compiles a list of tuples which represents a route
 
     Parameters
     __________
+    :param graph: object: OGraph object from osm_request
     :param      origin: int:    node ID
     :param destination: int:    node ID
 
@@ -581,20 +583,21 @@ def get_init_path(origin, destination):
     _______
     :return path: list where each entry is a tuple of tuples
     """
-    lines = shortest_path_lines_nx(origin, destination)
+    lines = shortest_path_lines_nx(graph, origin, destination)
     path = models.path_decompiler(lines)
     return path
 
 
-def get_route(origin, destination):
+def get_route(graph, origin, destination):
     """
     acquires the typical node-based route list from NetworkX with weight=length
 
+    :param graph: object: OGraph object from osm_request
     :param      origin: node ID
     :param destination: node ID
     :return:     route: list of intersection nodes
     """
-    return nx.shortest_path(G, origin, destination, weight='length')
+    return nx.shortest_path(graph.G, origin, destination, weight='length')
 
 
 def eta(car, lights, speed_limit=250):
@@ -609,7 +612,7 @@ def eta(car, lights, speed_limit=250):
     route = np.array(car['route'])
 
     if route.size > 0:
-        route_length = sum([G.get_edge_data(route[i], route[i + 1])[0]['length'] for i in range(route.size - 1)])
+        route_length = sum([graph.get_edge_data(route[i], route[i + 1])[0]['length'] for i in range(route.size - 1)])
 
         eta_from_distance = route_length / speed_limit
 
@@ -624,7 +627,7 @@ def eta(car, lights, speed_limit=250):
 
 
 # TODO: bundle this method into StateView, and use dv_table; by first making StateView.dv_table method more abstract
-def build_new_route(route, reroute_node, direction, traffic, avoid):
+def build_new_route(graph, route, reroute_node, direction, traffic, avoid):
     """
     this function builds a new route for a car based on the original route given that it would like to turn off
     the original route at the reroute_node
@@ -659,7 +662,7 @@ def build_new_route(route, reroute_node, direction, traffic, avoid):
                 route, avoid, direction
             ))
             break
-        out_from_direction = [dot for dot in G[direction].__iter__() if dot != reroute_node]
+        out_from_direction = [dot for dot in graph.G[direction].__iter__() if dot != reroute_node]
 
         # Populate a list of the sums of the distances to the next
         # three nodes in the original route, for each potential new node
@@ -669,7 +672,7 @@ def build_new_route(route, reroute_node, direction, traffic, avoid):
                 # avoid all the nodes in the route including the ones around which we are rerouting
                 continue
 
-            twice_out = np.array([dot for dot in G[node].__iter__()])
+            twice_out = np.array([dot for dot in graph.G[node].__iter__()])
             if (direction == twice_out).any():
                 twice_out = np.delete(twice_out, np.where(twice_out == direction)[0][0])
 
@@ -679,7 +682,7 @@ def build_new_route(route, reroute_node, direction, traffic, avoid):
 
             distances = []
             for compare_node in next_nodes_pos:
-                potential_node_pos = get_position_of_node(node)
+                potential_node_pos = get_position_of_node(graph, node)
                 distances.append(np.linalg.norm(compare_node - potential_node_pos))
             sum_three_node_dist.append(sum(distances))
             refined_out_from_direction.append(node)
@@ -732,7 +735,7 @@ def determine_limits(route):
     """
     xs, ys = [], []
     for node in route:
-        x, y = get_position_of_node(node)
+        x, y = get_position_of_node(graph, node)
         xs.append(x)
         ys.append(y)
 
@@ -742,23 +745,24 @@ def determine_limits(route):
     return axis
 
 
-def lines_to_node(origin, destination):
+def lines_to_node(graph, origin, destination):
     """
     return the points of all nodes in the route, including the minor nodes which make up line geometry
 
+    :param graph: object: OGraph object from osm_request
     :param      origin: int
     :param destination: int
     :return      lines: list
     """
 
-    route = nx.shortest_path(G, origin, destination, weight='length')
+    route = nx.shortest_path(graph.G, origin, destination, weight='length')
 
     # find the route lines
     edge_nodes = list(zip(route[:-1], route[1:]))
     lines = []
     for u, v in edge_nodes:
         # if there are parallel edges, select the shortest in length
-        data = min(G.get_edge_data(u, v).values(), key=lambda x: x['length'])
+        data = min(graph.G.get_edge_data(u, v).values(), key=lambda x: x['length'])
 
         # if it has a geometry attribute (ie, a list of line segments)
         if 'geometry' in data:
@@ -768,22 +772,23 @@ def lines_to_node(origin, destination):
         else:
             # if it doesn't have a geometry attribute, the edge is a straight
             # line from node to node
-            x1 = G.nodes[u]['x']
-            y1 = G.nodes[u]['y']
-            x2 = G.nodes[v]['x']
-            y2 = G.nodes[v]['y']
+            x1 = graph.G.nodes[u]['x']
+            y1 = graph.G.nodes[u]['y']
+            x2 = graph.G.nodes[v]['x']
+            y2 = graph.G.nodes[v]['y']
             line = ((x1, y1), (x2, y2))
             lines.append(line)
 
     return lines
 
 
-def shortest_path_lines_nx(origin, destination):
+def shortest_path_lines_nx(graph, origin, destination):
     """
     uses the default shortest path algorithm available through networkx
 
     Parameters
     __________
+    :param graph: object: OGraph object from osm_request
     :param      origin: int:    node ID
     :param destination: int:    node ID
 
@@ -793,14 +798,14 @@ def shortest_path_lines_nx(origin, destination):
         [(double, double), ...]:   each tuple represents the bend-point in a straight road
     """
 
-    route = nx.shortest_path(G, origin, destination, weight='length')
+    route = nx.shortest_path(graph.G, origin, destination, weight='length')
 
     # find the route lines
     edge_nodes = list(zip(route[:-1], route[1:]))
     lines = []
     for u, v in edge_nodes:
         # if there are parallel edges, select the shortest in length
-        data = min(G.get_edge_data(u, v).values(), key=lambda x: x['length'])
+        data = min(graph.G.get_edge_data(u, v).values(), key=lambda x: x['length'])
 
         # if it has a geometry attribute (ie, a list of line segments)
         if 'geometry' in data:
@@ -810,10 +815,10 @@ def shortest_path_lines_nx(origin, destination):
         else:
             # if it doesn't have a geometry attribute, the edge is a straight
             # line from node to node
-            x1 = G.nodes[u]['x']
-            y1 = G.nodes[u]['y']
-            x2 = G.nodes[v]['x']
-            y2 = G.nodes[v]['y']
+            x1 = graph.G.nodes[u]['x']
+            y1 = graph.G.nodes[u]['y']
+            x2 = graph.G.nodes[v]['x']
+            y2 = graph.G.nodes[v]['y']
             line = ((x1, y1), (x2, y2))
             lines.append(line)
 

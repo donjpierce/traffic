@@ -9,20 +9,19 @@ import simulation as sim
 
 
 class Env:
-    def __init__(self, n, fig, ax, agent, dt, animate=False):
+    def __init__(self, n, graph, agent, dt, animate=False):
         """
         initializes an environment for a car in the system
 
         :param         n:       int: number of cars to simulate
-        :param       fig:    figure: from matplotlib
-        :param        ax:      axis: from matplotlib
+        :param     graph:  OGraph object from
         :param     agent:       int: the ID of the car (agent)
         :param   animate:      bool: if the environment is to be animated while learning
         """
         self.N = n
         self.num = None
-        self.fig = fig
-        self.ax = ax
+        self.graph = graph
+        self.fig, self.ax = self.graph.fig, self.graph.ax
         self.agent = agent
         self.dt = dt
         self.animate = animate
@@ -49,7 +48,7 @@ class Env:
         """
         # initialize cars every reset
         init_cars = self.car_init_method(self.N, self.axis)
-        self.cars_object = Cars(init_state=init_cars, axis=self.axis)
+        self.cars_object = Cars(init_state=init_cars, graph=self.graph)
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
         state = state.index(True)
@@ -68,7 +67,7 @@ class Env:
 
         :return stateview: object
         """
-        stateview = nav.StateView(axis=self.axis, car_index=self.agent,
+        stateview = nav.StateView(graph=self.graph, car_index=self.agent,
                                   cars=self.cars_object.state, lights=self.lights_object.state)
         return stateview
 
@@ -156,7 +155,7 @@ class Env:
         :param         i: simulation step
         :return  arrived: bool
         """
-        frontview = nav.FrontView(self.cars_object.state.loc[self.agent])
+        frontview = nav.FrontView(self.cars_object.state.loc[self.agent], self.graph)
         end_of_route = frontview.end_of_route()
         if not end_of_route:
             if self.animate:
