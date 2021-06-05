@@ -16,8 +16,9 @@ class OGraph:
         self.store = 'graphml_files'
         self.graph_name = self.query.lower().replace(',', '').replace(' ', '_') + '.graphml'
         self.local_files = os.listdir('.')
-        self.G = self.request() if self.graph_name in self.local_files else ox.load_graphml(self.graph_name)
-        self.fig, self.axis, self.ax = self.project_axis()
+        self.init_graph = self.request() if self.graph_name in self.local_files else ox.load_graphml(self.graph_name)
+        self.fig, self.axis = None, None
+        self.ax, self.G = self.project_axis()
 
     def request(self):
         """
@@ -34,16 +35,16 @@ class OGraph:
     def project_axis(self):
         """
         projects graph geometry and plots figure, retrieving an axis
-        :return:
+        :return: self.fig, self.axis, ax, graph
         """
         # project and plot
-        graph = ox.project_graph(self.G)
+        graph = ox.project_graph(self.init_graph)
         fig, ax = ox.plot_graph(graph, node_size=0, edge_linewidth=0.5, show=False)
         # set the axis title and grab the dimensions of the figure
         self.fig = fig
         ax.set_title(self.query)
         self.axis = ax.axis()
-        return self.fig, self.axis, ax
+        return ax, graph
 
     def save_graph(self):
         """

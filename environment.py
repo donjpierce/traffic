@@ -33,8 +33,8 @@ class Env:
         self.light_init_method = sim.init_traffic_lights
         # self.car_init_method = convergent_learner.init_custom_agent
         # self.light_init_method = convergent_learner.init_custom_lights
-        self.cars_object = Cars(self.car_init_method(self.N, self.axis), self.axis)
-        self.lights_object = TrafficLights(self.light_init_method(self.axis, prescale=40), self.axis)
+        self.cars_object = Cars(self.car_init_method(self.N, self.graph), self.graph)
+        self.lights_object = TrafficLights(self.light_init_method(self.graph, prescale=40), self.graph)
         self.high = 10
         self.low = 2
         self.shortest_route_thresh = 5
