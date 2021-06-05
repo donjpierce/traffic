@@ -16,12 +16,13 @@ free_distance = 20
 default_acceleration = 6
 
 
-def update_cars(cars, dt):
+def update_cars(cars, graph, dt):
     """
     This function shortens the stored path of a car after determining if the car crossed the next node in the path
     Then calculates the direction and magnitude of the velocity
 
     :param       cars: dataframe
+    :param      graph: OGraph object from osm_request
     :param         dt: double
     :return   package: four Series's suitable for the main dataframe
     """
@@ -39,7 +40,7 @@ def update_cars(cars, dt):
             new_times.append(car[1]['route-time'] + dt)
 
             # initialize an obstacle scan of the frontal view
-            frontview = nav.FrontView(car[1], stop_distance)
+            frontview = nav.FrontView(car[1], graph, stop_distance=stop_distance)
 
             # determine if the car has just crossed a node
             if frontview.crossed_node_event():
@@ -206,6 +207,9 @@ def init_random_node_start_location(n, graph):
 
             # random routes end at random places too
             random_index = round(random.random() * n)
+            print(nodes)
+            print('random index')
+            print(random_index)
             destination = nodes[random_index]
 
             try:

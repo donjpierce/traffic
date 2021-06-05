@@ -55,7 +55,7 @@ class Cars:
         self.state['distance-to-red-light'] = light_distances
 
         self.state['route'], self.state['xpath'], self.state['ypath'], self.state['vx'], \
-            self.state['vy'], self.state['route-time'] = sim.update_cars(self.state, dt)
+            self.state['vy'], self.state['route-time'] = sim.update_cars(self.state, self.graph, dt)
 
         self.state['x'] = self.state['x'] + self.state['vx'] * dt
         self.state['y'] = self.state['y'] + self.state['vy'] * dt

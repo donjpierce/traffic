@@ -3,33 +3,48 @@ import os
 
 
 class OGraph:
-    def __init__(self, query, save=False):
+    def __init__(self, query, save=False, preview=False):
         """
         Silently sends a geo-codable query to OSMNX for the graph of roads, saves result,
         and loads .graphml files locally if they exist in the graph_files/ folder
 
         :param query: str: geo-codable query such as "Harlem, NY" or "Kigali, Rwanda"
+        :param preview: bool: will show graph at run-time if True else False
         :param save: bool:
         """
         self.query = query
         self.save = save
+        self.preview = preview
         self.store = 'graphml_files'
         self.graph_name = self.query.lower().replace(',', '').replace(' ', '_') + '.graphml'
         self.local_files = os.listdir('.')
-        self.init_graph = self.request() if self.graph_name in self.local_files else ox.load_graphml(self.graph_name)
+        self.init_graph = self.request()
         self.fig, self.axis = None, None
         self.ax, self.G = self.project_axis()
 
     def request(self):
         """
+        Negotiates a query to OSMNX if no local stored file else loads local file
+
+        :return: result:
+        """
+        result = ox.load_graphml(self.graph_name) if (self.graph_name in self.local_files) else self.send_query()
+        return result
+
+    def send_query(self):
+        """
         Request a graph from OSMNX
 
-        :return:
+        :return: G: OSMN Graph object
         """
         # query graph from place
-        G = ox.graph_from_place(query=self.query, simplify=True, network_type='drive')
-        if self.save:
-            ox.save_graphml(G, filepath=self.graph_name)
+        G = None
+        try:
+            G = ox.graph_from_place(query=self.query, simplify=True, network_type='drive')
+            if self.save:
+                ox.save_graphml(G, filepath=self.graph_name)
+        except Exception:
+            print('No graph found. Please try a geo-codable place from OpenStreetMaps.')
         return G
 
     def project_axis(self):
@@ -39,7 +54,7 @@ class OGraph:
         """
         # project and plot
         graph = ox.project_graph(self.init_graph)
-        fig, ax = ox.plot_graph(graph, node_size=0, edge_linewidth=0.5, show=False)
+        fig, ax = ox.plot_graph(graph, node_size=0, edge_linewidth=0.5, show=True if self.preview else False)
         # set the axis title and grab the dimensions of the figure
         self.fig = fig
         ax.set_title(self.query)

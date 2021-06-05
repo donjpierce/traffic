@@ -10,6 +10,8 @@ from matplotlib import animation
 import osmnx as ox
 import simulation as sim
 from osm_request import OGraph
+from tqdm import tqdm
+import sys
 
 # ask the user for a geo-codable location
 query = input('Please input a geo-codable place, like "Harlem, NY" or "Kigali, Rwanda": ')
@@ -17,9 +19,8 @@ query = input('Please input a geo-codable place, like "Harlem, NY" or "Kigali, R
 # get OGraph object
 graph = OGraph(query, save=True)
 
-
 # initialize the car and light state objects
-N = 300  # number of cars to simulate
+N = 100  # number of cars to simulate
 # cars = Cars(sim.init_culdesac_start_location(N, axis), axis)
 cars = Cars(sim.init_random_node_start_location(N, graph), graph)
 lights = TrafficLights(sim.init_traffic_lights(graph, prescale=15), graph)
@@ -40,7 +41,11 @@ animate = animator.animate
 
 print(f"{dt.now().strftime('%H:%M:%S')} Now running simulation... ")
 # for creating HTML movies
-ani = animation.FuncAnimation(graph.fig, animate, init_func=init, frames=n_frames, interval=30, blit=True)
+ani = animation.FuncAnimation(graph.fig, animate,
+                              init_func=init,
+                              frames=tqdm(range(n_frames), file=sys.stdout),
+                              interval=30,
+                              blit=True)
 mywriter = animation.HTMLWriter(fps=frames_per_second)
 ani.save('traffic.html', writer=mywriter)
 
