@@ -14,7 +14,7 @@ class Animator:
         self.lights_object = lights_object
         self.number_of_lights = len(self.lights_object.state)
         self.number_of_faces = sum(self.lights_object.state['degree'])
-        self.cars = sum([ax.plot([], [], color='blue', marker='o', ms=3) for n in range(self.N)], [])
+        self.cars = sum([ax.plot([], [], color='blue', marker='o', ms=1) for n in range(self.N)], [])
         self.lights = sum([ax.plot([], [], color='red', marker='+', ms=2) for l in range(self.number_of_lights)], [])
         self.faces = sum([ax.plot([], [], color='red', marker='^', ms=2) for f in range(self.number_of_faces)], [])
 

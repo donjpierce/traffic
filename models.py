@@ -55,12 +55,13 @@ def weigh_factors(car_factor, curvature_factor, distance_to_car, distance_to_nod
     :return factor: double
     """
     # normalize distances
-    distance_to_car = distance_to_car / free_distance
-    distance_to_node = distance_to_node / free_distance
+    distance_to_car = distance_to_car
+    distance_to_node = distance_to_node
 
-    # superpose the two distances on a unit circle depending on their relative magnitude
-    rad = np.pi / 2
-    factor = car_factor * math.cos(distance_to_car * rad) + curvature_factor * math.sin(distance_to_node * rad)
+    # superimpose the two distances on a unit circle such that the closest one has the most weight
+    distance_diff = abs(distance_to_node - distance_to_car)
+
+    factor = car_factor * math.cos(distance_to_car / free_distance) + curvature_factor * math.sin(distance_to_node / free_distance)
 
     return factor
 

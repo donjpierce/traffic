@@ -17,7 +17,7 @@ class OGraph:
         self.preview = preview
         self.store = 'graphml_files'
         self.graph_name = self.query.lower().replace(',', '').replace(' ', '_') + '.graphml'
-        self.local_files = os.listdir('.')
+        self.local_files = os.listdir(self.store)
         self.init_graph = self.request()
         self.fig, self.axis = None, None
         self.ax, self.G = self.project_axis()
@@ -42,7 +42,7 @@ class OGraph:
         try:
             G = ox.graph_from_place(query=self.query, simplify=True, network_type='drive')
             if self.save:
-                ox.save_graphml(G, filepath=self.graph_name)
+                ox.save_graphml(G, filepath=self.store + self.graph_name)
         except Exception:
             print('No graph found. Please try a geo-codable place from OpenStreetMaps.')
         return G
@@ -60,14 +60,6 @@ class OGraph:
         ax.set_title(self.query)
         self.axis = ax.axis()
         return ax, graph
-
-    def save_graph(self):
-        """
-        Saves graph to local store
-        :return:
-        """
-        ox.save_graphml(self.G)
-        return
 
     def dir_check(self):
         """

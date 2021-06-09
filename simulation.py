@@ -10,10 +10,10 @@ import pandas as pd
 import random
 
 # fill the initial state with N cars
-speed_limit = 1000
-stop_distance = 5
-free_distance = 20
-default_acceleration = 6
+speed_limit = 1500
+stop_distance = 20
+free_distance = 60
+default_acceleration = 4
 
 
 def update_cars(cars, graph, dt):
@@ -207,9 +207,10 @@ def init_random_node_start_location(n, graph):
 
             # random routes end at random places too
             random_index = round(random.random() * n)
-            print(nodes)
-            print('random index')
-            print(random_index)
+            # print('len nodes')
+            # print(len(nodes)))
+            # print('random index')
+            # print(random_index)
             destination = nodes[random_index]
 
             try:
@@ -284,7 +285,7 @@ def init_culdesac_start_location(n, graph, car_id=None, alternate_route=None):
         # destination = 53028190
         """ END TEMP SETTINGS FOR ONE-CAR-ONE-ROUTE STUDY """
         try:
-            path = nav.get_init_path(origin, destination)
+            path = nav.get_init_path(graph, origin, destination)
             route = nav.get_route(graph, origin, destination)
         except NetworkXNoPath:
             print('No path between {} and {}.'.format(origin, destination))

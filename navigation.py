@@ -518,8 +518,8 @@ def find_culdesacs(graph):
     """
     streets_per_node = graph.G.graph['streets_per_node']
     # parse out the data structure provided by OSM
-    nodes = streets_per_node.split(',')
-    streets_per_node = {node.split(':')[0][1:]: node.split(':')[1][1:].replace('}', '') for node in nodes}
+    # nodes = streets_per_node.split(',')
+    # streets_per_node = {node.split(':')[0][1:]: node.split(':')[1][1:].replace('}', '') for node in nodes}
     culdesacs = [key for key, value in streets_per_node.items() if int(value) == 1]
     return culdesacs
 
