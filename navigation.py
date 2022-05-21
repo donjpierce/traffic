@@ -4,10 +4,10 @@ and thus contains methods for updating car position and finding path to car dest
 also contains methods for locating cars and intersections in the front_view
 and calculating the curvature of the bend in the road for speed adjustments
 """
-import json
 import models
 import networkx as nx
 import numpy as np
+import osmnx as ox
 
 
 class FrontView:
@@ -93,10 +93,17 @@ class FrontView:
         Determines if the car has crossed a node, and advises simulation to change
         its velocity vector accordingly
 
-        :return bool: True if the car is passing a node, False otherwise
+        :return: bool: True if the car is passing a node, False otherwise
         """
-        car_near_xnode = np.isclose(self.view[0][0], self.car['x'], rtol=1.0e-6)
-        car_near_ynode = np.isclose(self.view[0][1], self.car['y'], rtol=1.0e-6)
+
+        # L1-norm proximity tolerance.
+        # The distance (in units of x-axis or y-axis) to a node a car must be
+        # to consider it to have crossed the node.
+        #  "Crossing a node" is used to update a car's velocity vector:
+        #  i.e. once this function returns True, the car will begin piloting to the NEXT node in the route.
+        tolerance = 1.0e-5
+        car_near_xnode = np.isclose(self.view[0][0], self.car['x'], rtol=tolerance)
+        car_near_ynode = np.isclose(self.view[0][1], self.car['y'], rtol=tolerance)
 
         if car_near_xnode and car_near_ynode:
             return True
@@ -109,7 +116,7 @@ class FrontView:
 
         :return bool: False if not, True if car is at the end of its root
         """
-        xdest, ydest = get_position_of_node(self.car['destination'])
+        xdest, ydest = get_position_of_node(self.graph, self.car['destination'])
         xdiff = xdest - self.car['x']
         ydiff = ydest - self.car['y']
         car_near_xdest = np.isclose(0, xdiff, atol=self.stop_distance)
@@ -138,7 +145,7 @@ class StateView:
         self.index = car_index
         self.car = cars.loc[self.index]
         self.route = np.array(self.car['route'])
-        self.eta = eta(self.car, self.lights)
+        self.eta = eta(self.graph, self.car, self.lights)
         self.max_cars = 10  # the number of cars in a bin for the bin to be considered 'congested traffic'
         self.speed_limit = 1000
 
@@ -281,7 +288,7 @@ class StateView:
             direction = dv_table['potential-nodes'].loc[dv_table.index[dv_table['sum-distances'].idxmin()]]
 
             # get new route around obstacle
-            data = build_new_route(self.route, reroute_node, direction, traffic, avoid)
+            data = build_new_route(self.graph, self.route, reroute_node, direction, traffic, avoid)
             if data:
                 new_route, new_xpath, new_ypath, detour = data
                 found_route = True
@@ -516,10 +523,7 @@ def find_culdesacs(graph):
     :param graph: object: OGraph object from osm_request
     :return culdesacs: list of node IDs
     """
-    streets_per_node = graph.G.graph['streets_per_node']
-    # parse out the data structure provided by OSM
-    # nodes = streets_per_node.split(',')
-    # streets_per_node = {node.split(':')[0][1:]: node.split(':')[1][1:].replace('}', '') for node in nodes}
+    streets_per_node = ox.stats.count_streets_per_node(graph.G)
     culdesacs = [key for key, value in streets_per_node.items() if int(value) == 1]
     return culdesacs
 
@@ -600,13 +604,14 @@ def get_route(graph, origin, destination):
     return nx.shortest_path(graph.G, origin, destination, weight='length')
 
 
-def eta(car, lights, speed_limit=250):
+def eta(graph, car, lights, speed_limit=250):
     """
     calculates the ETA by considering traffic lights, car traffic (in future versions), and distances
 
-    :param            car: Series
-    :param         lights: DataFrame
-    :param    speed_limit: int
+    :param:         graph: OGraph object
+    :param:           car: Series
+    :param:        lights: DataFrame
+    :param:   speed_limit: int
     :return:    path_time: double
     """
     route = np.array(car['route'])
@@ -632,11 +637,12 @@ def build_new_route(graph, route, reroute_node, direction, traffic, avoid):
     this function builds a new route for a car based on the original route given that it would like to turn off
     the original route at the reroute_node
 
-    :param        route: array: the original Dijkstra's shortest path
-    :param reroute_node:   int: the node at which the car would like to depart the original path
-    :param    direction:   int: the next node after reroute_node in the direction of the departure
-    :param      traffic:   int: 0 or n (0 if new route avoids a traffic light, n if new route avoids n-node traffic)
-    :param        avoid:   int: the node on which avoidance is based
+    :param:       graph: OGraph:
+    :param:        route: array: the original Dijkstra's shortest path
+    :param: reroute_node:   int: the node at which the car would like to depart the original path
+    :param:    direction:   int: the next node after reroute_node in the direction of the departure
+    :param:      traffic:   int: 0 or n (0 if new route avoids a traffic light, n if new route avoids n-node traffic)
+    :param:        avoid:   int: the node on which avoidance is based
 
     :return:  new_route, x_path, y_path, detour: lists: the new route, along with its x and y lines, and the detour path
     """
@@ -726,11 +732,12 @@ def build_new_route(graph, route, reroute_node, direction, traffic, avoid):
     return new_route, new_xpath, new_ypath, detour
 
 
-def determine_limits(route):
+def determine_limits(graph, route):
     """
     this function determines the axis limits for an Animator focused on a specific route in the system
 
-    :param   route: list
+    :param:   graph: OGraph object
+    :param:   route: list
     :return   axis: list
     """
     xs, ys = [], []

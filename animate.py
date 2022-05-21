@@ -2,7 +2,8 @@ import navigation as nav
 
 
 class Animator:
-    def __init__(self, fig, ax, cars_object, lights_object, num, frame_rate=1000, dt=1 / 1000, n=1, focus=None):
+    def __init__(self, fig, ax, cars_object, lights_object, num,
+                 frame_rate=1000, dt=1 / 1000, n=1, focus=None, write_frames=False):
         self.fig = fig
         self.ax = ax
         self.num = num
@@ -10,6 +11,7 @@ class Animator:
         self.dt = dt
         self.N = n
         self.focus = focus  # the car ID on which the Animator should focus
+        self.write_frames = write_frames  # save a PNG of the canvas every frame_rate frames
         self.cars_object = cars_object
         self.lights_object = lights_object
         self.number_of_lights = len(self.lights_object.state)
@@ -22,8 +24,8 @@ class Animator:
         """
         Set initial blank data
 
-        :num    tuple: int, int
-        :return cars + lights + faces:
+        :num:    tuple: int, int
+        :return: cars + lights + faces:
         """
         for car in self.cars:
             car.set_data([], [])
@@ -36,7 +38,7 @@ class Animator:
 
         if self.focus:
             route = self.cars_object.state.loc[self.focus]['route']
-            new_axis = nav.determine_limits(route)
+            new_axis = nav.determine_limits(self.cars_object.graph, route)
             self.ax.set_xlim(new_axis[0], new_axis[1])
             self.ax.set_ylim(new_axis[2], new_axis[3])
 
@@ -86,7 +88,7 @@ class Animator:
             else:
                 face.set_color('red')
 
-        if i % self.frame_rate == 0:
+        if i % self.frame_rate == 0 and self.write_frames:
             self.save_figure(i)
 
         self.fig.canvas.draw()

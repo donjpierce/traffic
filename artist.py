@@ -20,9 +20,9 @@ query = input('Please input a geo-codable place, like "Harlem, NY" or "Kigali, R
 graph = OGraph(query, save=True)
 
 # initialize the car and light state objects
-N = 6  # number of cars to simulate
-cars = Cars(sim.init_culdesac_start_location(N, graph), graph)
-# cars = Cars(sim.init_random_node_start_location(N, graph), graph)
+N = int(input('Number of cars to simulate: '))
+# cars = Cars(sim.init_culdesac_start_location(N, graph), graph)
+cars = Cars(sim.init_random_node_start_location(N, graph), graph)
 lights = TrafficLights(sim.init_traffic_lights(graph, prescale=15), graph)
 
 """ for an example of learning using a single, convergent learner, initialize the sim using these cars and lights: """
@@ -30,7 +30,7 @@ lights = TrafficLights(sim.init_traffic_lights(graph, prescale=15), graph)
 # lights = TrafficLights(cl.init_custom_lights(fig_axis=axis, prescale=None), axis)
 
 # time of simulation (in seconds)
-duration = 30
+duration = int(input('Duration of time to simulate (in seconds): '))
 frames_per_second = 60
 n_frames = duration * frames_per_second
 
@@ -47,7 +47,7 @@ ani = animation.FuncAnimation(graph.fig, animate,
                               interval=30,
                               blit=True)
 mywriter = animation.HTMLWriter(fps=frames_per_second)
-ani.save('traffic.html', writer=mywriter)
+ani.save(f'traffic_{dt.today().strftime("%Y_%m_%d")}.html', writer=mywriter)
 
 # for creating mp4 movies
 # ani = animation.FuncAnimation(fig, animate, init_func=init, frames=500)
