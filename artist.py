@@ -20,7 +20,7 @@ query = input('Please input a geo-codable place, like "Harlem, NY" or "Kigali, R
 graph = OGraph(query, save=True)
 
 # initialize the car and light state objects
-N = 100  # number of cars to simulate
+N = int(input('Number of cars to simulate: '))
 cars = Cars(sim.init_culdesac_start_location(N, graph), graph)
 # cars = Cars(sim.init_random_node_start_location(N, graph), graph)
 lights = TrafficLights(sim.init_traffic_lights(graph, prescale=15), graph)

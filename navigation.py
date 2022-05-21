@@ -4,10 +4,10 @@ and thus contains methods for updating car position and finding path to car dest
 also contains methods for locating cars and intersections in the front_view
 and calculating the curvature of the bend in the road for speed adjustments
 """
-import json
 import models
 import networkx as nx
 import numpy as np
+import osmnx as ox
 
 
 class FrontView:
@@ -516,10 +516,7 @@ def find_culdesacs(graph):
     :param graph: object: OGraph object from osm_request
     :return culdesacs: list of node IDs
     """
-    streets_per_node = graph.G.graph['streets_per_node']
-    # parse out the data structure provided by OSM
-    # nodes = streets_per_node.split(',')
-    # streets_per_node = {node.split(':')[0][1:]: node.split(':')[1][1:].replace('}', '') for node in nodes}
+    streets_per_node = ox.stats.count_streets_per_node(graph.G)
     culdesacs = [key for key, value in streets_per_node.items() if int(value) == 1]
     return culdesacs
 

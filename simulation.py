@@ -21,10 +21,10 @@ def update_cars(cars, graph, dt):
     This function shortens the stored path of a car after determining if the car crossed the next node in the path
     Then calculates the direction and magnitude of the velocity
 
-    :param       cars: dataframe
-    :param      graph: OGraph object from osm_request
-    :param         dt: double
-    :return   package: four Series's suitable for the main dataframe
+    :param:       cars: dataframe
+    :param:      graph: OGraph object from osm_request
+    :param:         dt: double
+    :return:     list: four Series's suitable for the main dataframe
     """
     new_route = []
     new_xpaths = []
@@ -72,8 +72,9 @@ def update_cars(cars, graph, dt):
             # save final route time
             new_times.append(car[1]['route-time'])
 
-    package = pd.Series(new_route), pd.Series(new_xpaths), pd.Series(new_ypaths), pd.Series(new_vx), \
-        pd.Series(new_vy), pd.Series(new_times)
+    package = [pd.Series(new_route, dtype='float'), pd.Series(new_xpaths, dtype='object'),
+               pd.Series(new_ypaths, dtype='object'), pd.Series(new_vx, dtype='float'),
+               pd.Series(new_vy, dtype='float'), pd.Series(new_times, dtype='float')]
 
     return package
 
