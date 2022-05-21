@@ -28,7 +28,9 @@ class OGraph:
 
         :return: result:
         """
-        result = ox.load_graphml(self.graph_name) if (self.graph_name in self.local_files) else self.send_query()
+        result = ox.load_graphml(
+            self.store + '/' + self.graph_name
+        ) if (self.graph_name in self.local_files) else self.send_query()
         return result
 
     def send_query(self):
@@ -42,7 +44,7 @@ class OGraph:
         try:
             G = ox.graph_from_place(query=self.query, simplify=True, network_type='drive')
             if self.save:
-                ox.save_graphml(G, filepath=self.store + self.graph_name)
+                ox.save_graphml(G, filepath=self.store + '/' + self.graph_name)
         except Exception:
             print('No graph found. Please try a geo-codable place from OpenStreetMaps.')
         return G
@@ -54,7 +56,9 @@ class OGraph:
         """
         # project and plot
         graph = ox.project_graph(self.init_graph)
-        fig, ax = ox.plot_graph(graph, node_size=0, edge_linewidth=0.5, show=True if self.preview else False)
+        fig, ax = ox.plot_graph(graph, node_size=0, edge_linewidth=0.5,
+                                show=True if self.preview else False,
+                                bgcolor='#FFFFFF')
         # set the axis title and grab the dimensions of the figure
         self.fig = fig
         ax.set_title(self.query)

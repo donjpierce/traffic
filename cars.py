@@ -80,8 +80,8 @@ class TrafficLights:
         """
         traffic light objects are used for finding, updating, and timing traffic light nodes
 
-        :param light_state: list: each entry in the list is a light dictionary
-        :param graph: objectL OGraph object from osm_request
+        :param: light_state: list: each entry in the list is a light dictionary
+        :param: graph: objectL OGraph object from osm_request
         """
         self.init_state = light_state
         self.state = self.init_state.copy()
@@ -93,7 +93,7 @@ class TrafficLights:
         """
         update the state of the traffic lights
 
-        :param dt:
+        :param: dt:
         :return:
         """
         self.time_elapsed += dt
