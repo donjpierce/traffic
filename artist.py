@@ -20,7 +20,7 @@ query = input('Please input a geo-codable place, like "Harlem, NY" or "Kigali, R
 graph = OGraph(query, save=True)
 
 # initialize the car and light state objects
-N = 6  # number of cars to simulate
+N = 100  # number of cars to simulate
 cars = Cars(sim.init_culdesac_start_location(N, graph), graph)
 # cars = Cars(sim.init_random_node_start_location(N, graph), graph)
 lights = TrafficLights(sim.init_traffic_lights(graph, prescale=15), graph)
@@ -47,7 +47,7 @@ ani = animation.FuncAnimation(graph.fig, animate,
                               interval=30,
                               blit=True)
 mywriter = animation.HTMLWriter(fps=frames_per_second)
-ani.save('traffic.html', writer=mywriter)
+ani.save('traffic_05_21_2022.html', writer=mywriter)
 
 # for creating mp4 movies
 # ani = animation.FuncAnimation(fig, animate, init_func=init, frames=500)
