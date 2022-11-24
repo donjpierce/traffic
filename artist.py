@@ -14,7 +14,10 @@ python artist.py --location "Harlem, NY" --cars 10 --duration 60 --fps 30 --inte
                         2 -> 1/2 qualifying intersections will not have a light (good for large cities)
                         10 -> 1/10 qualifying intersections will not have a light (good for metropolitan areas)
                         100 -> 1/100 qualifying intersections will not have a light (good for rural areas)
-
+--mp4: False by default. Will generate HTML movies and output each frame to the timestamped frame directory. If True,
+                            will generate an MP4 movie instead.
+--serialize: False by default. If True, will serialize the car and light objects dataframes to disk after each frame.
+                                This is useful for collecting data for analysis, but will slow down the simulation.
 """
 
 import argparse
@@ -42,7 +45,6 @@ parser.add_argument('-d', '--duration', type=int, help='The duration of the simu
 parser.add_argument('-f', '--frames_per_second', type=int, help='The number of frames per second to render.')
 parser.add_argument('-i', '--interactive', action='store_true', help='Run the simulation in interactive mode.')
 parser.add_argument('-p', '--light_prescaling', type=int, help='The number of lights to prescale.')
-parser.add_argument('-x', '--learning', action='store_true', help='Run the simulation in learning mode.')
 parser.add_argument('-m', '--mp4', action='store_true', help='Generate an MP4 movie instead of an HTML movie.')
 parser.add_argument('-s', '--serialize', action='store_true', help='Serialize the simulation in parquet dataframes.')
 
