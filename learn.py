@@ -1,4 +1,4 @@
-import matplotlib
+import argparse
 from environment import Env
 from keras import Sequential, layers
 import matplotlib.pyplot as plt
@@ -6,11 +6,23 @@ import numpy as np
 from osm_request import OGraph
 
 
+# argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('-l', '--location', type=str, default="Upper West Side, Manhattan, New York City, New York, USA")
+parser.add_argument('-c', '--cars', type=int, default=50)
+parser.add_argument('-dt', type=float, default=1/1000)
+parser.add_argument('-x', '--agent', type=int, default=17)
+parser.add_argument('-e', '--episodes', type=int, default=40)
+parser.add_argument('-a', '--animate', action='store_true')
+
+
 def main(
         location="Upper West Side, Manhattan, New York City, New York, USA",
         cars=50,
         dt=1/1000,
-        agent=17
+        agent=17,
+        num_episodes=40,
+        animate=False
 ):
     """
 
@@ -18,13 +30,15 @@ def main(
     :param dt: float: time step for each frame
     :param cars: int: the total number of cars to simulate
     :param agent: int: the number of the car that will be the learning agent (must be less than cars)
+    :param num_episodes: int: the number of episodes to run
+    :param animate: bool: whether to animate the simulation
     :return:
     """
 
     graph = OGraph(location, save=True)
 
     # initialize the environment for the learning agent
-    env = Env(n=cars, graph=graph, agent=agent, dt=dt, animate=False)
+    env = Env(n=cars, graph=graph, agent=agent, dt=dt, animate=animate)
 
     # initialize the Keras training model
     model = Sequential()
@@ -37,7 +51,6 @@ def main(
     y = 0.95
     eps = 0.5
     decay_factor = 0.80
-    num_episodes = 40
 
     r_avg_list = []
     r_sum_list = []
@@ -84,3 +97,16 @@ def main(
 
     return
 
+
+if __name__ == '__main__':
+
+    args = parser.parse_args()
+
+    main(
+        location=args.location,
+        cars=args.cars,
+        dt=args.dt,
+        agent=args.agent,
+        num_episodes=args.episodes,
+        animate=args.animate
+    )

@@ -47,7 +47,7 @@ class Env:
         :return state:   int
         """
         # initialize cars every reset
-        init_cars = self.car_init_method(self.N, self.axis)
+        init_cars = self.car_init_method(n=self.N, graph=self.graph)
         self.cars_object = Cars(init_state=init_cars, graph=self.graph)
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
@@ -57,7 +57,7 @@ class Env:
             # init animator
             self.num = num
             self.animator = Animator(fig=self.fig, ax=self.ax, cars_object=self.cars_object,
-                                     lights_object=self.lights_object, num=self.num)
+                                     lights_object=self.lights_object, num=self.num, focus=self.agent)
 
         return state
 
@@ -79,8 +79,10 @@ class Env:
         :return          state:   list: initial state of agent
         """
         # initialize the car and light state objects
-        init_car_state = self.car_init_method(self.N, self.axis, car_id=self.agent, alternate_route=alternate_route)
-        self.cars_object = Cars(init_state=init_car_state, axis=self.axis)
+        init_car_state = self.car_init_method(
+            graph=self.graph, n=self.N, car_id=self.agent, alternate_route=alternate_route
+        )
+        self.cars_object = Cars(init_state=init_car_state, graph=self.graph)
 
         if self.animate:
             # init animator
@@ -114,6 +116,7 @@ class Env:
         else:
             new_state = state.index(True)
 
+        # Run the simulation until the car reaches the destination
         arrived = False
         i = 0
         while not arrived:
@@ -150,7 +153,7 @@ class Env:
 
     def simulation_step(self, i):
         """
-        make one step in the simulation
+        make one step in the simulation and determine if the car has arrived at the destination
 
         :param         i: simulation step
         :return  arrived: bool

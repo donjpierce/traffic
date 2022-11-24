@@ -145,7 +145,7 @@ class StateView:
         self.index = car_index
         self.car = cars.loc[self.index]
         self.route = np.array(self.car['route'])
-        self.eta = eta(self.graph, self.car, self.lights)
+        self.eta = eta(self.graph.G, self.car, self.lights)
         self.max_cars = 10  # the number of cars in a bin for the bin to be considered 'congested traffic'
         self.speed_limit = 1000
 
@@ -190,7 +190,11 @@ class StateView:
 
     def bulk(self, light_locs=None, traffic_nodes=None):
         """
-        this method determines whether the agent is in any one of states 1-6, 8, or 9
+        This function determines the state of the car based on the obstacles in the route.
+        It uses the location of the lights `light_locs` (a deterministic cost) and the congested bins `traffic_nodes`
+         (probabilistic costs) to determine a state vector of length 9. The state vector is a binary vector.
+
+        this bulk method determines whether the agent is in any one of states 1-6, 8, or 9
 
         :param    light_locs: None or list
         :param traffic_nodes: None or list
@@ -205,10 +209,10 @@ class StateView:
             new_route, new_xpath, new_ypath, detour = self.find_alternate_route(avoid_node, traffic)
 
         """
-        Calculate the length of the detour and the length of  
-        the stretch of the original route which was avoided by the detour:
+        Calculate the length of the detour and the length of
+         the stretch of the original route which was avoided by the detour:
         """
-        detour_length = sum([self.graph.get_edge_data(detour[i], detour[i + 1])[0]['length']
+        detour_length = sum([self.graph.G.get_edge_data(detour[i], detour[i + 1])[0]['length']
                              for i in range(len(detour) - 1)])
         departure_ind = np.where(self.route == detour[0])[0][0]
         return_ind = np.where(self.route == detour[-1])[0][0]
@@ -609,7 +613,7 @@ def eta(graph, car, lights, speed_limit=250):
     """
     calculates the ETA by considering traffic lights, car traffic (in future versions), and distances
 
-    :param:         graph: OGraph object
+    :param:         graph: G graph object from OSMx (i.e. OGraph.G object)
     :param:           car: Series
     :param:        lights: DataFrame
     :param:   speed_limit: int
@@ -657,7 +661,7 @@ def build_new_route(graph, route, reroute_node, direction, traffic, avoid):
     # TODO: this will not work if we are building a new route near the very end of a route, where there are not 3 nodes
     next_nodes_pos = []
     for node in route[reroute_index + 1:reroute_index + 4]:
-        x, y = get_position_of_node(node)
+        x, y = get_position_of_node(graph=graph, node=node)
         next_nodes_pos.append((x, y))
 
     returned = False
@@ -721,10 +725,14 @@ def build_new_route(graph, route, reroute_node, direction, traffic, avoid):
     lines = []
     for i in range(len(new_route)):
         if i < len(new_route) - 1:
-            lines.append(shortest_path_lines_nx(new_route[i], new_route[i + 1]))
+            lines.append(shortest_path_lines_nx(graph, new_route[i], new_route[i + 1]))
 
     new_path = []
     for geometry in lines:
+        # Lines are returned as a list of tuples.
+        # However, the full package has this data structure:
+        #  [ [[(x1, y1), ...]], [[(x2, y2), ...]], ... ]
+        #  So we always iterate over the first element of each element:
         for point in geometry[0]:
             new_path.append(point)
 

@@ -37,10 +37,13 @@ class Animator:
             face.set_data([], [])
 
         if self.focus:
+            # narrow the plot axes to the route of the car with ID self.focus
             route = self.cars_object.state.loc[self.focus]['route']
             new_axis = nav.determine_limits(self.cars_object.graph, route)
             self.ax.set_xlim(new_axis[0], new_axis[1])
             self.ax.set_ylim(new_axis[2], new_axis[3])
+            # set the focus car to be a different color than all others
+            self.cars[self.focus].set_color('green')
 
         axis = self.ax.axis()
 

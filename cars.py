@@ -1,12 +1,18 @@
 """
-Description of module..
+Example usage:
 
-Traffic lights when color=red are obstacles just like cars
-Cars slow down exponentially as radius of road curvature gets smaller
-Cars slow down for obstacles exponentially as obstacles get closer, and stop at stop_distance
+lights_object = TrafficLights(...)
+cars = Cars(...)
+
+dt, car_states, light_states = [], [], 1 / 1000
+for i in range(100):
+    light_state = lights_object.update(dt)
+    light_states.append(lights_state)
+
+    state = cars.update(dt=dt, lights_object.state)
+    car_states.append(state)
+
 """
-import os
-
 import simulation as sim
 import models
 import navigation as nav
@@ -44,10 +50,10 @@ class Cars:
         # pre-process
         time_elapsed = str(round(self.time_elapsed, 4)).replace(".", "").zfill(4)
 
-        os.mkdir(f"{self.serialize_path}/dt={time_elapsed}")
         write_state.to_parquet(
             f'{self.serialize_path}/dt={time_elapsed}/cars_state_at_{time_elapsed}.parquet.gz',
-            engine='fastparquet'
+            engine='fastparquet',
+            overwrite=True
         )
         return
 
