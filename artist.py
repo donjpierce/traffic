@@ -1,3 +1,22 @@
+"""
+Usage:
+
+python artist.py --location "Harlem, NY" --cars 10 --duration 60 --fps 30 --interactive \
+ --light_prescaling 1 --learning --mp4 --serialize
+
+--location: Must be a geocode-able location, like "Washington, DC, USA" or "Campo Limpo, São Paulo, Brazil"
+--cars: Number of cars to simulate
+--duration: Duration of simulation (in seconds)
+--fps: Frames per second
+--interactive: If True, will prompt the user for simulation parameters not specified in the command line
+--light_prescaling: All intersections of degree 3 or higher on the map will have a traffic light if not pre-scaled
+                    by this parameter. The large the map the smaller this param should be.
+                        2 -> 1/2 qualifying intersections will not have a light (good for large cities)
+                        10 -> 1/10 qualifying intersections will not have a light (good for metropolitan areas)
+                        100 -> 1/100 qualifying intersections will not have a light (good for rural areas)
+
+"""
+
 import argparse
 from animate import Animator
 from datetime import datetime as dt
