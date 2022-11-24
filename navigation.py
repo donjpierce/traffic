@@ -414,6 +414,7 @@ class StateView:
         return dv_table
 
 
+# TODO: optimize this function
 def car_obstacles(frontview, cars):
     """
     Determines if there are any other_cars within the car's bin and then calculates the distance to the

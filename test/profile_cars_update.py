@@ -1,3 +1,4 @@
+import argparse
 import cProfile
 import pstats
 
@@ -6,11 +7,14 @@ import simulation as sim
 from osm_request import OGraph
 import tqdm
 
-# Test graph
-graph = OGraph("Olney, Maryland")
+# argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('-l', '--location', type=str, help='A geocode-able location over which to simulate traffic.')
+parser.add_argument('-t', '--timesteps', type=int, help='The number of timesteps to simulate in the test.')
 
 
-def test_cars_update(timesteps=100):
+def test_cars_update(timesteps):
+
     # initialize cars
     init_cars = sim.init_random_node_start_location(100, graph)
     cars_object = Cars(init_state=init_cars, graph=graph)
@@ -34,13 +38,22 @@ def test_cars_update(timesteps=100):
 
 if __name__ == '__main__':
 
+    # parse args
+    args = parser.parse_args()
+
+    # Get graph before profiling
+    # Test graph
+    graph = OGraph(args.location or "Olney, Maryland", save=True)
+
+    # begin profile
     profiler = cProfile.Profile()
     profiler.enable()
 
     # begin test function call
-    test_cars_update()
+    test_cars_update(timesteps=args.timesteps or 100)
     # end tests
 
+    # end profile
     profiler.disable()
     profiler.dump_stats('profile_cars_update.prof')
     p = pstats.Stats('profile_cars_update.prof')

@@ -88,6 +88,7 @@ class Cars:
 
         return self.state
 
+    # TODO: optimize this function
     def find_obstacles(self):
         node_distances, car_distances, light_distances = [], [], []
         for car in self.state.iterrows():
