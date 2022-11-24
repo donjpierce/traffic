@@ -46,7 +46,8 @@ class OGraph:
             if self.save:
                 ox.save_graphml(G, filepath=self.store + '/' + self.graph_name)
         except Exception:
-            print('No graph found. Please try a geo-codable place from OpenStreetMaps.')
+            raise LookupError(f'No graph found for query {self.query}.'
+                              f' Please try a geocode-able place from OpenStreetMaps.')
         return G
 
     def project_axis(self):

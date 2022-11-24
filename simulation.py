@@ -16,6 +16,7 @@ free_distance = 60
 default_acceleration = 4
 
 
+# TODO: profile
 def update_cars(cars, graph, dt):
     """
     This function shortens the stored path of a car after determining if the car crossed the next node in the path
@@ -185,12 +186,15 @@ def obstacle_factor(d):
     return factor
 
 
-def init_random_node_start_location(n, graph):
+def init_random_node_start_location(n, graph, car_id=None, alternate_route=None):
     """
     initializes n cars at n random nodes and sets their destinations as a culdesac
 
     :param      n:  int
     :param graph: object: OGraph object from osm_request
+    :param car_id: None or int: optional, int if you wish to prescribe an alternate route for car
+    :param alternate_route: list: optional, list of alternate route nodes for provided car
+
     :return state: dict
     """
     # TODO: combine this function with other car initialization functions using flags
@@ -208,11 +212,7 @@ def init_random_node_start_location(n, graph):
 
             # random routes end at random places too
             random_index = round(random.random() * n)
-            # print('len nodes')
-            # print(len(nodes)))
-            # print('random index')
-            # print(random_index)
-            destination = nodes[random_index]
+            destination = nodes[random_index] if random_index != n else nodes[0]
 
             try:
                 path = nav.get_init_path(graph, origin, destination)
@@ -239,6 +239,9 @@ def init_random_node_start_location(n, graph):
                    'distance-to-red-light': 0}
 
             cars_data.append(car)
+
+    if alternate_route:
+        cars_data[car_id]['route'], cars_data[car_id]['xpath'], cars_data[car_id]['ypath'] = alternate_route
 
     cars = pd.DataFrame(cars_data)
 

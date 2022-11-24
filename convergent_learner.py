@@ -8,21 +8,13 @@ import numpy as np
 import osmnx as ox
 import pandas as pd
 
-"""Piedmont, California"""
-G = ox.load_graphml('piedmont.graphml')
-G = ox.project_graph(G)
-fig, ax = ox.plot_graph(G, node_size=0, edge_linewidth=0.5)
 
-# grab the dimensions of the figure
-axis = ax.axis()
-
-
-def init_custom_agent(n=1, fig_axis=axis, car_id=None, alternate_route=None):
+def init_custom_agent(graph, n=1, car_id=None, alternate_route=None):
     """
     This function initializes a singular car with custom origin and destination
 
+    :param        graph:         list
     :param               n:          int
-    :param        fig_axis:         list
     :param          car_id:  None or int
     :param alternate_route: None or list
     :return     cars_frame:    DataFrame
@@ -31,10 +23,10 @@ def init_custom_agent(n=1, fig_axis=axis, car_id=None, alternate_route=None):
     origin = 53085387
     dest = 53082621
 
-    path = nav.get_init_path(origin, dest)
-    route = nav.get_route(origin, dest)
+    path = nav.get_init_path(graph.G, origin=origin, destination=dest)
+    route = nav.get_route(graph.G, origin=origin, destination=dest)
 
-    x, y = nav.get_position_of_node(origin)
+    x, y = nav.get_position_of_node(graph.G, origin)
 
     car = {'object': 'car',
            'x': x,
@@ -59,7 +51,7 @@ def init_custom_agent(n=1, fig_axis=axis, car_id=None, alternate_route=None):
     cars_frame = pd.DataFrame(cars_data)
 
     # determine binning and assign bins to cars
-    cars_frame['xbin'], cars_frame['ybin'] = models.determine_bins(fig_axis, cars_frame)
+    cars_frame['xbin'], cars_frame['ybin'] = models.determine_bins(graph.fig, cars_frame)
 
     return cars_frame
 
@@ -94,7 +86,7 @@ def init_custom_lights(fig_axis, prescale=None):
              'x': x,
              'y': y,
              'switch-counter': 0,
-             'switch-time': models.determine_traffic_light_timer()
+             'switch-time': models.determine_traffic_light_timer(degree)
              }
 
     light['out-xpositions'] = [x + epsilon * out_vectors[j][0] for j in range(light['degree'])]

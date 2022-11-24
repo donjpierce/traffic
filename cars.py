@@ -5,6 +5,8 @@ Traffic lights when color=red are obstacles just like cars
 Cars slow down exponentially as radius of road curvature gets smaller
 Cars slow down for obstacles exponentially as obstacles get closer, and stop at stop_distance
 """
+import os
+
 import simulation as sim
 import models
 import navigation as nav
@@ -12,23 +14,44 @@ import numpy as np
 
 
 class Cars:
-    def __init__(self, init_state, graph):
+    def __init__(self, init_state, graph, serialize=False):
         """
         car objects are used for accessing and updating each car's parameters
 
         Parameters
         __________
-        :param init_state: dataframe:    each Series row is a car
-        :param graph: object: OGraph object from osm_request
+        :param: init_state: dataframe:    each Series row is a car
+        :param:      graph: object: OGraph object from osm_request
+        :param:  serialize:   bool: write the state DataFrame to a local data store each update (very slow when True)
         """
         self.init_state = init_state
         self.state = self.init_state.copy()
         self.time_elapsed = 0
         self.lights = 0
         self.graph = graph
+        self.serialize = serialize
+        self.serialize_path = 'data_store'
         self.axis = self.graph.axis
         self.stop_distance = 5
 
+    def write_state(self):
+        """
+
+        :return:
+        """
+        # write to local data store
+        write_state = self.state.copy()
+        # pre-process
+        time_elapsed = str(round(self.time_elapsed, 4)).replace(".", "").zfill(4)
+
+        os.mkdir(f"{self.serialize_path}/dt={time_elapsed}")
+        write_state.to_parquet(
+            f'{self.serialize_path}/dt={time_elapsed}/cars_state_at_{time_elapsed}.parquet.gz',
+            engine='fastparquet'
+        )
+        return
+
+    # TODO: profile
     def update(self, dt, lights):
         """
         update the position of the car by a dt time step
@@ -59,9 +82,10 @@ class Cars:
 
         self.state['x'] = self.state['x'] + self.state['vx'] * dt
         self.state['y'] = self.state['y'] + self.state['vy'] * dt
-        # print(f"time elapsed: {self.time_elapsed}")
-        # print(f"incoming red light: {light_distances}")
-        # print(f"(vx, vy) : {self.state['vx'].values[0], self.state['vy'].values[0]}")
+
+        if self.serialize:
+            self.write_state()
+
         return self.state
 
     def find_obstacles(self):

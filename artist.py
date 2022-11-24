@@ -1,11 +1,8 @@
-# python=3.6 requires using Qt4Agg backend for animation saving
-import os
+import argparse
 from animate import Animator
 from datetime import datetime as dt
-import matplotlib
-# matplotlib.use('Qt4Agg')
 from cars import Cars, TrafficLights
-# import convergent_learner as cl
+import convergent_learner as cl
 from matplotlib import animation
 import osmnx as ox
 import simulation as sim
@@ -13,43 +10,117 @@ from osm_request import OGraph
 from tqdm import tqdm
 import sys
 
-# ask the user for a geo-codable location
-query = input('Please input a geo-codable place, like "Harlem, NY" or "Kigali, Rwanda": ')
 
-# get OGraph object
-graph = OGraph(query, save=True)
+# Listen for CLI args
+parser = argparse.ArgumentParser(
+    prog='Artist',
+    description='A module to generate HTML or MP4 movies of a traffic simulation.'
+)
 
-# initialize the car and light state objects
-N = int(input('Number of cars to simulate: '))
-# cars = Cars(sim.init_culdesac_start_location(N, graph), graph)
-cars = Cars(sim.init_random_node_start_location(N, graph), graph)
-lights = TrafficLights(sim.init_traffic_lights(graph, prescale=15), graph)
+parser.add_argument('-l', '--location', type=str, help='A geocode-able location over which to simulate traffic.')
+parser.add_argument('-c', '--cars', type=int, help='The number of cars to simulate.')
+parser.add_argument('-d', '--duration', type=int, help='The duration of the simulation (in seconds).')
+parser.add_argument('-f', '--frames_per_second', type=int, help='The number of frames per second to render.')
+parser.add_argument('-i', '--interactive', action='store_true', help='Run the simulation in interactive mode.')
+parser.add_argument('-p', '--light_prescaling', type=int, help='The number of lights to prescale.')
+parser.add_argument('-x', '--learning', action='store_true', help='Run the simulation in learning mode.')
+parser.add_argument('-m', '--mp4', action='store_true', help='Generate an MP4 movie instead of an HTML movie.')
+parser.add_argument('-s', '--serialize', action='store_true', help='Serialize the simulation in parquet dataframes.')
 
-""" for an example of learning using a single, convergent learner, initialize the sim using these cars and lights: """
-# cars = Cars(cl.init_custom_agent(n=1, fig_axis=axis), axis=axis)
-# lights = TrafficLights(cl.init_custom_lights(fig_axis=axis, prescale=None), axis)
 
-# time of simulation (in seconds)
-duration = int(input('Duration of time to simulate (in seconds): '))
-frames_per_second = 60
-n_frames = duration * frames_per_second
+def main(
+        location,
+        cars,
+        duration,
+        frames_per_second,
+        interactive,
+        light_prescaling,
+        learning,
+        mp4,
+        serialize
+):
+    """"
 
-# initialize the Animator
-animator = Animator(fig=graph.fig, ax=graph.ax, cars_object=cars, lights_object=lights, num=(1, 1), n=N)
-init = animator.reset
-animate = animator.animate
+    :param location: str
+    :param cars: int
+    :param duration: int
+    :param frames_per_second: int
+    :param interactive: bool
+    :param light_prescaling: int
+    :param learning: bool
+    :param mp4: bool
+    :param serialize: bool
+    """
+    query, N = location, cars
 
-print(f"{dt.now().strftime('%H:%M:%S')} Now running simulation... ")
-# for creating HTML movies
-ani = animation.FuncAnimation(graph.fig, animate,
-                              init_func=init,
-                              frames=tqdm(range(n_frames), file=sys.stdout),
-                              interval=30,
-                              blit=True)
-mywriter = animation.HTMLWriter(fps=frames_per_second)
-ani.save(f'traffic_{dt.today().strftime("%Y_%m_%d")}.html', writer=mywriter)
+    # enable interactive mode
+    if interactive:
+        # ask the user for simulation parameters, or retain them if already specified
+        query = location or input('Please input a geo-codable place, like "Harlem, NY" or "Kigali, Rwanda": ')
+        N = cars or int(input('Number of cars to simulate: '))
+        # time of simulation (in seconds)
+        duration = int(input('Duration of time to simulate (in seconds): '))
 
-# for creating mp4 movies
-# ani = animation.FuncAnimation(fig, animate, init_func=init, frames=500)
-# mywriter = animation.FFMpegWriter(fps=60)
-# ani.save('movie.mp4', writer=mywriter)
+    # get OGraph object)
+    graph = OGraph(query, save=True)
+
+    # get the simulation methods
+    # if a learning agent should be used, use the convergent learner init methods
+    if not learning:
+        # Default mode:
+        # initialize the car and light state objects
+        # cars = Cars(sim.init_culdesac_start_location(N, graph), graph)  # TODO: parametrize
+        cars = Cars(sim.init_random_node_start_location(N, graph), graph, serialize=serialize)
+        lights = TrafficLights(sim.init_traffic_lights(graph, prescale=light_prescaling), graph=graph)
+    else:
+        fig, axis = ox.plot_graph(graph.G, node_size=0, edge_linewidth=0.5)
+        cars = Cars(cl.init_custom_agent(graph, n=1), graph)
+        lights = TrafficLights(cl.init_custom_lights(fig_axis=axis, prescale=None), axis)
+
+    # calculate the number of frames to simulate
+    n_frames = duration * frames_per_second
+
+    # initialize the Animator
+    animator = Animator(fig=graph.fig, ax=graph.ax, cars_object=cars, lights_object=lights, num=(1, 1), n=N)
+    init = animator.reset
+    animate = animator.animate
+
+    print(f"{dt.now().strftime('%H:%M:%S')} Now running simulation... ")
+    if not mp4:
+        # for creating HTML movies
+        ani = animation.FuncAnimation(graph.fig, animate,
+                                      init_func=init,
+                                      frames=tqdm(range(n_frames), file=sys.stdout),
+                                      interval=duration,
+                                      blit=True)
+        mywriter = animation.HTMLWriter(fps=frames_per_second)
+        ani.save(f'traffic_{dt.today().strftime("%Y_%m_%d")}.html', writer=mywriter)
+    else:
+        # for creating mp4 movies
+        ani = animation.FuncAnimation(graph.fig, animate, init_func=init, frames=n_frames)
+        mywriter = animation.FFMpegWriter(fps=frames_per_second)
+        ani.save(f'traffic_{dt.today().strftime("%Y_%m_%d")}.mp4', writer=mywriter)
+
+    return
+
+
+if __name__ == '__main__':
+
+    args = parser.parse_args()
+    default_args = {
+        'location': "Olney, Maryland",
+        'cars': 50,
+        'duration': 10,
+        'frames_per_second': 60,
+        'interactive': False,
+        'light_prescaling': 15,
+        'learning': False,
+        'mp4': False,
+        'serialize': False
+    }
+    provided_args = {
+        key: args.__getattribute__(key) if args.__getattribute__(key) is not None else default_args[key]
+        for key in vars(args)
+    }
+    main(**provided_args)
+
