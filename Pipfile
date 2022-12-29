@@ -60,6 +60,14 @@ contourpy = "==1.0.6"
 keras = "==2.11.0"
 
 [dev-packages]
+commitizen = "*"
+black = "*"
+pipenv = "*"
+pytest = "*"
+interrogate = "*"
+flake8 = "*"
+mypy = "*"
+pre-commit = "*"
 
 [requires]
 python_version = "3.9"
