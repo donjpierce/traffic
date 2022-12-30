@@ -1,5 +1,6 @@
 # traffic
-An abstract and minimalist traffic simulation using OpenStreetMaps and OSMnx which can simulate traffic on any road network from OSM. 
+***
+The purpose of this repo is to provide an abstract and minimalist traffic simulation using OpenStreetMaps and OSMnx which can simulate traffic on any road network from OSM. 
 
 I train a three-layer, linear learning architecture using the Keras and Tensorflow open APIs. This model optimizes a car's route to its destination by deciding between two options: (1) the original Dijkstra's shortest path between its origin and destination or (2) a detour path around the traffic light in its route having the longest light time. 
 
@@ -8,9 +9,14 @@ The optimization algorithm in `learn.py` can be implemented for one car in the s
 The learning algorithm uses Q-learning with epsilon greedy techniques, and a dynamic reward scheme based on a car's time-to-complete. If a car took longer to reach its destination after changing routes, it receives a negative reward proportional to the time difference in routes. 
 
 
-Usage:
+## Usage:
+***
 
-After customizing desired parameters in the source code, run the `artist` scratch file with `$ python artist.py` to render .mp4 or .html movies of a traffic simulation.
+After customizing desired parameters in the source code, run the `artist` scratch file with:
+```bash
+python artist.py
+```
+to render .mp4 or .html movies of a traffic simulation.
 
 You can select a car in the source code as the learning agent (i.e. any number 1-N, where N is the number of cars desired in the simulation. Every car has a pre-configured route.) Then, run `python learn.py` to optimize that car's route to shortest-time.
 
@@ -50,6 +56,9 @@ There are two traffic lights (shown as blue dots) in the initial route for this 
 around the light with the longest switch-time. In this case, it was the second light in the route which was avoided by the
 rerouting algorithm. Since traffic light switch-times are randomly initialized each time a map is drawn, this will not always be the case.
 
+
+## Dependencies
+***
 **A note on the requirements for this code base**
 
 Installing 
