@@ -20,7 +20,7 @@ to render .mp4 or .html movies of a traffic simulation.
 
 You can select a car in the source code as the learning agent (i.e. any number 1-N, where N is the number of cars desired in the simulation. Every car has a pre-configured route.) Then, run `python learn.py` to optimize that car's route to shortest-time.
 
-**High Performance Example**
+**High Performance Examples**
 
 ![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/sf_high_performance.gif)
 

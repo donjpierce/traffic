@@ -2,7 +2,7 @@
 Usage:
 
 python artist.py --location "Harlem, NY" --cars 10 --duration 60 --fps 30 --interactive \
- --light_prescaling 1 --learning --mp4 --serialize
+ --light_prescaling 1 --mp4 --serialize
 
 --location: Must be a geocode-able location, like "Washington, DC, USA" or "Campo Limpo, São Paulo, Brazil"
 --cars: Number of cars to simulate
@@ -56,19 +56,16 @@ def main(
         frames_per_second,
         interactive,
         light_prescaling,
-        learning,
         mp4,
         serialize
 ):
-    """"
-
+    """
     :param location: str
     :param cars: int
     :param duration: int
     :param frames_per_second: int
     :param interactive: bool
     :param light_prescaling: int
-    :param learning: bool
     :param mp4: bool
     :param serialize: bool
     """
@@ -83,20 +80,15 @@ def main(
         duration = int(input('Duration of time to simulate (in seconds): '))
 
     # get OGraph object)
+    print('Getting OSM graph..')
     graph = OGraph(query, save=True)
 
+    print('Initializing simulation..')
     # get the simulation methods
-    # if a learning agent should be used, use the convergent learner init methods
-    if not learning:
-        # Default mode:
-        # initialize the car and light state objects
-        # cars = Cars(sim.init_culdesac_start_location(N, graph), graph)  # TODO: parametrize
-        cars = Cars(sim.init_random_node_start_location(N, graph), graph, serialize=serialize)
-        lights = TrafficLights(sim.init_traffic_lights(graph, prescale=light_prescaling), graph=graph)
-    else:
-        fig, axis = ox.plot_graph(graph.G, node_size=0, edge_linewidth=0.5)
-        cars = Cars(cl.init_custom_agent(graph, n=1), graph)
-        lights = TrafficLights(cl.init_custom_lights(fig_axis=axis, prescale=None), axis)
+    # initialize the car and light state objects
+    # cars = Cars(sim.init_culdesac_start_location(N, graph), graph)  # TODO: parametrize
+    cars = Cars(sim.init_random_node_start_location(N, graph), graph, serialize=serialize)
+    lights = TrafficLights(sim.init_traffic_lights(graph, prescale=light_prescaling), graph=graph)
 
     # calculate the number of frames to simulate
     n_frames = duration * frames_per_second
@@ -129,13 +121,12 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     default_args = {
-        'location': "Olney, Maryland",
+        'location': "West Village, Manhattan",
         'cars': 50,
         'duration': 10,
         'frames_per_second': 60,
         'interactive': False,
         'light_prescaling': 15,
-        'learning': False,
         'mp4': False,
         'serialize': False
     }

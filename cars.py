@@ -4,7 +4,7 @@ Example usage:
 lights_object = TrafficLights(...)
 cars = Cars(...)
 
-dt, car_states, light_states = [], [], 1 / 1000
+car_states, light_states, dt = [], [], 1 / 1000
 for i in range(100):
     light_state = lights_object.update(dt)
     light_states.append(lights_state)
