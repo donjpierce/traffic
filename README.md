@@ -23,6 +23,7 @@ You can select a car in the source code as the learning agent (i.e. any number 1
 **High Performance Examples**
 
 ![alt text](https://media.githubusercontent.com/media/donjpierce/traffic/master/examples/sf_high_performance.gif)
+![alt text](https://media.githubusercontent.com/media/donjpierce/traffic/master/examples/manhattan_2k.gif)
 
  **Low Performance Examples**
 
