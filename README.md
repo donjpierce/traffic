@@ -22,12 +22,12 @@ You can select a car in the source code as the learning agent (i.e. any number 1
 
 **High Performance Examples**
 
-![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/sf_high_performance.gif)
+![alt text](https://media.githubusercontent.com/media/donjpierce/traffic/master/examples/sf_high_performance.gif)
 
  **Low Performance Examples**
 
-![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/piedmont33cars.gif)
-![alt text](https://raw.githubusercontent.com/donjpierce/traffic/master/examples/lowerManhattan.gif)
+![alt text](https://media.githubusercontent.com/media/donjpierce/traffic/master/examples/piedmont33cars.gif)
+![alt text](https://media.githubusercontent.com/media/donjpierce/traffic/master/examples/lowerManhattan.gif)
 
 
 **Simple Example of Optimization**
