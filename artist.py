@@ -35,29 +35,58 @@ import sys
 
 # Listen for CLI args
 parser = argparse.ArgumentParser(
-    prog='Artist',
-    description='A module to generate HTML or MP4 movies of a traffic simulation.'
+    prog="Artist",
+    description="A module to generate HTML or MP4 movies of a traffic simulation.",
 )
 
-parser.add_argument('-l', '--location', type=str, help='A geocode-able location over which to simulate traffic.')
-parser.add_argument('-c', '--cars', type=int, help='The number of cars to simulate.')
-parser.add_argument('-d', '--duration', type=int, help='The duration of the simulation (in seconds).')
-parser.add_argument('-f', '--frames_per_second', type=int, help='The number of frames per second to render.')
-parser.add_argument('-i', '--interactive', action='store_true', help='Run the simulation in interactive mode.')
-parser.add_argument('-p', '--light_prescaling', type=int, help='The number of lights to prescale.')
-parser.add_argument('-m', '--mp4', action='store_true', help='Generate an MP4 movie instead of an HTML movie.')
-parser.add_argument('-s', '--serialize', action='store_true', help='Serialize the simulation in parquet dataframes.')
+parser.add_argument(
+    "-l",
+    "--location",
+    type=str,
+    help="A geocode-able location over which to simulate traffic.",
+)
+parser.add_argument("-c", "--cars", type=int, help="The number of cars to simulate.")
+parser.add_argument(
+    "-d", "--duration", type=int, help="The duration of the simulation (in seconds)."
+)
+parser.add_argument(
+    "-f",
+    "--frames_per_second",
+    type=int,
+    help="The number of frames per second to render.",
+)
+parser.add_argument(
+    "-i",
+    "--interactive",
+    action="store_true",
+    help="Run the simulation in interactive mode.",
+)
+parser.add_argument(
+    "-p", "--light_prescaling", type=int, help="The number of lights to prescale."
+)
+parser.add_argument(
+    "-m",
+    "--mp4",
+    action="store_true",
+    help="Generate an MP4 movie instead of an HTML movie.",
+)
+parser.add_argument(
+    "-s",
+    "--serialize",
+    action="store_true",
+    help="Serialize the simulation in parquet dataframes.",
+)
 
 
 def main(
-        location,
-        cars,
-        duration,
-        frames_per_second,
-        interactive,
-        light_prescaling,
-        mp4,
-        serialize
+    location,
+    cars,
+    duration,
+    frames_per_second,
+    interactive,
+    light_prescaling,
+    mp4,
+    serialize,
 ):
     """
     :param location: str
@@ -74,65 +103,84 @@ def main(
     # enable interactive mode
     if interactive:
         # ask the user for simulation parameters, or retain them if already specified
-        query = location or input('Please input a geo-codable place, like "Harlem, NY" or "Kigali, Rwanda": ')
-        N = cars or int(input('Number of cars to simulate: '))
+        query = location or input(
+            'Please input a geo-codable place, like "Harlem, NY" or "Kigali, Rwanda": '
+        )
+        N = cars or int(input("Number of cars to simulate: "))
         # time of simulation (in seconds)
-        duration = int(input('Duration of time to simulate (in seconds): '))
+        duration = int(input("Duration of time to simulate (in seconds): "))
 
     # get OGraph object)
-    print('Getting OSM graph..')
+    print("Getting OSM graph..")
     graph = OGraph(query, save=True)
 
-    print('Initializing simulation..')
+    print("Initializing simulation..")
     # get the simulation methods
     # initialize the car and light state objects
     # cars = Cars(sim.init_culdesac_start_location(N, graph), graph)  # TODO: parametrize
-    cars = Cars(sim.init_random_node_start_location(N, graph), graph, serialize=serialize)
-    lights = TrafficLights(sim.init_traffic_lights(graph, prescale=light_prescaling), graph=graph)
+    cars = Cars(
+        sim.init_random_node_start_location(N, graph), graph, serialize=serialize
+    )
+    lights = TrafficLights(
+        sim.init_traffic_lights(graph, prescale=light_prescaling), graph=graph
+    )
 
     # calculate the number of frames to simulate
     n_frames = duration * frames_per_second
 
     # initialize the Animator
-    animator = Animator(fig=graph.fig, ax=graph.ax, cars_object=cars, lights_object=lights, num=(1, 1), n=N)
+    animator = Animator(
+        fig=graph.fig,
+        ax=graph.ax,
+        cars_object=cars,
+        lights_object=lights,
+        num=(1, 1),
+        n=N,
+    )
     init = animator.reset
     animate = animator.animate
 
     print(f"{dt.now().strftime('%H:%M:%S')} Now running simulation... ")
     if not mp4:
         # for creating HTML movies
-        ani = animation.FuncAnimation(graph.fig, animate,
-                                      init_func=init,
-                                      frames=tqdm(range(n_frames), file=sys.stdout),
-                                      interval=duration,
-                                      blit=True)
+        ani = animation.FuncAnimation(
+            graph.fig,
+            animate,
+            init_func=init,
+            frames=tqdm(range(n_frames), file=sys.stdout),
+            interval=duration,
+            blit=True,
+        )
         mywriter = animation.HTMLWriter(fps=frames_per_second)
         ani.save(f'traffic_{dt.today().strftime("%Y_%m_%d")}.html', writer=mywriter)
     else:
         # for creating mp4 movies
-        ani = animation.FuncAnimation(graph.fig, animate, init_func=init, frames=n_frames)
+        ani = animation.FuncAnimation(
+            graph.fig, animate, init_func=init, frames=n_frames
+        )
         mywriter = animation.FFMpegWriter(fps=frames_per_second)
         ani.save(f'traffic_{dt.today().strftime("%Y_%m_%d")}.mp4', writer=mywriter)
 
     return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     args = parser.parse_args()
     default_args = {
-        'location': "West Village, Manhattan",
-        'cars': 50,
-        'duration': 10,
-        'frames_per_second': 60,
-        'interactive': False,
-        'light_prescaling': 15,
-        'mp4': False,
-        'serialize': False
+        "location": "West Village, Manhattan",
+        "cars": 50,
+        "duration": 10,
+        "frames_per_second": 60,
+        "interactive": False,
+        "light_prescaling": 15,
+        "mp4": False,
+        "serialize": False,
     }
     provided_args = {
-        key: args.__getattribute__(key) if args.__getattribute__(key) is not None else default_args[key]
+        key: args.__getattribute__(key)
+        if args.__getattribute__(key) is not None
+        else default_args[key]
         for key in vars(args)
     }
     main(**provided_args)
-

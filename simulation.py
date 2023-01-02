@@ -35,21 +35,21 @@ def update_cars(cars, graph, dt):
     new_times = []
 
     for i, car in enumerate(cars.iterrows()):
-        xpath, ypath = np.array(car[1]['xpath']), np.array(car[1]['ypath'])
+        xpath, ypath = np.array(car[1]["xpath"]), np.array(car[1]["ypath"])
         if xpath.any() and ypath.any():
             # add to route timer
-            new_times.append(car[1]['route-time'] + dt)
+            new_times.append(car[1]["route-time"] + dt)
 
             # initialize an obstacle scan of the frontal view
             frontview = nav.FrontView(car[1], graph, stop_distance=stop_distance)
 
             # determine if the car has just crossed a node
             if frontview.crossed_node_event():
-                new_xpaths.append(car[1]['xpath'][1:])
-                new_ypaths.append(car[1]['ypath'][1:])
+                new_xpaths.append(car[1]["xpath"][1:])
+                new_ypaths.append(car[1]["ypath"][1:])
             else:
-                new_xpaths.append(car[1]['xpath'])
-                new_ypaths.append(car[1]['ypath'])
+                new_xpaths.append(car[1]["xpath"])
+                new_ypaths.append(car[1]["ypath"])
 
             next_node = np.array(frontview.upcoming_node_position())
             position = np.array(frontview.position)
@@ -71,24 +71,29 @@ def update_cars(cars, graph, dt):
             new_vx.append(0)
             new_vy.append(0)
             # save final route time
-            new_times.append(car[1]['route-time'])
+            new_times.append(car[1]["route-time"])
 
-    package = [pd.Series(new_route, dtype='float'), pd.Series(new_xpaths, dtype='object'),
-               pd.Series(new_ypaths, dtype='object'), pd.Series(new_vx, dtype='float'),
-               pd.Series(new_vy, dtype='float'), pd.Series(new_times, dtype='float')]
+    package = [
+        pd.Series(new_route, dtype="float"),
+        pd.Series(new_xpaths, dtype="object"),
+        pd.Series(new_ypaths, dtype="object"),
+        pd.Series(new_vx, dtype="float"),
+        pd.Series(new_vy, dtype="float"),
+        pd.Series(new_times, dtype="float"),
+    ]
 
     return package
 
 
-def accelerate(car):
+def accelerate(car) -> bool:
     """
     determines if there is a car ahead or a red light. Returns True if the car should accelerate, False if not.
 
     :param   car: Series
     :return bool:
     """
-    if not car['distance-to-red-light']:
-        if not car['distance-to-car'] or car['distance-to-car'] > stop_distance:
+    if not car["distance-to-red-light"]:
+        if not car["distance-to-car"] or car["distance-to-car"] > stop_distance:
             return True
         else:
             return False
@@ -105,9 +110,9 @@ def update_speed_factor(car):
     """
     frontview = nav.FrontView(car, stop_distance)
     angles = frontview.angles
-    distance_to_node = car['distance-to-node']
-    distance_to_car = car['distance-to-car']
-    distance_to_red_light = car['distance-to-red-light']
+    distance_to_node = car["distance-to-node"]
+    distance_to_car = car["distance-to-car"]
+    distance_to_red_light = car["distance-to-red-light"]
     curvature_factor = road_curvature_factor(car, angles, distance_to_node)
 
     if distance_to_car and distance_to_red_light:
@@ -120,7 +125,11 @@ def update_speed_factor(car):
             car_factor = obstacle_factor(distance_to_car)
             if distance_to_car > distance_to_node:
                 final_factor = models.weigh_factors(
-                    car_factor, curvature_factor, distance_to_car, distance_to_node, free_distance
+                    car_factor,
+                    curvature_factor,
+                    distance_to_car,
+                    distance_to_node,
+                    free_distance,
                 )
             else:
                 final_factor = car_factor
@@ -146,7 +155,7 @@ def road_curvature_factor(car, angle, d):
     _______
     :return speed_factor: double:  factor by which to diminish speed
     """
-    xpath = np.array(car['xpath'])
+    xpath = np.array(car["xpath"])
     if xpath.size == 1:
         # if it's the end of the path, treat the last node like a hard-stop intersection
         theta = math.pi / 2
@@ -157,8 +166,9 @@ def road_curvature_factor(car, angle, d):
         curvature_factor = 1
     else:
         if (stop_distance < d) and (d <= free_distance):
-            curvature_factor = math.log(d / (stop_distance * 2 * theta / math.pi)) / \
-                               math.log(free_distance / (stop_distance * 2 * theta / math.pi))
+            curvature_factor = math.log(
+                d / (stop_distance * 2 * theta / math.pi)
+            ) / math.log(free_distance / (stop_distance * 2 * theta / math.pi))
         else:
             curvature_factor = 1
     return curvature_factor
@@ -218,40 +228,46 @@ def init_random_node_start_location(n, graph, car_id=None, alternate_route=None)
                 path = nav.get_init_path(graph, origin, destination)
                 route = nav.get_route(graph, origin, destination)
             except NetworkXNoPath:
-                print('No path between {} and {}.'.format(origin, destination))
+                print("No path between {} and {}.".format(origin, destination))
                 continue
 
             x, y = nav.get_position_of_node(graph, origin)
 
-            car = {'object': 'car',
-                   'x': x,
-                   'y': y,
-                   'vx': 0,
-                   'vy': 0,
-                   'route-time': 0,
-                   'origin': origin,
-                   'destination': destination,
-                   'route': route,
-                   'xpath': [path[i][0] for i in range(len(path))],
-                   'ypath': [path[i][1] for i in range(len(path))],
-                   'distance-to-car': 0,
-                   'distance-to-node': 0,
-                   'distance-to-red-light': 0}
+            car = {
+                "object": "car",
+                "x": x,
+                "y": y,
+                "vx": 0,
+                "vy": 0,
+                "route-time": 0,
+                "origin": origin,
+                "destination": destination,
+                "route": route,
+                "xpath": [path[i][0] for i in range(len(path))],
+                "ypath": [path[i][1] for i in range(len(path))],
+                "distance-to-car": 0,
+                "distance-to-node": 0,
+                "distance-to-red-light": 0,
+            }
 
             cars_data.append(car)
 
     if alternate_route:
-        cars_data[car_id]['route'], cars_data[car_id]['xpath'], cars_data[car_id]['ypath'] = alternate_route
+        (
+            cars_data[car_id]["route"],
+            cars_data[car_id]["xpath"],
+            cars_data[car_id]["ypath"],
+        ) = alternate_route
 
     cars = pd.DataFrame(cars_data)
 
     # determine binning and assign bins to cars
     axis = graph.axis
     xbins, ybins = np.arange(axis[0], axis[1], 200), np.arange(axis[2], axis[3], 200)
-    x_indices, y_indices = np.digitize(cars['x'], xbins), np.digitize(cars['y'], ybins)
-    cars['xbin'], cars['ybin'] = pd.Series(x_indices), pd.Series(y_indices)
+    x_indices, y_indices = np.digitize(cars["x"], xbins), np.digitize(cars["y"], ybins)
+    cars["xbin"], cars["ybin"] = pd.Series(x_indices), pd.Series(y_indices)
 
-    print('Number of cars: {}'.format(len(cars)))
+    print("Number of cars: {}".format(len(cars)))
 
     return cars
 
@@ -276,8 +292,10 @@ def init_culdesac_start_location(n, graph, car_id=None, alternate_route=None):
     culdesacs = nav.find_culdesacs(graph)
 
     if n > len(culdesacs):
-        raise ValueError('Number of cars greater than culdesacs to place them. '
-                         'Choose a number less than {}'.format(len(culdesacs)))
+        raise ValueError(
+            "Number of cars greater than culdesacs to place them. "
+            "Choose a number less than {}".format(len(culdesacs))
+        )
 
     cars_data = []
 
@@ -292,35 +310,41 @@ def init_culdesac_start_location(n, graph, car_id=None, alternate_route=None):
             path = nav.get_init_path(graph, origin, destination)
             route = nav.get_route(graph, origin, destination)
         except NetworkXNoPath:
-            print('No path between {} and {}.'.format(origin, destination))
+            print("No path between {} and {}.".format(origin, destination))
             continue
 
         position = nav.get_position_of_node(graph, origin)
 
-        car = {'object': 'car',
-               'x': position[0],
-               'y': position[1],
-               'vx': 0,
-               'vy': 0,
-               'route-time': 0,
-               'origin': origin,
-               'destination': destination,
-               'route': route,
-               'xpath': [path[i][0] for i in range(len(path))],
-               'ypath': [path[i][1] for i in range(len(path))],
-               'distance-to-car': 0,
-               'distance-to-node': 0,
-               'distance-to-red-light': 0}
+        car = {
+            "object": "car",
+            "x": position[0],
+            "y": position[1],
+            "vx": 0,
+            "vy": 0,
+            "route-time": 0,
+            "origin": origin,
+            "destination": destination,
+            "route": route,
+            "xpath": [path[i][0] for i in range(len(path))],
+            "ypath": [path[i][1] for i in range(len(path))],
+            "distance-to-car": 0,
+            "distance-to-node": 0,
+            "distance-to-red-light": 0,
+        }
 
         cars_data.append(car)
 
     if alternate_route:
-        cars_data[car_id]['route'], cars_data[car_id]['xpath'], cars_data[car_id]['ypath'] = alternate_route
+        (
+            cars_data[car_id]["route"],
+            cars_data[car_id]["xpath"],
+            cars_data[car_id]["ypath"],
+        ) = alternate_route
 
     cars = pd.DataFrame(cars_data)
 
     # determine binning and assign bins to cars
-    cars['xbin'], cars['ybin'] = models.determine_bins(graph.axis, cars)
+    cars["xbin"], cars["ybin"] = models.determine_bins(graph.axis, cars)
 
     # print('Number of cars: {}'.format(len(cars)))
     return cars
@@ -347,7 +371,7 @@ def init_traffic_lights(graph, prescale=10):
         try:
             out_vectors = np.array(nav.determine_pedigree(graph, node_id))
         except NetworkXNoPath or ValueError:
-            print('Could not determine pedigree for light at node {}'.format(node_id))
+            print("Could not determine pedigree for light at node {}".format(node_id))
             continue
 
         degree = len(out_vectors)
@@ -355,27 +379,32 @@ def init_traffic_lights(graph, prescale=10):
         go = [False, True] * degree * 2
         go = go[:degree]
 
-        light = {'object': 'light',
-                 'node': node_id,
-                 'degree': degree,
-                 'x': position[0],
-                 'y': position[1],
-                 'switch-counter': 0,
-                 'switch-time': models.determine_traffic_light_timer(degree)
-                 }
+        light = {
+            "object": "light",
+            "node": node_id,
+            "degree": degree,
+            "x": position[0],
+            "y": position[1],
+            "switch-counter": 0,
+            "switch-time": models.determine_traffic_light_timer(degree),
+        }
 
-        light['out-xpositions'] = [position[0] + epsilon * out_vectors[j][0] for j in range(light['degree'])]
-        light['out-ypositions'] = [position[1] + epsilon * out_vectors[j][1] for j in range(light['degree'])]
-        light['out-xvectors'] = [out_vectors[j][0] for j in range(light['degree'])]
-        light['out-yvectors'] = [out_vectors[j][1] for j in range(light['degree'])]
-        light['go-values'] = np.array([go[j] for j in range(light['degree'])])
+        light["out-xpositions"] = [
+            position[0] + epsilon * out_vectors[j][0] for j in range(light["degree"])
+        ]
+        light["out-ypositions"] = [
+            position[1] + epsilon * out_vectors[j][1] for j in range(light["degree"])
+        ]
+        light["out-xvectors"] = [out_vectors[j][0] for j in range(light["degree"])]
+        light["out-yvectors"] = [out_vectors[j][1] for j in range(light["degree"])]
+        light["go-values"] = np.array([go[j] for j in range(light["degree"])])
 
         lights_data.append(light)
 
     lights = pd.DataFrame(lights_data)
 
     # determine binning and assign bins to lights
-    lights['xbin'], lights['ybin'] = models.determine_bins(graph.axis, lights)
+    lights["xbin"], lights["ybin"] = models.determine_bins(graph.axis, lights)
 
     # print('Number of traffic lights: {}'.format(len(lights)))
     return lights
