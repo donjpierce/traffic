@@ -1,1 +1,8 @@
 .idea
+data_store
+graphml_files
+*.prof
+*.stats
+*_frames/
+*.html
+*.txt
