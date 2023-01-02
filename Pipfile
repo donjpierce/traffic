@@ -68,6 +68,8 @@ interrogate = "*"
 flake8 = "*"
 mypy = "*"
 pre-commit = "*"
+pandas-stubs = "*"
+networkx-stubs = "*"
 
 [requires]
 python_version = "3.9"
