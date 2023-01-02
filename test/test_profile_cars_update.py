@@ -9,8 +9,18 @@ import tqdm
 
 # argparse
 parser = argparse.ArgumentParser()
-parser.add_argument('-l', '--location', type=str, help='A geocode-able location over which to simulate traffic.')
-parser.add_argument('-t', '--timesteps', type=int, help='The number of timesteps to simulate in the test.')
+parser.add_argument(
+    "-l",
+    "--location",
+    type=str,
+    help="A geocode-able location over which to simulate traffic.",
+)
+parser.add_argument(
+    "-t",
+    "--timesteps",
+    type=int,
+    help="The number of timesteps to simulate in the test.",
+)
 
 
 def test_cars_update(timesteps):
@@ -26,17 +36,13 @@ def test_cars_update(timesteps):
     # update
     cars_data, lights_data = [], []
     for i in tqdm.tqdm(range(timesteps)):
-        cars_data.append(
-            cars_object.update(dt=0.1, lights=lights_object.state)
-        )
-        lights_data.append(
-            lights_object.update(dt=0.1)
-        )
-    data = {'cars': cars_data, 'lights': lights_data}
+        cars_data.append(cars_object.update(dt=0.1, lights=lights_object.state))
+        lights_data.append(lights_object.update(dt=0.1))
+    data = {"cars": cars_data, "lights": lights_data}
     return data
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # parse args
     args = parser.parse_args()
@@ -55,7 +61,6 @@ if __name__ == '__main__':
 
     # end profile
     profiler.disable()
-    profiler.dump_stats('profile_cars_update.prof')
-    p = pstats.Stats('profile_cars_update.prof')
-    p.sort_stats('cumtime').print_stats(100)
-
+    profiler.dump_stats("profile_cars_update.prof")
+    p = pstats.Stats("profile_cars_update.prof")
+    p.sort_stats("cumtime").print_stats(100)
