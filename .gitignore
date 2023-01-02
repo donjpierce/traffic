@@ -6,3 +6,5 @@ graphml_files
 *_frames/
 *.html
 *.txt
+__pycache__
+cache
