@@ -4,10 +4,14 @@ and thus contains methods for updating car position and finding path to car dest
 also contains methods for locating cars and intersections in the front_view
 and calculating the curvature of the bend in the road for speed adjustments
 """
-import models
+import typing
+
 import networkx as nx
 import numpy as np
-import osmnx as ox
+import osmnx as ox  # type: ignore
+
+import models
+import osm_request
 
 
 class FrontView:
@@ -23,7 +27,7 @@ class FrontView:
         self.stop_distance = stop_distance
         self.look_ahead_nodes = look_ahead_nodes
         self.car = car
-        self.position = car['x'], car['y']
+        self.position = car["x"], car["y"]
         self.graph = graph
         self.view = self.determine_view()
         self.angles = models.get_angles(self.view)
@@ -34,9 +38,12 @@ class FrontView:
 
         :return view: list or bool: list of nodes immediately ahead of the car or False if end of route
         """
-        xpath, ypath = np.array(self.car['xpath']), np.array(self.car['ypath'])
+        xpath, ypath = np.array(self.car["xpath"]), np.array(self.car["ypath"])
         if xpath.any() and ypath.any():
-            x, y = self.car['xpath'][:self.look_ahead_nodes], self.car['ypath'][:self.look_ahead_nodes]
+            x, y = (
+                self.car["xpath"][: self.look_ahead_nodes],
+                self.car["ypath"][: self.look_ahead_nodes],
+            )
             return [(x[i], y[i]) for i in range(len(x))]
         else:
             return False
@@ -81,12 +88,12 @@ class FrontView:
                 if len(self.view) >= 2:
                     return self.view[1]
                 else:
-                    return get_position_of_node(self.graph, self.car['destination'])
+                    return get_position_of_node(self.graph, self.car["destination"])
             else:
                 return self.view[0]
         else:
             # end of route
-            return get_position_of_node(self.graph, self.car['destination'])
+            return get_position_of_node(self.graph, self.car["destination"])
 
     def crossed_node_event(self):
         """
@@ -102,8 +109,8 @@ class FrontView:
         #  "Crossing a node" is used to update a car's velocity vector:
         #  i.e. once this function returns True, the car will begin piloting to the NEXT node in the route.
         tolerance = 1.0e-5
-        car_near_xnode = np.isclose(self.view[0][0], self.car['x'], rtol=tolerance)
-        car_near_ynode = np.isclose(self.view[0][1], self.car['y'], rtol=tolerance)
+        car_near_xnode = np.isclose(self.view[0][0], self.car["x"], rtol=tolerance)
+        car_near_ynode = np.isclose(self.view[0][1], self.car["y"], rtol=tolerance)
 
         if car_near_xnode and car_near_ynode:
             return True
@@ -116,9 +123,9 @@ class FrontView:
 
         :return bool: False if not, True if car is at the end of its root
         """
-        xdest, ydest = get_position_of_node(self.graph, self.car['destination'])
-        xdiff = xdest - self.car['x']
-        ydiff = ydest - self.car['y']
+        xdest, ydest = get_position_of_node(self.graph, self.car["destination"])
+        xdiff = xdest - self.car["x"]
+        ydiff = ydest - self.car["y"]
         car_near_xdest = np.isclose(0, xdiff, atol=self.stop_distance)
         car_near_ydest = np.isclose(0, ydiff, atol=self.stop_distance)
 
@@ -144,8 +151,8 @@ class StateView:
         self.lights = lights
         self.index = car_index
         self.car = cars.loc[self.index]
-        self.route = np.array(self.car['route'])
-        self.eta = eta(self.graph.G, self.car, self.lights)
+        self.route = np.array(self.car["route"])
+        self.eta = eta(self.graph.init_graph, self.car, self.lights)
         self.max_cars = 10  # the number of cars in a bin for the bin to be considered 'congested traffic'
         self.speed_limit = 1000
 
@@ -163,9 +170,13 @@ class StateView:
 
             if light_locs or traffic_nodes:
                 if light_locs and traffic_nodes:
-                    """ If there are both types of obstacles, decide to reroute around the closest one """
-                    long_light_ind = np.where(self.route == self.lights.loc[light_locs[-1]]['node'])[0][0]
-                    first_traffic_node_ind = np.where(self.route == traffic_nodes[0])[0][0]
+                    """If there are both types of obstacles, decide to reroute around the closest one"""
+                    long_light_ind = np.where(
+                        self.route == self.lights.loc[light_locs[-1]]["node"]
+                    )[0][0]
+                    first_traffic_node_ind = np.where(self.route == traffic_nodes[0])[
+                        0
+                    ][0]
                     if long_light_ind <= first_traffic_node_ind:
                         # light comes first in route
                         return self.bulk(light_locs)
@@ -182,11 +193,11 @@ class StateView:
             else:
                 # there are no obstacles along the current route STATE 7      <---------
                 state = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
-                return state, self.route, self.car['xpath'], self.car['ypath']
+                return state, self.route, self.car["xpath"], self.car["ypath"]
         else:
             # the car has arrived at the destination STATE 10        <---------
             state = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
-            return state, self.route, self.car['xpath'], self.car['ypath']
+            return state, self.route, self.car["xpath"], self.car["ypath"]
 
     def bulk(self, light_locs=None, traffic_nodes=None):
         """
@@ -202,28 +213,47 @@ class StateView:
         """
         if light_locs:
             # re-route around light with longest switch-time (last light in array due to sorting)
-            traffic, avoid_node = 0, self.lights.loc[light_locs[-1]]['node']
-            new_route, new_xpath, new_ypath, detour = self.find_alternate_route(avoid_node, traffic)
+            traffic, avoid_node = 0, self.lights.loc[light_locs[-1]]["node"]
+            new_route, new_xpath, new_ypath, detour = self.find_alternate_route(
+                avoid_node, traffic
+            )
         else:
             traffic, avoid_node = len(traffic_nodes), traffic_nodes[0]
-            new_route, new_xpath, new_ypath, detour = self.find_alternate_route(avoid_node, traffic)
+            new_route, new_xpath, new_ypath, detour = self.find_alternate_route(
+                avoid_node, traffic
+            )
 
         """
         Calculate the length of the detour and the length of
          the stretch of the original route which was avoided by the detour:
         """
-        detour_length = sum([self.graph.G.get_edge_data(detour[i], detour[i + 1])[0]['length']
-                             for i in range(len(detour) - 1)])
+        detour_length = sum(
+            [
+                self.graph.init_graph.get_edge_data(detour[i], detour[i + 1])[0][
+                    "length"
+                ]
+                for i in range(len(detour) - 1)
+            ]
+        )
         departure_ind = np.where(self.route == detour[0])[0][0]
         return_ind = np.where(self.route == detour[-1])[0][0]
         span = return_ind - departure_ind
-        original_length = sum([self.graph.get_edge_data(self.route[departure_ind + i],
-                                                        self.route[departure_ind + i + 1])[0]['length']
-                               for i in range(span + 1)])
+        original_length = sum(
+            [
+                self.graph.get_edge_data(
+                    self.route[departure_ind + i], self.route[departure_ind + i + 1]
+                )[0]["length"]
+                for i in range(span + 1)
+            ]
+        )
         if detour_length <= 2 * original_length:
             # detour is short
-            obstacles_in_detour = np.array([self.get_lights_in_route(route=detour),
-                                            self.get_traffic_nodes(route=detour)]).any()
+            obstacles_in_detour = np.array(
+                [
+                    self.get_lights_in_route(route=detour),
+                    self.get_traffic_nodes(route=detour),
+                ]
+            ).any()
             if not obstacles_in_detour:
                 # there are no obstacles in the detour
                 if light_locs:
@@ -244,8 +274,12 @@ class StateView:
                 return state, new_route, new_xpath, new_ypath
         else:
             # detour is long
-            obstacles_in_detour = np.array([self.get_lights_in_route(route=detour),
-                                            self.get_traffic_nodes(route=detour)]).any()
+            obstacles_in_detour = np.array(
+                [
+                    self.get_lights_in_route(route=detour),
+                    self.get_traffic_nodes(route=detour),
+                ]
+            ).any()
             if not obstacles_in_detour:
                 # there are no obstacles in the detour
                 if light_locs:
@@ -279,7 +313,7 @@ class StateView:
         while not found_route:
             i += 1
             if i == 10:
-                print('Could not find alternate route for car {}'.format(self.index))
+                print("Could not find alternate route for car {}".format(self.index))
                 break
 
             reroute_node = self.route[np.where(self.route == avoid)[0][0] - i]
@@ -289,10 +323,14 @@ class StateView:
             if not len(dv_table):
                 # no re-routing at this node
                 continue
-            direction = dv_table['potential-nodes'].loc[dv_table.index[dv_table['sum-distances'].idxmin()]]
+            direction = dv_table["potential-nodes"].loc[
+                dv_table.index[dv_table["sum-distances"].idxmin()]
+            ]
 
             # get new route around obstacle
-            data = build_new_route(self.graph, self.route, reroute_node, direction, traffic, avoid)
+            data = build_new_route(
+                self.graph, self.route, reroute_node, direction, traffic, avoid
+            )
             if data:
                 new_route, new_xpath, new_ypath, detour = data
                 found_route = True
@@ -308,11 +346,20 @@ class StateView:
         """
         if not route:
             route = self.route
-        light_locs = np.array([np.where(self.lights['node'] == node)[0][0] for node in route
-                               if (node == self.lights['node']).any()])
+        light_locs = np.array(
+            [
+                np.where(self.lights["node"] == node)[0][0]
+                for node in route
+                if (node == self.lights["node"]).any()
+            ]
+        )
 
         # sort lights by switch-time
-        light_locs = [time for time in self.lights['switch-time'].argsort() if (time == light_locs).any()]
+        light_locs = [
+            time
+            for time in self.lights["switch-time"].argsort()
+            if (time == light_locs).any()
+        ]
 
         if not light_locs:
             return None
@@ -331,18 +378,29 @@ class StateView:
         xbin_points = np.arange(self.axis[0], self.axis[1], 200)
         ybin_points = np.arange(self.axis[2], self.axis[3], 200)
         for xbin, ybin in zip(xbins, ybins):
-            for i, (cars_xbin, cars_ybin) in enumerate(zip(self.cars['xbin'], self.cars['ybin'])):
+            for i, (cars_xbin, cars_ybin) in enumerate(
+                zip(self.cars["xbin"], self.cars["ybin"])
+            ):
                 if (xbin, ybin) == (cars_xbin, cars_ybin):
-                    in_xy_bin = (np.digitize(self.car['xpath'], xbin_points) == xbin) & \
-                                (np.digitize(self.car['ypath'], ybin_points) == ybin)
+                    in_xy_bin = (
+                        np.digitize(self.car["xpath"], xbin_points) == xbin
+                    ) & (np.digitize(self.car["ypath"], ybin_points) == ybin)
 
-                    x_stretch = (self.car['xpath'] * in_xy_bin)[np.nonzero(self.car['xpath'] * in_xy_bin)]
-                    y_stretch = (self.car['ypath'] * in_xy_bin)[np.nonzero(self.car['ypath'] * in_xy_bin)]
+                    x_stretch = (self.car["xpath"] * in_xy_bin)[
+                        np.nonzero(self.car["xpath"] * in_xy_bin)
+                    ]
+                    y_stretch = (self.car["ypath"] * in_xy_bin)[
+                        np.nonzero(self.car["ypath"] * in_xy_bin)
+                    ]
 
-                    in_xpath = np.isclose(self.cars.loc[i]['x'], x_stretch, rtol=1e-6).any()
-                    in_ypath = np.isclose(self.cars.loc[i]['y'], y_stretch, rtol=1e-6).any()
+                    in_xpath = np.isclose(
+                        self.cars.loc[i]["x"], x_stretch, rtol=1e-6
+                    ).any()
+                    in_ypath = np.isclose(
+                        self.cars.loc[i]["y"], y_stretch, rtol=1e-6
+                    ).any()
                     if in_xpath and in_ypath:
-                        traffic_nodes.append(self.cars.loc[i]['route'][0])
+                        traffic_nodes.append(self.cars.loc[i]["route"][0])
 
         if len(traffic_nodes) > self.max_cars:
             traffic_nodes = models.clean_list(traffic_nodes)
@@ -359,7 +417,9 @@ class StateView:
         """
         if not route:
             route = self.route
-        xbins, ybins = np.arange(self.axis[0], self.axis[1], 200), np.arange(self.axis[2], self.axis[3], 200)
+        xbins, ybins = np.arange(self.axis[0], self.axis[1], 200), np.arange(
+            self.axis[2], self.axis[3], 200
+        )
         x_inds, y_inds = [], []
         for node in route:
             x, y = get_position_of_node(self.graph, node)
@@ -392,29 +452,40 @@ class StateView:
         :param      node:
         :return dv_table:
         """
-        possible_directions = np.array([dot for dot in self.graph.G[node].__iter__()])
-        nodes_already_in_route = [np.where(route_node == possible_directions)[0][0] for route_node in self.route
-                                  if np.where(route_node == possible_directions)[0].size > 0]
+        possible_directions = np.array(
+            [dot for dot in self.graph.init_graph[node].__iter__()]
+        )
+        nodes_already_in_route = [
+            np.where(route_node == possible_directions)[0][0]
+            for route_node in self.route
+            if np.where(route_node == possible_directions)[0].size > 0
+        ]
         possible_directions = np.delete(possible_directions, nodes_already_in_route)
 
         reroute_node_index = np.where(node == self.route)[0][0]
         sum_three_node_dist = []
         directions = []
         for direction in possible_directions:
-            twice_out = np.array([dot for dot in self.graph.G[direction].__iter__()])
+            twice_out = np.array(
+                [dot for dot in self.graph.init_graph[direction].__iter__()]
+            )
             if twice_out.size == 0 or (direction == self.route).any():
                 # avoid culdesacs and nodes already in the route
                 continue
 
             directions.append(direction)
             distances = []
-            for compare_node in self.route[reroute_node_index + 2:reroute_node_index + 5]:
+            for compare_node in self.route[
+                reroute_node_index + 2 : reroute_node_index + 5
+            ]:
                 compare_node_pos = get_position_of_node(self.graph, compare_node)
                 potential_node_pos = get_position_of_node(self.graph, direction)
                 distances.append(np.linalg.norm(compare_node_pos - potential_node_pos))
             sum_three_node_dist.append(sum(distances))
 
-        dv_table = models.make_table({'potential-nodes': directions, 'sum-distances': sum_three_node_dist})
+        dv_table = models.make_table(
+            {"potential-nodes": directions, "sum-distances": sum_three_node_dist}
+        )
         return dv_table
 
 
@@ -436,16 +507,25 @@ def car_obstacles(frontview, cars):
     x_space, y_space = models.upcoming_linspace(frontview)
     if x_space.any() and y_space.any():
         other_cars = cars.drop(frontview.car.name)
-        obstacles = (frontview.car['xbin'] == other_cars['xbin']) & (frontview.car['ybin'] == other_cars['ybin'])
+        obstacles = (frontview.car["xbin"] == other_cars["xbin"]) & (
+            frontview.car["ybin"] == other_cars["ybin"]
+        )
         if obstacles.any():
             nearby_cars = other_cars[obstacles]
             for car in nearby_cars.iterrows():
-                car_within_xlinspace = np.isclose(x_space, car[1]['x'], rtol=1.0e-6).any()
-                car_within_ylinspace = np.isclose(y_space, car[1]['y'], rtol=1.0e-6).any()
+                car_within_xlinspace = np.isclose(
+                    x_space, car[1]["x"], rtol=1.0e-6
+                ).any()
+                car_within_ylinspace = np.isclose(
+                    y_space, car[1]["y"], rtol=1.0e-6
+                ).any()
 
                 if car_within_xlinspace and car_within_ylinspace:
-                    first_x, first_y = car[1]['x'], car[1]['y']
-                    vector = (first_x - frontview.car['x'], first_y - frontview.car['y'])
+                    first_x, first_y = car[1]["x"], car[1]["y"]
+                    vector = (
+                        first_x - frontview.car["x"],
+                        first_y - frontview.car["y"],
+                    )
                     distance = models.magnitude(vector)
                     return distance
                 else:
@@ -471,21 +551,34 @@ def light_obstacles(frontview, lights):
     """
     x_space, y_space = models.upcoming_linspace(frontview)
     if x_space.any() and y_space.any():
-        obstacles = (frontview.car['xbin'] == lights['xbin']) & (frontview.car['ybin'] == lights['ybin'])
+        obstacles = (frontview.car["xbin"] == lights["xbin"]) & (
+            frontview.car["ybin"] == lights["ybin"]
+        )
         if obstacles.any():
             nearby_lights = lights[obstacles]
             for light in nearby_lights.iterrows():
-                light_within_xlinspace = np.isclose(x_space[1:], light[1]['x'], rtol=1.0e-6).any()
-                light_within_ylinspace = np.isclose(y_space[1:], light[1]['y'], rtol=1.0e-6).any()
+                light_within_xlinspace = np.isclose(
+                    x_space[1:], light[1]["x"], rtol=1.0e-6
+                ).any()
+                light_within_ylinspace = np.isclose(
+                    y_space[1:], light[1]["y"], rtol=1.0e-6
+                ).any()
 
                 if light_within_xlinspace and light_within_ylinspace:
-                    car_vector = [light[1]['x'] - frontview.car['x'], light[1]['y'] - frontview.car['y']]
-                    face_values = light[1]['go-values']
-                    face_vectors = [(light[1]['out-xvectors'][i], light[1]['out-yvectors'][i])
-                                    for i in range(light[1]['degree'])]
+                    car_vector = [
+                        light[1]["x"] - frontview.car["x"],
+                        light[1]["y"] - frontview.car["y"],
+                    ]
+                    face_values = light[1]["go-values"]
+                    face_vectors = [
+                        (light[1]["out-xvectors"][i], light[1]["out-yvectors"][i])
+                        for i in range(light[1]["degree"])
+                    ]
 
                     for value, vector in zip(face_values, face_vectors):
-                        if not value and models.determine_anti_parallel_vectors(car_vector, vector):
+                        if not value and models.determine_anti_parallel_vectors(
+                            car_vector, vector
+                        ):
                             distance = models.magnitude(car_vector)
                             return distance
                         else:
@@ -505,10 +598,10 @@ def determine_pedigree(graph, node_id):
     :param graph: object: OGraph object from osm_request
      :param  node_id:    int
      :return vectors:   list: list of vectors pointing from the intersection to the nearest point on the out roads
-     """
+    """
     x, y = get_position_of_node(graph, node_id)
 
-    out_nodes = [dot for dot in graph.G[node_id].__iter__()]
+    out_nodes = [dot for dot in graph.init_graph[node_id].__iter__()]
 
     vectors = []
     for node in out_nodes:
@@ -528,7 +621,7 @@ def find_culdesacs(graph):
     :param graph: object: OGraph object from osm_request
     :return culdesacs: list of node IDs
     """
-    streets_per_node = ox.stats.count_streets_per_node(graph.G)
+    streets_per_node = ox.stats.count_streets_per_node(graph.init_graph)
     culdesacs = [key for key, value in streets_per_node.items() if int(value) == 1]
     return culdesacs
 
@@ -542,14 +635,14 @@ def find_traffic_lights(graph, prescale=10):
     :return light_intersections: a list of node IDs suitable for traffic lights
     """
     light_intersections = []
-    for i, node in enumerate(graph.G.degree()):
+    for i, node in enumerate(graph.init_graph.degree()):
         if (node[1] > 3) and not (i % prescale):
             light_intersections.append(node)
 
     return light_intersections
 
 
-def find_nodes(graph, n):
+def find_nodes(graph: osm_request.OGraph, n: int) -> typing.List:
     """
     returns n node IDs from the networkx graph
 
@@ -558,7 +651,7 @@ def find_nodes(graph, n):
     :return nodes: list
     """
     nodes = []
-    for node in graph.G.nodes():
+    for node in graph.osmn_graph_nodes:
         nodes.append(node)
     return nodes[:n]
 
@@ -574,7 +667,9 @@ def get_position_of_node(graph, node):
     # note that the x and y coordinates of the graph.nodes are flipped
     # this is possibly an issue with the omnx graph.load_graphml method
     # a correction is to make the position tuple be (y, x) as below
-    position = np.array([graph.G.nodes[node]['x'], graph.G.nodes[node]['y']])
+    position = np.array(
+        [graph.init_graph.nodes[node]["x"], graph.init_graph.nodes[node]["y"]]
+    )
     return position
 
 
@@ -606,7 +701,7 @@ def get_route(graph, origin, destination):
     :param destination: node ID
     :return:     route: list of intersection nodes
     """
-    return nx.shortest_path(graph.G, origin, destination, weight='length')
+    return nx.shortest_path(graph.init_graph, origin, destination, weight="length")
 
 
 def eta(graph, car, lights, speed_limit=250):
@@ -619,17 +714,28 @@ def eta(graph, car, lights, speed_limit=250):
     :param:   speed_limit: int
     :return:    path_time: double
     """
-    route = np.array(car['route'])
+    route = np.array(car["route"])
 
     if route.size > 0:
-        route_length = sum([graph.get_edge_data(route[i], route[i + 1])[0]['length'] for i in range(route.size - 1)])
+        route_length = sum(
+            [
+                graph.get_edge_data(route[i], route[i + 1])[0]["length"]
+                for i in range(route.size - 1)
+            ]
+        )
 
         eta_from_distance = route_length / speed_limit
 
-        light_locs = [(node == lights['node']).tolist().index(True) for node in route if (node == lights['node']).any()]
+        light_locs = [
+            (node == lights["node"]).tolist().index(True)
+            for node in route
+            if (node == lights["node"]).any()
+        ]
 
         # let the expected wait time for all lights found in the route be half the sum of the times
-        expected_wait = sum([lights.loc[index]['switch-time'] for index in light_locs]) / 2
+        expected_wait = (
+            sum([lights.loc[index]["switch-time"] for index in light_locs]) / 2
+        )
         path_time = eta_from_distance + expected_wait
     else:
         path_time = 0
@@ -653,14 +759,14 @@ def build_new_route(graph, route, reroute_node, direction, traffic, avoid):
     """
     reroute_index = np.where(route == reroute_node)[0][0]
     avoid_index = np.where(route == avoid)[0][0]
-    new_route = route[:reroute_index + 1].tolist()
+    new_route = route[: reroute_index + 1].tolist()
     new_route.append(direction)
     detour = [reroute_node, direction]
 
     # get the coordinate positions of the next three nodes in the original route
     # TODO: this will not work if we are building a new route near the very end of a route, where there are not 3 nodes
     next_nodes_pos = []
-    for node in route[reroute_index + 1:reroute_index + 4]:
+    for node in route[reroute_index + 1 : reroute_index + 4]:
         x, y = get_position_of_node(graph=graph, node=node)
         next_nodes_pos.append((x, y))
 
@@ -669,21 +775,25 @@ def build_new_route(graph, route, reroute_node, direction, traffic, avoid):
     while not returned:
         i += 1
         if i == 10:
-            print('Could not build new route for route {} with avoid_node={}. 10th walk was at node {}'.format(
-                route, avoid, direction
-            ))
+            print(
+                "Could not build new route for route {} with avoid_node={}. 10th walk was at node {}".format(
+                    route, avoid, direction
+                )
+            )
             break
-        out_from_direction = [dot for dot in graph.G[direction].__iter__() if dot != reroute_node]
+        out_from_direction = [
+            dot for dot in graph.init_graph[direction].__iter__() if dot != reroute_node
+        ]
 
         # Populate a list of the sums of the distances to the next
         # three nodes in the original route, for each potential new node
         sum_three_node_dist, refined_out_from_direction = [], []
         for node in out_from_direction:
-            if (node == route[:avoid_index + 1 + traffic]).any():
+            if (node == route[: avoid_index + 1 + traffic]).any():
                 # avoid all the nodes in the route including the ones around which we are rerouting
                 continue
 
-            twice_out = np.array([dot for dot in graph.G[node].__iter__()])
+            twice_out = np.array([dot for dot in graph.init_graph[node].__iter__()])
             if (direction == twice_out).any():
                 twice_out = np.delete(twice_out, np.where(twice_out == direction)[0][0])
 
@@ -713,9 +823,9 @@ def build_new_route(graph, route, reroute_node, direction, traffic, avoid):
 
         new_route.append(next_node)
         detour.append(next_node)
-        if (next_node == route[reroute_index + 1 + traffic:]).any():
+        if (next_node == route[reroute_index + 1 + traffic :]).any():
             start_at_index = np.where(route == next_node)[0][0]
-            for node in route[start_at_index + 1:]:
+            for node in route[start_at_index + 1 :]:
                 new_route.append(node)
             returned = True
         else:
@@ -737,7 +847,9 @@ def build_new_route(graph, route, reroute_node, direction, traffic, avoid):
             new_path.append(point)
 
     new_clean_path = models.new_route_decompiler(new_path)
-    new_xpath, new_ypath = [point[0] for point in new_clean_path], [point[1] for point in new_clean_path]
+    new_xpath, new_ypath = [point[0] for point in new_clean_path], [
+        point[1] for point in new_clean_path
+    ]
     return new_route, new_xpath, new_ypath, detour
 
 
@@ -771,27 +883,29 @@ def lines_to_node(graph, origin, destination):
     :return      lines: list
     """
 
-    route = nx.shortest_path(graph.G, origin, destination, weight='length')
+    route = nx.shortest_path(graph.init_graph, origin, destination, weight="length")
 
     # find the route lines
     edge_nodes = list(zip(route[:-1], route[1:]))
     lines = []
     for u, v in edge_nodes:
         # if there are parallel edges, select the shortest in length
-        data = min(graph.G.get_edge_data(u, v).values(), key=lambda x: x['length'])
+        data = min(
+            graph.init_graph.get_edge_data(u, v).values(), key=lambda x: x["length"]
+        )
 
         # if it has a geometry attribute (ie, a list of line segments)
-        if 'geometry' in data:
+        if "geometry" in data:
             # add them to the list of lines to plot
-            xs, ys = data['geometry'].xy
+            xs, ys = data["geometry"].xy
             lines.append(list(zip(xs, ys)))
         else:
             # if it doesn't have a geometry attribute, the edge is a straight
             # line from node to node
-            x1 = graph.G.nodes[u]['x']
-            y1 = graph.G.nodes[u]['y']
-            x2 = graph.G.nodes[v]['x']
-            y2 = graph.G.nodes[v]['y']
+            x1 = graph.init_graph.nodes[u]["x"]
+            y1 = graph.init_graph.nodes[u]["y"]
+            x2 = graph.init_graph.nodes[v]["x"]
+            y2 = graph.init_graph.nodes[v]["y"]
             line = ((x1, y1), (x2, y2))
             lines.append(line)
 
@@ -814,27 +928,29 @@ def shortest_path_lines_nx(graph, origin, destination):
         [(double, double), ...]:   each tuple represents the bend-point in a straight road
     """
 
-    route = nx.shortest_path(graph.G, origin, destination, weight='length')
+    route = nx.shortest_path(graph.init_graph, origin, destination, weight="length")
 
     # find the route lines
     edge_nodes = list(zip(route[:-1], route[1:]))
     lines = []
     for u, v in edge_nodes:
         # if there are parallel edges, select the shortest in length
-        data = min(graph.G.get_edge_data(u, v).values(), key=lambda x: x['length'])
+        data = min(
+            graph.init_graph.get_edge_data(u, v).values(), key=lambda x: x["length"]
+        )
 
         # if it has a geometry attribute (ie, a list of line segments)
-        if 'geometry' in data:
+        if "geometry" in data:
             # add them to the list of lines to plot
-            xs, ys = data['geometry'].xy
+            xs, ys = data["geometry"].xy
             lines.append(list(zip(xs, ys)))
         else:
             # if it doesn't have a geometry attribute, the edge is a straight
             # line from node to node
-            x1 = graph.G.nodes[u]['x']
-            y1 = graph.G.nodes[u]['y']
-            x2 = graph.G.nodes[v]['x']
-            y2 = graph.G.nodes[v]['y']
+            x1 = graph.init_graph.nodes[u]["x"]
+            y1 = graph.init_graph.nodes[u]["y"]
+            x2 = graph.init_graph.nodes[v]["x"]
+            y2 = graph.init_graph.nodes[v]["y"]
             line = ((x1, y1), (x2, y2))
             lines.append(line)
 
