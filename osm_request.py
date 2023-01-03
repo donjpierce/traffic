@@ -1,7 +1,8 @@
-import osmnx as ox  # type: ignore
 import logging
 import pathlib
 import typing
+
+import osmnx as ox  # type: ignore
 
 DEFAULT_PATH_TO_LOCAL_GRAPHML_FILE_DIR = "graphml_files"
 
@@ -34,7 +35,7 @@ class OGraph:
             self.query.lower().replace(",", "").replace(" ", "_") + ".graphml"
         )
         self.local_files: typing.List[str] = []
-        self.dir_check()
+        self._dir_check()
         self.init_graph = None
         # self.init_graph = self.request()
         # self.fig, self.axis = None, None
@@ -54,10 +55,10 @@ class OGraph:
             )
         else:
             logging.info(f"Requesting {self.graph_name} from OSMNX...")
-            self.init_graph = self.send_query(persist=persist)
+            self.init_graph = self._send_query(persist=persist)
         return
 
-    def dir_check(self) -> None:
+    def _dir_check(self) -> None:
         """
         This method checks if the targeted location to store the GraphML files exists.
         If the directory doesn't exist, it is created.
@@ -71,7 +72,7 @@ class OGraph:
             self.path_to_graphml_files.mkdir()
         return
 
-    def send_query(self, persist=False):
+    def _send_query(self, persist=False):
         """
         Request a graph from OSMNX
 
@@ -119,3 +120,7 @@ class OGraph:
     @property
     def path_to_saved_osmnx_graph_obj(self) -> pathlib.Path:
         return pathlib.Path(f"{self.path_to_graphml_files}/{self.graph_name}")
+
+    @property
+    def osmn_graph_nodes(self):
+        return self.init_graph.nodes()
