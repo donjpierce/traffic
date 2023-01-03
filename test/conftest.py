@@ -9,8 +9,10 @@ def test_ograph(tmp_path_factory):
     It depends on the temporary path factory fixture provided by pytest to generate
     a unique temporary directory with the specified name.
     """
-    return osm_request.OGraph(
+    test_graph = osm_request.OGraph(
         "Harlem, NY",
         preview=False,
         path_to_graphml_files=tmp_path_factory.mktemp("test_graphml_files").as_posix(),
     )
+    test_graph.request_graph_from_osmnx()
+    return test_graph
