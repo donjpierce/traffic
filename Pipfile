@@ -70,6 +70,8 @@ mypy = "*"
 pre-commit = "*"
 pandas-stubs = "*"
 networkx-stubs = "*"
+types-tqdm = "*"
+isort = "*"
 
 [requires]
 python_version = "3.9"
