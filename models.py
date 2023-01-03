@@ -1,7 +1,8 @@
 import math
+import random
+
 import numpy as np
 import pandas as pd
-import random
 
 
 def determine_bins(axis, df):
@@ -14,7 +15,7 @@ def determine_bins(axis, df):
     :return xbins, ybins:
     """
     xbins, ybins = np.arange(axis[0], axis[1], 200), np.arange(axis[2], axis[3], 200)
-    x_indices, y_indices = np.digitize(df['x'], xbins), np.digitize(df['y'], ybins)
+    x_indices, y_indices = np.digitize(df["x"], xbins), np.digitize(df["y"], ybins)
     xbins, ybins = pd.Series(x_indices), pd.Series(y_indices)
     return xbins, ybins
 
@@ -24,7 +25,7 @@ def initial_light_colors(n):
 
     :return:
     """
-    init_colors = [random.choice(['red', 'green']) for c in range(n)]
+    init_colors = [random.choice(["red", "green"]) for c in range(n)]
     return init_colors
 
 
@@ -38,7 +39,9 @@ def determine_traffic_light_timer(degree):
     return random_wait
 
 
-def weigh_factors(car_factor, curvature_factor, distance_to_car, distance_to_node, free_distance):
+def weigh_factors(
+    car_factor, curvature_factor, distance_to_car, distance_to_node, free_distance
+):
     """
     weights factors in quadrant I of a unit circle
 
@@ -61,34 +64,36 @@ def weigh_factors(car_factor, curvature_factor, distance_to_car, distance_to_nod
     # superimpose the two distances on a unit circle such that the closest one has the most weight
     distance_diff = abs(distance_to_node - distance_to_car)
 
-    factor = car_factor * math.cos(distance_to_car / free_distance) + curvature_factor * math.sin(distance_to_node / free_distance)
+    factor = car_factor * math.cos(
+        distance_to_car / free_distance
+    ) + curvature_factor * math.sin(distance_to_node / free_distance)
 
     return factor
 
 
 def magnitude(vector):
-    """ Returns the magnitude of a vector """
+    """Returns the magnitude of a vector"""
     return np.linalg.norm(vector)
 
 
 def unit_vector(vector):
-    """ Returns the unit vector of the vector """
+    """Returns the unit vector of the vector"""
     return vector / np.linalg.norm(vector)
 
 
 def angle_between(v1, v2):
-    """ Returns the angle in radians between vectors 'v1' and 'v2'"""
+    """Returns the angle in radians between vectors 'v1' and 'v2'"""
     v1_u = unit_vector(v1)
     v2_u = unit_vector(v2)
     angle = np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
     # normalize angle to pi/2
-    if angle > math.pi/2:
-        angle = angle - math.pi/2
+    if angle > math.pi / 2:
+        angle = angle - math.pi / 2
     return angle
 
 
 def determine_anti_parallel_vectors(v1, v2):
-    """ Returns True if two vectors are close to parallel """
+    """Returns True if two vectors are close to parallel"""
     v1, v2 = unit_vector(v1), unit_vector(v2)
     angle = np.arccos(np.clip(np.dot(v1, v2), -1.0, 1.0))
     if np.isclose(math.pi, angle, atol=0.1):
@@ -162,12 +167,12 @@ def upcoming_linspace(frontview):
     # TODO: don't make linspace so large. nx and ny should not be so large. it's unnecessary
     next_node = frontview.upcoming_node_position()
 
-    x_distance_between = abs(next_node[0] - frontview.car['x'])
-    y_distance_between = abs(next_node[1] - frontview.car['y'])
+    x_distance_between = abs(next_node[0] - frontview.car["x"])
+    y_distance_between = abs(next_node[1] - frontview.car["y"])
 
     nx, ny = int(x_distance_between), int(y_distance_between)
-    x = np.linspace(frontview.car['x'], next_node[0], nx)
-    y = np.linspace(frontview.car['y'], next_node[1], ny)
+    x = np.linspace(frontview.car["x"], next_node[0], nx)
+    y = np.linspace(frontview.car["y"], next_node[1], ny)
     return x, y
 
 
@@ -181,9 +186,10 @@ def upcoming_vectors(view):
     vectors = []
     for i in range(len(view)):
         if i < len(view) - 1:
-            vectors.append(np.array([
-                view[i + 1][0] - view[i][0], view[i + 1][1] - view[i][1]]
-            ) / math.sqrt(np.dot(view[i], view[i + 1])))
+            vectors.append(
+                np.array([view[i + 1][0] - view[i][0], view[i + 1][1] - view[i][1]])
+                / math.sqrt(np.dot(view[i], view[i + 1]))
+            )
     return np.array(vectors)
 
 

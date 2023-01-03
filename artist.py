@@ -21,17 +21,18 @@ python artist.py --location "Harlem, NY" --cars 10 --duration 60 --fps 30 --inte
 """
 
 import argparse
-from animate import Animator
-from datetime import datetime as dt
-from cars import Cars, TrafficLights
-import convergent_learner as cl
-from matplotlib import animation
-import osmnx as ox
-import simulation as sim
-from osm_request import OGraph
-from tqdm import tqdm
 import sys
+from datetime import datetime as dt
 
+import osmnx as ox
+from matplotlib import animation
+from tqdm import tqdm
+
+import convergent_learner as cl
+import simulation as sim
+from animate import Animator
+from cars import Cars, TrafficLights
+from osm_request import OGraph
 
 # Listen for CLI args
 parser = argparse.ArgumentParser(

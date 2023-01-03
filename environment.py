@@ -1,8 +1,9 @@
+import numpy as np
+
+import navigation as nav
+import simulation as sim
 from animate import Animator
 from cars import Cars, TrafficLights
-import navigation as nav
-import numpy as np
-import simulation as sim
 
 # additional testing module
 # import convergent_learner
@@ -34,7 +35,9 @@ class Env:
         # self.car_init_method = convergent_learner.init_custom_agent
         # self.light_init_method = convergent_learner.init_custom_lights
         self.cars_object = Cars(self.car_init_method(self.N, self.graph), self.graph)
-        self.lights_object = TrafficLights(self.light_init_method(self.graph, prescale=40), self.graph)
+        self.lights_object = TrafficLights(
+            self.light_init_method(self.graph, prescale=40), self.graph
+        )
         self.high = 10
         self.low = 2
         self.shortest_route_thresh = 5
@@ -56,8 +59,14 @@ class Env:
         if self.animate:
             # init animator
             self.num = num
-            self.animator = Animator(fig=self.fig, ax=self.ax, cars_object=self.cars_object,
-                                     lights_object=self.lights_object, num=self.num, focus=self.agent)
+            self.animator = Animator(
+                fig=self.fig,
+                ax=self.ax,
+                cars_object=self.cars_object,
+                lights_object=self.lights_object,
+                num=self.num,
+                focus=self.agent,
+            )
 
         return state
 
@@ -67,8 +76,12 @@ class Env:
 
         :return stateview: object
         """
-        stateview = nav.StateView(graph=self.graph, car_index=self.agent,
-                                  cars=self.cars_object.state, lights=self.lights_object.state)
+        stateview = nav.StateView(
+            graph=self.graph,
+            car_index=self.agent,
+            cars=self.cars_object.state,
+            lights=self.lights_object.state,
+        )
         return stateview
 
     def initialize_custom_reset(self, alternate_route):
@@ -80,14 +93,22 @@ class Env:
         """
         # initialize the car and light state objects
         init_car_state = self.car_init_method(
-            graph=self.graph, n=self.N, car_id=self.agent, alternate_route=alternate_route
+            graph=self.graph,
+            n=self.N,
+            car_id=self.agent,
+            alternate_route=alternate_route,
         )
         self.cars_object = Cars(init_state=init_car_state, graph=self.graph)
 
         if self.animate:
             # init animator
-            self.animator = Animator(fig=self.fig, ax=self.ax, cars_object=self.cars_object,
-                                     lights_object=self.lights_object, num=self.num)
+            self.animator = Animator(
+                fig=self.fig,
+                ax=self.ax,
+                cars_object=self.cars_object,
+                lights_object=self.lights_object,
+                num=self.num,
+            )
 
         stateview = self.refresh_stateview()
         state = stateview.determine_state()[0]
@@ -112,7 +133,9 @@ class Env:
         state, new_route, new_xpath, new_ypath = stateview.determine_state()
 
         if action:
-            new_state = self.initialize_custom_reset(alternate_route=(new_route, new_xpath, new_ypath))
+            new_state = self.initialize_custom_reset(
+                alternate_route=(new_route, new_xpath, new_ypath)
+            )
         else:
             new_state = state.index(True)
 
@@ -123,16 +146,18 @@ class Env:
             arrived = self.simulation_step(i)
             i += 1
 
-        route_time = self.cars_object.state.loc[self.agent]['route-time']
+        route_time = self.cars_object.state.loc[self.agent]["route-time"]
         self.route_times.append(route_time)
         # TODO: need new way of identifying shortest route time.
         if len(self.route_times) < self.shortest_route_thresh:
             shortest_route_found_reward = 0
             done = False
-        elif np.isclose(0, self.route_times[-1] - np.min(self.route_times), atol=5 * self.dt).all():
+        elif np.isclose(
+            0, self.route_times[-1] - np.min(self.route_times), atol=5 * self.dt
+        ).all():
             """
             If the route time achieved after the simulation is within 5 x dt second of the minimum time achieved.
-            Define this environment condition as having found the shortest route (locally). 
+            Define this environment condition as having found the shortest route (locally).
             """
             shortest_route_found_reward = self.high
             done = True
@@ -143,7 +168,11 @@ class Env:
         if num[0] < 1:
             reward = 0
         else:
-            time_delta = self.route_times[num[0] - 1] - self.route_times[num[0]] + shortest_route_found_reward
+            time_delta = (
+                self.route_times[num[0] - 1]
+                - self.route_times[num[0]]
+                + shortest_route_found_reward
+            )
             if time_delta > 0:
                 reward = time_delta
             else:

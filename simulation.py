@@ -2,12 +2,14 @@
 Description of module...
 """
 import math
-import models
-import navigation as nav
-from networkx.exception import NetworkXNoPath
+import random
+
 import numpy as np
 import pandas as pd
-import random
+from networkx.exception import NetworkXNoPath
+
+import models
+import navigation as nav
 
 # fill the initial state with N cars
 speed_limit = 1500

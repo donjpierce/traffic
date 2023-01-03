@@ -1,7 +1,8 @@
 import pytest
-import simulation
-import cars
 import tqdm
+
+import cars
+import simulation
 
 
 def test_car_simulation_works(test_ograph):

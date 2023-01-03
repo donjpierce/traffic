@@ -13,10 +13,11 @@ for i in range(100):
     car_states.append(state)
 
 """
-import simulation as sim
+import numpy as np
+
 import models
 import navigation as nav
-import numpy as np
+import simulation as sim
 
 
 class Cars:
@@ -36,7 +37,7 @@ class Cars:
         self.lights = 0
         self.graph = graph
         self.serialize = serialize
-        self.serialize_path = 'data_store'
+        self.serialize_path = "data_store"
         self.axis = self.graph.axis
         self.stop_distance = 5
 
@@ -51,9 +52,9 @@ class Cars:
         time_elapsed = str(round(self.time_elapsed, 4)).replace(".", "").zfill(4)
 
         write_state.to_parquet(
-            f'{self.serialize_path}/dt={time_elapsed}/cars_state_at_{time_elapsed}.parquet.gz',
-            engine='fastparquet',
-            overwrite=True
+            f"{self.serialize_path}/dt={time_elapsed}/cars_state_at_{time_elapsed}.parquet.gz",
+            engine="fastparquet",
+            overwrite=True,
         )
         return
 
@@ -75,19 +76,27 @@ class Cars:
         self.time_elapsed += dt
         # determine binning and assign bins to cars
         # TODO: don't re-sort every time-step. Only place cars in a new bin if their bin is about to change
-        self.state['xbin'], self.state['ybin'] = models.determine_bins(self.axis, self.state)
+        self.state["xbin"], self.state["ybin"] = models.determine_bins(
+            self.axis, self.state
+        )
 
         node_distances, car_distances, light_distances = self.find_obstacles()
 
-        self.state['distance-to-node'] = node_distances
-        self.state['distance-to-car'] = car_distances
-        self.state['distance-to-red-light'] = light_distances
+        self.state["distance-to-node"] = node_distances
+        self.state["distance-to-car"] = car_distances
+        self.state["distance-to-red-light"] = light_distances
 
-        self.state['route'], self.state['xpath'], self.state['ypath'], self.state['vx'], \
-            self.state['vy'], self.state['route-time'] = sim.update_cars(self.state, self.graph, dt)
+        (
+            self.state["route"],
+            self.state["xpath"],
+            self.state["ypath"],
+            self.state["vx"],
+            self.state["vy"],
+            self.state["route-time"],
+        ) = sim.update_cars(self.state, self.graph, dt)
 
-        self.state['x'] = self.state['x'] + self.state['vx'] * dt
-        self.state['y'] = self.state['y'] + self.state['vy'] * dt
+        self.state["x"] = self.state["x"] + self.state["vx"] * dt
+        self.state["y"] = self.state["y"] + self.state["vy"] * dt
 
         if self.serialize:
             self.write_state()
@@ -98,7 +107,9 @@ class Cars:
     def find_obstacles(self):
         node_distances, car_distances, light_distances = [], [], []
         for car in self.state.iterrows():
-            frontview = nav.FrontView(car[1], self.graph, stop_distance=self.stop_distance)
+            frontview = nav.FrontView(
+                car[1], self.graph, stop_distance=self.stop_distance
+            )
             node_distances.append(frontview.distance_to_node())
             car_distances.append(frontview.distance_to_car(self.state))
             light_distances.append(frontview.distance_to_light(self.lights))
@@ -128,6 +139,11 @@ class TrafficLights:
         :return:
         """
         self.time_elapsed += dt
-        time_to_switch = np.isclose(0, self.time_elapsed % self.state['switch-time'], rtol=1.0e-4)
-        self.state['go-values'] = ~self.state['go-values'] * time_to_switch + self.state['go-values'] * ~time_to_switch
+        time_to_switch = np.isclose(
+            0, self.time_elapsed % self.state["switch-time"], rtol=1.0e-4
+        )
+        self.state["go-values"] = (
+            ~self.state["go-values"] * time_to_switch
+            + self.state["go-values"] * ~time_to_switch
+        )
         return self.state

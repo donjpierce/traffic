@@ -2,10 +2,11 @@ import argparse
 import cProfile
 import pstats
 
-from cars import Cars, TrafficLights
-import simulation as sim
-from osm_request import OGraph
 import tqdm
+
+import simulation as sim
+from cars import Cars, TrafficLights
+from osm_request import OGraph
 
 # argparse
 parser = argparse.ArgumentParser()
