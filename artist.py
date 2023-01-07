@@ -24,59 +24,63 @@ import argparse
 import sys
 from datetime import datetime as dt
 
-import osmnx as ox
 from matplotlib import animation
 from tqdm import tqdm
 
-import convergent_learner as cl
 import simulation as sim
 from animate import Animator
 from cars import Cars, TrafficLights
 from osm_request import OGraph
 
 # Listen for CLI args
-parser = argparse.ArgumentParser(
-    prog="Artist",
-    description="A module to generate HTML or MP4 movies of a traffic simulation.",
-)
 
-parser.add_argument(
-    "-l",
-    "--location",
-    type=str,
-    help="A geocode-able location over which to simulate traffic.",
-)
-parser.add_argument("-c", "--cars", type=int, help="The number of cars to simulate.")
-parser.add_argument(
-    "-d", "--duration", type=int, help="The duration of the simulation (in seconds)."
-)
-parser.add_argument(
-    "-f",
-    "--frames_per_second",
-    type=int,
-    help="The number of frames per second to render.",
-)
-parser.add_argument(
-    "-i",
-    "--interactive",
-    action="store_true",
-    help="Run the simulation in interactive mode.",
-)
-parser.add_argument(
-    "-p", "--light_prescaling", type=int, help="The number of lights to prescale."
-)
-parser.add_argument(
-    "-m",
-    "--mp4",
-    action="store_true",
-    help="Generate an MP4 movie instead of an HTML movie.",
-)
-parser.add_argument(
-    "-s",
-    "--serialize",
-    action="store_true",
-    help="Serialize the simulation in parquet dataframes.",
-)
+arguments = [
+    {
+        "name": ["-l", "--location"],
+        "type": str,
+        "help": "A geocode-able location over which to simulate traffic.",
+    },
+    {
+        "name": ["-c", "--cars"],
+        "type": int,
+        "help": "The number of cars to simulate.",
+    },
+    {
+        "name": ["-d", "--duration"],
+        "type": int,
+        "help": "The duration of the simulation (in seconds).",
+    },
+    {
+        "name": ["-f", "--frames_per_second"],
+        "type": int,
+        "help": "The number of frames per second to render.",
+    },
+    {
+        "name": ["-i", "--interactive"],
+        "action": "store_true",
+        "help": "Run the simulation in interactive mode.",
+    },
+    {
+        "name": ["-p", "--light_prescaling"],
+        "type": int,
+        "help": "The number of lights to prescale.",
+    },
+    {
+        "name": ["-m", "--mp4"],
+        "action": "store_true",
+        "help": "Generate an MP4 movie instead of an HTML movie.",
+    },
+    {
+        "name": ["-s", "--serialize"],
+        "action": "store_true",
+        "help": "Serialize the simulation in parquet dataframes.",
+    },
+]
+
+parser = argparse.ArgumentParser()
+for argument in arguments:
+    flag, name = argument["name"][0], argument["name"][1]
+    parser.add_argument(flag, name, type=argument.get("type"), help=argument["help"])
 
 
 def main(
