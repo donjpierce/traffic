@@ -72,6 +72,7 @@ pandas-stubs = "*"
 networkx-stubs = "*"
 types-tqdm = "*"
 isort = "*"
+flake8-bugbear = "*"
 
 [requires]
 python_version = "3.9"
