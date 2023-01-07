@@ -22,9 +22,10 @@ python artist.py --location "Harlem, NY" --cars 10 --duration 60 --fps 30 --inte
 
 import argparse
 import sys
+import typing
 from datetime import datetime as dt
 
-from matplotlib import animation
+from matplotlib import animation  # type: ignore
 from tqdm import tqdm
 
 import simulation as sim
@@ -34,53 +35,58 @@ from osm_request import OGraph
 
 # Listen for CLI args
 
-arguments = [
+command_line_arguments: typing.List[dict] = [
     {
-        "name": ["-l", "--location"],
+        "name_or_flags": ["-l", "--location"],
         "type": str,
         "help": "A geocode-able location over which to simulate traffic.",
     },
     {
-        "name": ["-c", "--cars"],
+        "name_or_flags": ["-c", "--cars"],
         "type": int,
         "help": "The number of cars to simulate.",
     },
     {
-        "name": ["-d", "--duration"],
+        "name_or_flags": ["-d", "--duration"],
         "type": int,
         "help": "The duration of the simulation (in seconds).",
     },
     {
-        "name": ["-f", "--frames_per_second"],
+        "name_or_flags": ["-f", "--frames_per_second"],
         "type": int,
         "help": "The number of frames per second to render.",
     },
     {
-        "name": ["-i", "--interactive"],
+        "name_or_flags": ["-i", "--interactive"],
         "action": "store_true",
         "help": "Run the simulation in interactive mode.",
     },
     {
-        "name": ["-p", "--light_prescaling"],
+        "name_or_flags": ["-p", "--light_prescaling"],
         "type": int,
         "help": "The number of lights to prescale.",
     },
     {
-        "name": ["-m", "--mp4"],
+        "name_or_flags": ["-m", "--mp4"],
         "action": "store_true",
         "help": "Generate an MP4 movie instead of an HTML movie.",
     },
     {
-        "name": ["-s", "--serialize"],
+        "name_or_flags": ["-s", "--serialize"],
         "action": "store_true",
         "help": "Serialize the simulation in parquet dataframes.",
     },
 ]
 
+
+# TODO: rename this module to cli.py?
+
 parser = argparse.ArgumentParser()
-for argument in arguments:
-    flag, name = argument["name"][0], argument["name"][1]
-    parser.add_argument(flag, name, type=argument.get("type"), help=argument["help"])
+for command_line_argument in command_line_arguments:
+    name_or_flags = command_line_argument.pop("name_or_flags")
+    parser.add_argument(*name_or_flags, **command_line_argument)
+
+# parser.print_help()
 
 
 def main(
